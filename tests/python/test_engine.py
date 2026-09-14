@@ -84,11 +84,26 @@ def test_python_cancellation_finishes_accounting(tmp_path, monkeypatch):
 
     async def run():
         async with await Engine.open(config) as engine:
+            assert await engine.recovery_records() == []
             pending = asyncio.create_task(engine.run(task))
             assert await asyncio.to_thread(entered.wait, 5)
             pending.cancel()
             with pytest.raises(asyncio.CancelledError):
                 await asyncio.wait_for(pending, 2)
+            records = await engine.recovery_records()
+            assert len(records) == 1
+            record = records[0]
+            assert record["task"]["task_id"] == task["task_id"]
+            assert record["status"] == "cancelled"
+            assert record["ledger"]["calls"] == 1
+            assert record["attempts"][0]["state"] == "unresolved"
+            assert record["attempts"][0]["cost"] is None
+            assert record["attempts"][0]["attempt_id"]
+            assert record["attempts"][0]["amount"] == record["ledger"]["reserved"]
+        with pytest.raises(RuntimeError, match="closing or closed"):
+            await engine.recovery_records()
+        async with await Engine.open(config) as reopened:
+            assert await reopened.recovery_records() == records
 
     try:
         asyncio.run(run())

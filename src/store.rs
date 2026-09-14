@@ -1,4 +1,6 @@
 //! Business transactions, not a generic key/value persistence interface.
+mod recovery;
+
 use crate::{contracts::*, events::Event};
 use async_trait::async_trait;
 use fs2::FileExt;
@@ -35,6 +37,21 @@ pub struct RecoveryRecord {
     pub status: String,
     pub checkpoint: Value,
     pub ledger: Ledger,
+    #[serde(default)]
+    pub result: Option<Value>,
+    #[serde(default)]
+    pub attempts: Vec<AttemptRecord>,
+}
+
+/// Persisted evidence, including zero-cost attempts whose outcome is unknown.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AttemptRecord {
+    pub attempt_id: String,
+    pub amount: u64,
+    pub cost: Option<u64>,
+    pub state: String,
+    pub metadata: Value,
+    pub outcome: Option<Value>,
 }
 
 #[async_trait]
@@ -384,11 +401,7 @@ impl Store for SqliteStore {
     }
     async fn records(&self) -> Result<Vec<RecoveryRecord>> {
         let _gate = self.gate.lock().await;
-        db_call(&self.conn,move|c| {
-            let mut stmt=c.prepare("SELECT id,spec,config_hash,status,checkpoint FROM tasks WHERE status IN ('running','human_required') OR reserved>0")?;
-            let rows=stmt.query_map([],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?)))?.collect::<std::result::Result<Vec<_>,_>>()?;
-            rows.into_iter().map(|(id,spec,config_hash,status,checkpoint)|Ok(RecoveryRecord {task:serde_json::from_str(&spec).map_err(|_|EngineError::new("storage","invalid saved task"))?,config_hash,status,checkpoint:serde_json::from_str(&checkpoint).map_err(|_|EngineError::new("storage","invalid checkpoint"))?,ledger:read_ledger(c,&id)?})).collect()
-        }).await
+        db_call(&self.conn, recovery::read_records).await
     }
     async fn reconcile(&self, task: &str, attempt: &str, cost: u64, evidence: &str) -> Result<()> {
         if evidence.trim().is_empty() {

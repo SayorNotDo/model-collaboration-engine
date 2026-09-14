@@ -1,37 +1,83 @@
 """Async JSON interface to the Rust model collaboration engine."""
 import asyncio
+import inspect
 import json
+import time
+from typing import Any, Self
+
 from ._native import Engine as _Engine
-from ._native import Cancellation
+from ._run import Run, _tool_engine
+from ._types import EventCallback, ToolCallbacks
 
 
 class Engine:
-    def __init__(self, native):
+    def __init__(self, native: _Engine) -> None:
         self._native = native
+        self._closing = False
+        self._close_task = None
+        self._runs = set()
 
     @classmethod
-    async def open(cls, config: dict):
+    async def open(cls, config: dict[str, Any]) -> Self:
         return cls(await _Engine.open(json.dumps(config)))
 
-    async def run(self, task: dict) -> dict:
-        # Keep the Rust future alive through Python cancellation so accounting finishes.
-        cancellation = Cancellation()
-        pending = asyncio.ensure_future(self._native.run(json.dumps(task), cancellation))
-        try:
-            return json.loads(await asyncio.shield(pending))
-        except asyncio.CancelledError:
-            cancellation.cancel()
-            try:
-                await asyncio.shield(pending)
-            except RuntimeError:
-                pass
-            raise
+    def stream(self, task: dict[str, Any], *, tools: ToolCallbacks | None = None) -> Run:
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        return Run(self, task, tools)
 
-    async def close(self):
+    async def run(
+        self,
+        task: dict[str, Any],
+        *,
+        tools: ToolCallbacks | None = None,
+        on_event: EventCallback | None = None,
+    ) -> dict[str, Any]:
+        async with self.stream(task, tools=tools) as run:
+            async for event in run:
+                if on_event is not None:
+                    result = on_event(event)
+                    if inspect.isawaitable(result):
+                        remaining = (task["deadline_ms"] - task["finalization_ms"]) / 1000 - time.time()
+                        async with asyncio.timeout(max(0, remaining)):
+                            await result
+            return await run.result()
+
+    async def _finish_close(self) -> None:
         await self._native.close()
+        outcomes = [run._outcome for run in tuple(self._runs)]
+        if outcomes:
+            await asyncio.gather(*outcomes, return_exceptions=True)
 
-    async def __aenter__(self):
+    async def recovery_records(self) -> list[dict[str, Any]]:
+        """Inspect persisted tasks and attempt evidence without replaying calls."""
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        return json.loads(await self._native.recovery_records())
+
+    async def close(self) -> None:
+        if _tool_engine.get() is self:
+            raise RuntimeError("Close the engine outside its tool callback to avoid waiting on itself")
+        self._closing = True
+        if self._close_task is None or (
+            self._close_task.done() and self._close_task.exception() is not None
+        ):
+            self._close_task = asyncio.create_task(self._finish_close())
+        interrupted = False
+        while not self._close_task.done():
+            try:
+                await asyncio.shield(self._close_task)
+            except asyncio.CancelledError:
+                interrupted = True
+            except Exception:
+                break
+        if interrupted:
+            self._close_task.exception()
+            raise asyncio.CancelledError
+        return self._close_task.result()
+
+    async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, *_):
+    async def __aexit__(self, *_: object) -> None:
         await self.close()

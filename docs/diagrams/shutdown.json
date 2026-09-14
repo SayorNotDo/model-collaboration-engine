@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "引擎关闭 · 排空与重试",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1080,
+      566
+    ]
+  },
+  "lanes": [
+    {
+      "id": "main",
+      "label": "关闭阶段"
+    },
+    {
+      "id": "shutdown_retry",
+      "label": "清理未完成"
+    }
+  ],
+  "states": [
+    {
+      "id": "accepting_runs",
+      "type": "start",
+      "label": "接收任务",
+      "sublabel": "引擎可用",
+      "lane": "main",
+      "col": 0,
+      "step": "01"
+    },
+    {
+      "id": "stop_admission",
+      "type": "active",
+      "label": "停止准入",
+      "sublabel": "排队任务返回 closed",
+      "lane": "main",
+      "col": 1,
+      "step": "02"
+    },
+    {
+      "id": "drain_runs",
+      "type": "waiting",
+      "label": "等待排空",
+      "sublabel": "宽限 → 取消 → 清理",
+      "lane": "main",
+      "col": 2,
+      "step": "03"
+    },
+    {
+      "id": "release_store",
+      "type": "active",
+      "label": "关闭数据库",
+      "sublabel": "活动任务已退出",
+      "lane": "main",
+      "col": 3,
+      "step": "04"
+    },
+    {
+      "id": "engine_closed",
+      "type": "success",
+      "label": "关闭完成",
+      "sublabel": "重复关闭安全返回",
+      "lane": "main",
+      "col": 4,
+      "step": "05"
+    },
+    {
+      "id": "cleanup_pending",
+      "type": "failure",
+      "label": "清理超时",
+      "sublabel": "保留数据库所有权",
+      "lane": "shutdown_retry",
+      "col": 0,
+      "tag": "可重试"
+    }
+  ],
+  "transitions": [
+    {
+      "id": "cleanup_expired",
+      "from": "drain_runs",
+      "to": "cleanup_pending",
+      "label": "清理超时",
+      "variant": "security",
+      "labelAt": [
+        350,
+        230
+      ]
+    },
+    {
+      "id": "retry_shutdown",
+      "from": "cleanup_pending",
+      "to": "drain_runs",
+      "label": "重试关闭",
+      "variant": "dashed",
+      "labelAt": [
+        450,
+        250
+      ]
+    }
+  ]
+}

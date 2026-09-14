@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\architecture.json",
+  "output": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\architecture.html",
+  "specification": {
+    "sha256": "ffd3a7301ff2560069199ea1e4125cce66af73fb4ee92e50e78b83a00f7c8c0c",
+    "bytes": 4372
+  },
+  "artifact": {
+    "sha256": "cb2a28cb86ba717a2e86f9c105cad6335da873aedb7ea8f4a3121d7ffe7bfdc2",
+    "bytes": 807762
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

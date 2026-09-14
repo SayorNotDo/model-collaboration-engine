@@ -124,6 +124,9 @@ impl Config {
         if self.models.is_empty() {
             return Err(bad("models must not be empty"));
         }
+        if self.close_grace_ms > 86_400_000 || self.cleanup_timeout_ms > 86_400_000 {
+            return Err(bad("shutdown timeouts must be between zero and one day"));
+        }
         if !(1..=1024).contains(&self.max_concurrency)
             || !(1..=65536).contains(&self.event_capacity)
             || !(1024..=1048576).contains(&self.event_max_bytes)

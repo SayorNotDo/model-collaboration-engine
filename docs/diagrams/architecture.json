@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "模型协作引擎 · 当前实现",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1200,
+      650
+    ]
+  },
+  "components": [
+    {
+      "id": "host_api",
+      "type": "frontend",
+      "label": "Python 宿主",
+      "sublabel": "run / stream / close",
+      "pos": [
+        40,
+        290
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "native_bridge",
+      "type": "messagebus",
+      "label": "原生会话桥接",
+      "sublabel": "PyO3 · 有界通道",
+      "pos": [
+        350,
+        290
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "engine_core",
+      "type": "backend",
+      "label": "执行引擎",
+      "sublabel": "准入 · 编排 · 关闭",
+      "pos": [
+        660,
+        290
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "provider_adapter",
+      "type": "backend",
+      "label": "模型适配器",
+      "sublabel": "HTTP / SSE",
+      "pos": [
+        970,
+        290
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "host_tools",
+      "type": "security",
+      "label": "宿主工具回调",
+      "sublabel": "授权 · 参数校验",
+      "pos": [
+        350,
+        80
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "routing_policy",
+      "type": "backend",
+      "label": "策略与模型路由",
+      "sublabel": "有界协作 · 约束评分",
+      "pos": [
+        660,
+        80
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "model_endpoint",
+      "type": "external",
+      "label": "模型服务",
+      "sublabel": "两种兼容端点",
+      "pos": [
+        970,
+        80
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "event_delivery",
+      "type": "messagebus",
+      "label": "事件订阅",
+      "sublabel": "候选增量 · 背压",
+      "pos": [
+        350,
+        500
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "budget_store",
+      "type": "database",
+      "label": "SQLite 账本",
+      "sublabel": "预留 · 结算 · 终态",
+      "pos": [
+        660,
+        500
+      ],
+      "size": [
+        180,
+        76
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "submit_task",
+      "from": "host_api",
+      "to": "native_bridge",
+      "label": "异步任务",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dispatch_run",
+      "from": "native_bridge",
+      "to": "engine_core",
+      "label": "运行与取消",
+      "variant": "emphasis"
+    },
+    {
+      "id": "invoke_model",
+      "from": "engine_core",
+      "to": "provider_adapter",
+      "label": "模型调用",
+      "variant": "emphasis"
+    },
+    {
+      "id": "provider_stream",
+      "from": "provider_adapter",
+      "to": "model_endpoint",
+      "label": "HTTP / SSE"
+    },
+    {
+      "id": "choose_policy",
+      "from": "engine_core",
+      "to": "routing_policy",
+      "label": "计划与选模"
+    },
+    {
+      "id": "host_execution",
+      "from": "native_bridge",
+      "to": "host_tools",
+      "label": "请求与结果",
+      "variant": "security"
+    },
+    {
+      "id": "pull_events",
+      "from": "native_bridge",
+      "to": "event_delivery",
+      "label": "事件接收",
+      "variant": "dashed",
+      "labelDy": 75
+    },
+    {
+      "id": "account_cost",
+      "from": "engine_core",
+      "to": "budget_store",
+      "label": "事务记账",
+      "labelDy": 75
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "进程内协作",
+      "items": [
+        "Python 宿主控制工具权限与事件循环"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "费用与终态",
+      "items": [
+        "未知费用保留预留；关闭等待清理"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "实现边界",
+      "items": [
+        "自动恢复与持久化路由指标尚未实现"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "review_date": "2026-09-15",
+  "reviewer": "Codex image inspection",
+  "diagrams": {
+    "architecture": {
+      "type": "architecture",
+      "specification": {
+        "sha256": "ffd3a7301ff2560069199ea1e4125cce66af73fb4ee92e50e78b83a00f7c8c0c",
+        "bytes": 4372
+      },
+      "artifact": {
+        "sha256": "cb2a28cb86ba717a2e86f9c105cad6335da873aedb7ea8f4a3121d7ffe7bfdc2",
+        "bytes": 807762
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "visual_review": "passed",
+      "correction_rounds": 0,
+      "inspected_screenshots": [
+        "architecture.visual-check.1440x900.light.png",
+        "architecture.visual-check.1440x900.dark.png",
+        "architecture.visual-check.2048x1320.light.png",
+        "architecture.visual-check.2048x1320.dark.png"
+      ],
+      "observation": "四张截图无裁切，关系清晰，桌面版面均衡。"
+    },
+    "shutdown": {
+      "type": "lifecycle",
+      "specification": {
+        "sha256": "9e62736df2a45a9eb2db16f982c9f558841fb510c592bf10a2e44c7b56dba8aa",
+        "bytes": 2164
+      },
+      "artifact": {
+        "sha256": "24fa4da415dabcd3431c75483dff68de375520c6c99ded69b2f9331133cd06cb",
+        "bytes": 799950
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "visual_review": "failed",
+      "correction_rounds": 2,
+      "inspected_screenshots": [
+        "shutdown.visual-check.1440x900.light.png",
+        "shutdown.visual-check.2048x1320.dark.png"
+      ],
+      "observation": "默认 Outcomes 泳道空置，造成明显空白带；已达两轮视觉修正上限，恢复哈希匹配的结构/浏览器通过版本，视觉验收待完成。"
+    }
+  }
+}

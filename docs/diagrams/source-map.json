@@ -1,0 +1,216 @@
+{
+  "basis": "working-tree",
+  "captured_date": "2026-09-15",
+  "note": "内部职责拆分后的工作区证据；公共模块关系与关闭状态不变，模型派发/结算及恢复读事务保持原有语义。",
+  "files": {
+    "python/model_collaboration_engine/__init__.py": {
+      "sha256": "13d26ba1baf187c63db738df42a4803f1ba9919ed070bbc6fcfd88a91f839084",
+      "bytes": 3076
+    },
+    "python/model_collaboration_engine/_run.py": {
+      "sha256": "39e5f9e9d7026ad1a957e64870354ffb9c58253675fcad5a88011bd129652510",
+      "bytes": 5182
+    },
+    "src/adapter.rs": {
+      "sha256": "10a0616d6bdb5fa1b5ecc48693edc021827655696ce933f02d221295f3672fed",
+      "bytes": 16008
+    },
+    "src/bindings.rs": {
+      "sha256": "150f4ba13fc32c669c008ff28bb09ce2065d3baf302d98134bfd334639b3e15b",
+      "bytes": 8379
+    },
+    "src/contracts.rs": {
+      "sha256": "d394e4b6c2c17f083c6821941a15dd54f4998acffc0eeeea429489f4221d8ebf",
+      "bytes": 11574
+    },
+    "src/engine.rs": {
+      "sha256": "e7a512e1ba6db7142709c68b5fa122152a72ca0bd0ceff9b6dd33d59ef4a7049",
+      "bytes": 8803
+    },
+    "src/events.rs": {
+      "sha256": "5d5fc363cb0848c8efd5bbf29251ec765eb0512d9cabee0cfd44213c2cdd20b4",
+      "bytes": 1194
+    },
+    "src/router.rs": {
+      "sha256": "52bcbcb864d95ee26f44b9c60a13bc06c605aa0d3056be5ce914616642aa14be",
+      "bytes": 5521
+    },
+    "src/store.rs": {
+      "sha256": "33b73552a28e47bbf66dab3f30d610a82261175f6cc8358163402c2bf187d16b",
+      "bytes": 16396
+    },
+    "src/strategy.rs": {
+      "sha256": "675180f9c3cd66fe8d76743ff03497a6595da6f3b60e842edbbea39c4246c3d2",
+      "bytes": 1872
+    },
+    "src/tools.rs": {
+      "sha256": "87ab77704910effbf537225d173f5a5587aba14f985eeda4487ccfcb1e0907c0",
+      "bytes": 813
+    },
+    "tests/engine.rs": {
+      "sha256": "2e942112f78170c699b002e7569d04097691097f70764d23a9f6cfaca67806c7",
+      "bytes": 25821
+    },
+    "tests/python/test_tools_stream.py": {
+      "sha256": "dea1d121b53103c99b64a65541383307589ba08af44c3ca156a5c9ac98e0801a",
+      "bytes": 13612
+    },
+    "tests/python/test_engine.py": {
+      "sha256": "1572c6d74fc9da127e074cc59c612342d0f731844c9e4f7ab32cc20c7fbe13ec",
+      "bytes": 4952
+    },
+    "src/engine/execution.rs": {
+      "sha256": "ccc78c5ce8187b4249b051758d92157d8d52b60c138428c99503c6a3b4ad026a",
+      "bytes": 6017
+    },
+    "python/model_collaboration_engine/_types.py": {
+      "sha256": "2a124a060a2f030e1c01b3be14e87d96321daa37e17f6b9130ae0b63f4682033",
+      "bytes": 344
+    },
+    "src/store/recovery.rs": {
+      "sha256": "724d664df0a9bebb7471d129b835fc9e45feca0aab2b584cefc605e0166ef577",
+      "bytes": 3305
+    },
+    "src/engine/tools.rs": {
+      "sha256": "64d6302c4c7db378bd08e9c14b3b39405a5d21754d759e60acc3af3778d3f771",
+      "bytes": 6705
+    },
+    "src/engine/invocation/dispatch.rs": {
+      "sha256": "1da48c98fbdb8686ab89d82ae7aaf696d56faa3e8a10b6de5671de32ee0074d0",
+      "bytes": 3310
+    },
+    "src/engine/invocation.rs": {
+      "sha256": "c826c565b6afce69237c5f4d9f08dc34097d4dca39b933bfe5899eb821788406",
+      "bytes": 6705
+    }
+  },
+  "diagrams": {
+    "architecture": {
+      "type": "architecture",
+      "nodes": {
+        "host_api": [
+          {
+            "path": "python/model_collaboration_engine/__init__.py"
+          },
+          {
+            "path": "python/model_collaboration_engine/_types.py"
+          }
+        ],
+        "native_bridge": [
+          {
+            "path": "src/bindings.rs"
+          }
+        ],
+        "engine_core": [
+          {
+            "path": "src/engine.rs"
+          },
+          {
+            "path": "src/engine/execution.rs"
+          },
+          {
+            "path": "src/engine/invocation.rs"
+          },
+          {
+            "path": "src/engine/tools.rs"
+          },
+          {
+            "path": "src/engine/invocation/dispatch.rs"
+          }
+        ],
+        "provider_adapter": [
+          {
+            "path": "src/adapter.rs"
+          }
+        ],
+        "host_tools": [
+          {
+            "path": "src/tools.rs"
+          },
+          {
+            "path": "python/model_collaboration_engine/_run.py"
+          },
+          {
+            "path": "src/engine/tools.rs"
+          }
+        ],
+        "routing_policy": [
+          {
+            "path": "src/router.rs"
+          },
+          {
+            "path": "src/strategy.rs"
+          }
+        ],
+        "event_delivery": [
+          {
+            "path": "src/events.rs"
+          },
+          {
+            "path": "python/model_collaboration_engine/_run.py"
+          }
+        ],
+        "budget_store": [
+          {
+            "path": "src/store.rs"
+          },
+          {
+            "path": "src/store/recovery.rs"
+          }
+        ]
+      },
+      "external_nodes": {
+        "model_endpoint": "由适配器配置访问的外部服务，不属于仓库实现"
+      },
+      "related_behavior": {
+        "recovery_inspection": {
+          "api": "Engine.recovery_records",
+          "sources": [
+            "src/store.rs",
+            "src/engine.rs",
+            "src/bindings.rs",
+            "python/model_collaboration_engine/__init__.py",
+            "src/store/recovery.rs"
+          ],
+          "tests": [
+            "tests/engine.rs",
+            "tests/python/test_engine.py"
+          ],
+          "topology_change": false
+        }
+      }
+    },
+    "shutdown": {
+      "type": "lifecycle",
+      "states": {
+        "accepting_runs": [
+          "src/engine.rs"
+        ],
+        "stop_admission": [
+          "src/engine.rs"
+        ],
+        "drain_runs": [
+          "src/engine.rs"
+        ],
+        "release_store": [
+          "src/engine.rs"
+        ],
+        "engine_closed": [
+          "src/engine.rs"
+        ],
+        "cleanup_pending": [
+          "src/engine.rs"
+        ]
+      },
+      "related_sources": [
+        "src/store.rs",
+        "src/contracts.rs",
+        "python/model_collaboration_engine/__init__.py"
+      ],
+      "behavior_references": [
+        "tests/engine.rs",
+        "tests/python/test_tools_stream.py"
+      ]
+    }
+  }
+}

@@ -50,7 +50,7 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
             .iter()
             .map(String::as_str)
             .chain(std::iter::once("text"))
-            .chain((!r.task.tools.is_empty()).then_some("tools"))
+            .chain((!r.task.tools.is_empty() && r.node != "critic").then_some("tools"))
             .chain((r.task.acceptance.json_object || r.node == "critic").then_some("json"));
         if required
             .into_iter()
