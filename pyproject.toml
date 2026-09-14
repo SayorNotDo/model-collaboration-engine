@@ -1,0 +1,23 @@
+[build-system]
+requires = ["maturin>=1.9,<2"]
+build-backend = "maturin"
+
+[project]
+name = "model-collaboration-engine"
+version = "0.1.0"
+description = "Rust-powered model coordination for Python agents"
+requires-python = ">=3.12"
+readme = "README.md"
+license = "MIT"
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-asyncio>=0.25"]
+
+[tool.maturin]
+python-source = "python"
+module-name = "model_collaboration_engine._native"
+features = ["extension-module", "bundled-sqlite"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+asyncio_mode = "auto"

@@ -1,0 +1,15 @@
+{
+  "database_path": "engine.db",
+  "models": [{
+    "id": "local", "model": "replace-with-served-model", "version": "1",
+    "endpoint": "chat_completions", "base_url": "http://127.0.0.1:8000/v1",
+    "api_key_env": "MODEL_API_KEY", "provider": "local", "region": "local", "local": true,
+    "capabilities": ["text", "json"], "context_tokens": 32768,
+    "input_price": 1, "output_price": 1, "price_version": "example-only",
+    "acceptance": 0.8, "reliability": 0.9, "latency_ms": 1000, "uncertainty": 0.2
+  }],
+  "weights": {"quality": 1, "capability": 1, "reliability": 1, "cost": 1, "latency": 1, "uncertainty": 1, "version": "1"},
+  "max_concurrency": 4, "event_capacity": 64, "event_max_bytes": 8192,
+  "stream_frame_max_bytes": 65536, "context_max_bytes": 1048576,
+  "close_grace_ms": 1000, "cleanup_timeout_ms": 1000
+}

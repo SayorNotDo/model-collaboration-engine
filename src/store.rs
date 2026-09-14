@@ -1,0 +1,421 @@
+//! Business transactions, not a generic key/value persistence interface.
+use crate::{contracts::*, events::Event};
+use async_trait::async_trait;
+use fs2::FileExt;
+use rusqlite::{params, OptionalExtension};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use std::{
+    fs::{File, OpenOptions},
+    path::Path,
+    sync::Mutex,
+};
+use tokio_rusqlite::Connection;
+
+pub const SCHEMA_VERSION: i64 = 1;
+const APPLICATION_ID: i64 = 0x4d434531;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Ledger {
+    pub total: u64,
+    pub settled: u64,
+    pub reserved: u64,
+    pub calls: u32,
+}
+impl Ledger {
+    pub fn available(&self) -> u64 {
+        self.total
+            .saturating_sub(self.settled)
+            .saturating_sub(self.reserved)
+    }
+}
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RecoveryRecord {
+    pub task: TaskSpec,
+    pub config_hash: String,
+    pub status: String,
+    pub checkpoint: Value,
+    pub ledger: Ledger,
+}
+
+#[async_trait]
+pub trait Store: Send + Sync {
+    async fn create(
+        &self,
+        task: &TaskSpec,
+        config_hash: &str,
+        plan: Value,
+        checkpoint: Value,
+    ) -> Result<()>;
+    async fn reserve(
+        &self,
+        task: &str,
+        attempt: &str,
+        amount: u64,
+        max_calls: u32,
+        metadata: Value,
+    ) -> Result<()>;
+    async fn settle(
+        &self,
+        task: &str,
+        attempt: &str,
+        cost: Option<u64>,
+        outcome: Value,
+    ) -> Result<()>;
+    async fn checkpoint(&self, task: &str, value: Value) -> Result<()>;
+    async fn event(&self, event: &Event) -> Result<()>;
+    async fn finish(&self, task: &str, status: &str, value: Value) -> Result<()>;
+    async fn ledger(&self, task: &str) -> Result<Ledger>;
+    async fn records(&self) -> Result<Vec<RecoveryRecord>>;
+    async fn reconcile(&self, task: &str, attempt: &str, cost: u64, evidence: &str) -> Result<()>;
+    async fn close(&self) -> Result<()>;
+}
+
+pub struct SqliteStore {
+    conn: Connection,
+    lock: Mutex<Option<File>>,
+    gate: tokio::sync::Mutex<()>,
+}
+fn lock_database(path: &str) -> Result<File> {
+    let path = Path::new(path);
+    if path.as_os_str().is_empty() || path == Path::new(":memory:") {
+        return Err(EngineError::new(
+            "configuration",
+            "explicit database file required",
+        ));
+    }
+    // Do not create parent directories or truncate existing files.
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(path)
+        .map_err(|_| {
+            EngineError::new(
+                "storage",
+                "cannot open database file; parent directory must exist",
+            )
+        })?;
+    let identity = file_id::get_file_id(path)
+        .map_err(|_| EngineError::new("storage", "cannot identify database file"))?;
+    // Identity-based locking also covers hard links and symlinks. Lock files are
+    // intentionally persistent: unlinking a lock file creates an ownership race.
+    let lock_path =
+        std::env::temp_dir().join(format!("mce-{}.lock", digest(&format!("{identity:?}"))));
+    let lock = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(lock_path)
+        .map_err(|_| EngineError::new("storage", "cannot open ownership lock"))?;
+    lock.try_lock_exclusive()
+        .map_err(|_| EngineError::new("database_busy", "database belongs to an active engine"))?;
+    drop(file);
+    Ok(lock)
+}
+impl SqliteStore {
+    pub async fn open(path: &str) -> Result<Self> {
+        let path = path.to_owned();
+        let path_for_lock = path.clone();
+        let lock = tokio::task::spawn_blocking(move || lock_database(&path_for_lock))
+            .await
+            .map_err(|_| EngineError::new("storage", "ownership worker failed"))??;
+        let conn = Connection::open(path)
+            .await
+            .map_err(|_| EngineError::new("storage", "cannot open SQLite"))?;
+        db_call(&conn, |c| {
+            let version: i64 = c.query_row("PRAGMA user_version",[],|r|r.get(0))?;
+            let application: i64 = c.query_row("PRAGMA application_id",[],|r|r.get(0))?;
+            let tables: i64 = c.query_row("SELECT count(*) FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'",[],|r|r.get(0))?;
+            if version == 0 && application == 0 && tables == 0 {
+                let tx=c.transaction()?;
+                tx.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY,spec TEXT NOT NULL,config_hash TEXT NOT NULL,plan TEXT NOT NULL,status TEXT NOT NULL,total INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,reserved INTEGER NOT NULL DEFAULT 0,calls INTEGER NOT NULL DEFAULT 0,checkpoint TEXT NOT NULL,result TEXT);
+                  CREATE TABLE attempts(id TEXT PRIMARY KEY,task TEXT NOT NULL REFERENCES tasks(id),amount INTEGER NOT NULL,cost INTEGER,state TEXT NOT NULL,metadata TEXT NOT NULL,outcome TEXT);
+                  CREATE TABLE events(id INTEGER PRIMARY KEY AUTOINCREMENT,task TEXT NOT NULL REFERENCES tasks(id),payload TEXT NOT NULL);
+                  PRAGMA application_id=1296254257; PRAGMA user_version=1;")?;
+                tx.commit()?;
+            } else if application != APPLICATION_ID { return Err(EngineError::new("schema", "file is not an engine database")); }
+            else if version != SCHEMA_VERSION { return Err(EngineError::new("schema", "explicit migration required or database is newer than this engine").details(json!({"current":version,"target":SCHEMA_VERSION}))); }
+            c.execute_batch("PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;")?;
+            Ok(())
+        }).await?;
+        Ok(Self {
+            conn,
+            lock: Mutex::new(Some(lock)),
+            gate: tokio::sync::Mutex::new(()),
+        })
+    }
+    /// Version 1 has no predecessor. Never guess a migration for unknown files.
+    pub async fn migrate(path: &str) -> Result<()> {
+        if !Path::new(path).exists() {
+            return Err(EngineError::new(
+                "schema",
+                "migration requires an existing database",
+            ));
+        }
+        let store = Self::open(path).await?;
+        store.close().await
+    }
+}
+async fn db_call<T: Send + 'static>(
+    conn: &Connection,
+    f: impl FnOnce(&mut rusqlite::Connection) -> Result<T> + Send + 'static,
+) -> Result<T> {
+    conn.call(f).await.map_err(|e| match e {
+        tokio_rusqlite::Error::Error(e) => e,
+        _ => EngineError::new("storage", "database worker unavailable"),
+    })
+}
+fn read_ledger(c: &rusqlite::Connection, task: &str) -> Result<Ledger> {
+    Ok(c.query_row(
+        "SELECT total,settled,reserved,calls FROM tasks WHERE id=?",
+        [task],
+        |r| {
+            Ok(Ledger {
+                total: r.get::<_, i64>(0)? as u64,
+                settled: r.get::<_, i64>(1)? as u64,
+                reserved: r.get::<_, i64>(2)? as u64,
+                calls: r.get(3)?,
+            })
+        },
+    )?)
+}
+fn audit(c: &rusqlite::Connection, task: &str, kind: &str, data: Value) -> Result<()> {
+    c.execute(
+        "INSERT INTO events(task,payload) VALUES(?,?)",
+        params![
+            task,
+            json!({"kind":kind,"timestamp_ms":now_ms(),"data":data}).to_string()
+        ],
+    )?;
+    Ok(())
+}
+#[async_trait]
+impl Store for SqliteStore {
+    async fn create(
+        &self,
+        task: &TaskSpec,
+        config_hash: &str,
+        plan: Value,
+        checkpoint: Value,
+    ) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let task = task.clone();
+        let hash = config_hash.to_owned();
+        db_call(&self.conn,move|c| {
+            let tx=c.transaction()?;
+            let exists=tx.query_row("SELECT 1 FROM tasks WHERE id=?",[&task.task_id], |_|Ok(())).optional()?.is_some();
+            if exists { return Err(EngineError::new("configuration","task_id already exists")); }
+            tx.execute("INSERT INTO tasks(id,spec,config_hash,plan,status,total,checkpoint) VALUES(?,?,?,?,?,?,?)",params![task.task_id,serde_json::to_string(&task).unwrap(),hash,plan.to_string(),"running",task.budget as i64,checkpoint.to_string()])?;
+            audit(&tx,&task.task_id,"task_created",plan)?;tx.commit()?;Ok(())
+        }).await
+    }
+    async fn reserve(
+        &self,
+        task: &str,
+        attempt: &str,
+        amount: u64,
+        max_calls: u32,
+        metadata: Value,
+    ) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let task = task.to_owned();
+        let attempt = attempt.to_owned();
+        db_call(&self.conn, move |c| {
+            let tx = c.transaction()?;
+            let l = read_ledger(&tx, &task)?;
+            let state: String =
+                tx.query_row("SELECT status FROM tasks WHERE id=?", [&task], |r| r.get(0))?;
+            if state != "running" {
+                return Err(EngineError::new("cancelled", "task is not running"));
+            }
+            if amount > l.available() || l.calls >= max_calls {
+                return Err(EngineError::new(
+                    "budget",
+                    "insufficient budget or total call limit reached",
+                ));
+            }
+            tx.execute(
+                "INSERT INTO attempts(id,task,amount,state,metadata) VALUES(?,?,?,'pending',?)",
+                params![attempt, task, amount as i64, metadata.to_string()],
+            )?;
+            tx.execute(
+                "UPDATE tasks SET reserved=reserved+?,calls=calls+1 WHERE id=?",
+                params![amount as i64, task],
+            )?;
+            audit(
+                &tx,
+                &task,
+                "attempt_reserved",
+                json!({"attempt_id":attempt,"amount":amount,"metadata":metadata}),
+            )?;
+            tx.commit()?;
+            Ok(())
+        })
+        .await
+    }
+    async fn settle(
+        &self,
+        task: &str,
+        attempt: &str,
+        cost: Option<u64>,
+        outcome: Value,
+    ) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let task = task.to_owned();
+        let attempt = attempt.to_owned();
+        db_call(&self.conn, move |c| {
+            let tx = c.transaction()?;
+            let (amount, old, state): (u64, Option<u64>, String) = tx.query_row(
+                "SELECT amount,cost,state FROM attempts WHERE task=? AND id=?",
+                params![task, attempt],
+                |r| {
+                    Ok((
+                        r.get::<_, i64>(0)? as u64,
+                        r.get::<_, Option<i64>>(1)?.map(|v| v as u64),
+                        r.get(2)?,
+                    ))
+                },
+            )?;
+            if state == "settled" {
+                if old == cost {
+                    return Ok(());
+                }
+                return Err(EngineError::new("storage", "conflicting settlement"));
+            }
+            if let Some(cost) = cost {
+                if cost > i64::MAX as u64 {
+                    return Err(EngineError::new(
+                        "budget",
+                        "reported cost exceeds ledger range",
+                    ));
+                }
+                let l = read_ledger(&tx, &task)?;
+                if l.settled
+                    .checked_add(cost)
+                    .is_none_or(|s| s > i64::MAX as u64)
+                {
+                    return Err(EngineError::new("budget", "ledger overflow"));
+                }
+                tx.execute(
+                    "UPDATE tasks SET settled=settled+?,reserved=reserved-? WHERE id=?",
+                    params![cost as i64, amount as i64, task],
+                )?;
+                tx.execute(
+                    "UPDATE attempts SET cost=?,state='settled',outcome=? WHERE id=?",
+                    params![cost as i64, outcome.to_string(), attempt],
+                )?;
+            } else {
+                tx.execute(
+                    "UPDATE attempts SET state='unresolved',outcome=? WHERE id=?",
+                    params![outcome.to_string(), attempt],
+                )?;
+            }
+            audit(
+                &tx,
+                &task,
+                "attempt_settled",
+                json!({"attempt_id":attempt,"actual_cost":cost,"outcome":outcome}),
+            )?;
+            tx.commit()?;
+            if cost.is_some_and(|cost| cost > amount) {
+                return Err(EngineError::new(
+                    "budget",
+                    "provider usage exceeded declared reservation; actual cost recorded",
+                ));
+            }
+            Ok(())
+        })
+        .await
+    }
+    async fn checkpoint(&self, task: &str, value: Value) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let task = task.to_owned();
+        db_call(&self.conn, move |c| {
+            let tx = c.transaction()?;
+            tx.execute(
+                "UPDATE tasks SET checkpoint=? WHERE id=?",
+                params![value.to_string(), task],
+            )?;
+            audit(&tx, &task, "checkpoint", value)?;
+            tx.commit()?;
+            Ok(())
+        })
+        .await
+    }
+    async fn event(&self, event: &Event) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let event = event.clone();
+        db_call(&self.conn, move |c| {
+            c.execute(
+                "INSERT INTO events(task,payload) VALUES(?,?)",
+                params![event.task_id, serde_json::to_string(&event).unwrap()],
+            )?;
+            Ok(())
+        })
+        .await
+    }
+    async fn finish(&self, task: &str, status: &str, value: Value) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        let task = task.to_owned();
+        let status = status.to_owned();
+        db_call(&self.conn, move |c| {
+            let tx = c.transaction()?;
+            tx.execute(
+                "UPDATE tasks SET status=?,result=? WHERE id=?",
+                params![status, value.to_string(), task],
+            )?;
+            audit(
+                &tx,
+                &task,
+                "task_state",
+                json!({"status":status,"result":value}),
+            )?;
+            tx.commit()?;
+            Ok(())
+        })
+        .await
+    }
+    async fn ledger(&self, task: &str) -> Result<Ledger> {
+        let _gate = self.gate.lock().await;
+        let task = task.to_owned();
+        db_call(&self.conn, move |c| read_ledger(c, &task)).await
+    }
+    async fn records(&self) -> Result<Vec<RecoveryRecord>> {
+        let _gate = self.gate.lock().await;
+        db_call(&self.conn,move|c| {
+            let mut stmt=c.prepare("SELECT id,spec,config_hash,status,checkpoint FROM tasks WHERE status IN ('running','human_required') OR reserved>0")?;
+            let rows=stmt.query_map([],|r|Ok((r.get::<_,String>(0)?,r.get::<_,String>(1)?,r.get::<_,String>(2)?,r.get::<_,String>(3)?,r.get::<_,String>(4)?)))?.collect::<std::result::Result<Vec<_>,_>>()?;
+            rows.into_iter().map(|(id,spec,config_hash,status,checkpoint)|Ok(RecoveryRecord {task:serde_json::from_str(&spec).map_err(|_|EngineError::new("storage","invalid saved task"))?,config_hash,status,checkpoint:serde_json::from_str(&checkpoint).map_err(|_|EngineError::new("storage","invalid checkpoint"))?,ledger:read_ledger(c,&id)?})).collect()
+        }).await
+    }
+    async fn reconcile(&self, task: &str, attempt: &str, cost: u64, evidence: &str) -> Result<()> {
+        if evidence.trim().is_empty() {
+            return Err(EngineError::new(
+                "recovery",
+                "reconciliation evidence required",
+            ));
+        }
+        self.settle(
+            task,
+            attempt,
+            Some(cost),
+            json!({"reconciliation_evidence":evidence}),
+        )
+        .await
+    }
+    async fn close(&self) -> Result<()> {
+        let _gate = self.gate.lock().await;
+        if self.lock.lock().unwrap().is_none() {
+            return Ok(());
+        }
+        self.conn
+            .clone()
+            .close()
+            .await
+            .map_err(|_| EngineError::new("storage", "SQLite close failed; ownership retained"))?;
+        self.lock.lock().unwrap().take();
+        Ok(())
+    }
+}
