@@ -58,5 +58,34 @@
       ],
       "observation": "默认 Outcomes 泳道空置，造成明显空白带；已达两轮视觉修正上限，恢复哈希匹配的结构/浏览器通过版本，视觉验收待完成。"
     }
+  },
+  "typed_routing_update": {
+    "status": "pending",
+    "source": "architecture.json",
+    "reason": "Current session cannot locate the previous archify installation. Typed routing keeps the existing topology; source evidence updated, generated artifacts untouched.",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run",
+    "historical_receipts": "Existing diagrams entries describe pre-planning generated artifacts, not this implementation."
+  },
+  "planning_update": {
+    "status": "pending",
+    "source": "architecture.json",
+    "reason": "archify was unavailable during implementation; 2.16 now works locally, but generation and verification remain pending",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run",
+    "historical_receipts": "diagrams entries below describe the previous generated artifacts only"
+  },
+  "execution_unification": {
+    "status": "pending",
+    "specification": {
+      "sha256": "5cb029d82133f4aeb504ee21c6d42a0c4d39bc0b877712cf50b872b6bdbc82d5",
+      "bytes": 4205
+    },
+    "reason": "Unified run/stream label and source evidence updated. archify unavailable; old HTML and receipts remain historical.",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run"
   }
 }

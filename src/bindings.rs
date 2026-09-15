@@ -168,11 +168,8 @@ impl PythonCancellation {
     }
 }
 
-#[pymethods]
 impl PythonEngine {
-    fn start(&self, task_json: String, with_tools: bool) -> PyResult<PythonSession> {
-        let task: TaskSpec =
-            serde_json::from_str(&task_json).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+    fn start_session(&self, input: SubmissionSpec, with_tools: bool) -> PyResult<PythonSession> {
         let engine = self.inner.clone();
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
@@ -189,7 +186,7 @@ impl PythonEngine {
         let (finished, outcome) = watch::channel(None);
         pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
             let result = engine
-                .run_with_host(task, worker_cancel, tools, Some(sender))
+                .run_with_host(input, worker_cancel, tools, Some(sender))
                 .await;
             let _ = finished.send(Some(result));
         });
@@ -200,6 +197,15 @@ impl PythonEngine {
             outcome,
             cancel,
         })
+    }
+}
+
+#[pymethods]
+impl PythonEngine {
+    fn start(&self, task_json: String, with_tools: bool) -> PyResult<PythonSession> {
+        let task =
+            serde_json::from_str(&task_json).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        self.start_session(task, with_tools)
     }
 
     #[staticmethod]
@@ -219,7 +225,7 @@ impl PythonEngine {
         task_json: String,
         cancellation: &PythonCancellation,
     ) -> PyResult<Bound<'py, PyAny>> {
-        let task: TaskSpec =
+        let task: SubmissionSpec =
             serde_json::from_str(&task_json).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
         let engine = self.inner.clone();
         let cancel = cancellation.token.clone();

@@ -31,6 +31,8 @@ python -m venv .venv
 
 协议测试优先沿用 `tests/python/test_engine.py` 的本地 HTTP 模拟方式；工具回传、流式事件与回调取消参考 `tests/python/test_tools_stream.py`。测试通过的完成标准是命令退出码为零且相关行为用例通过；缺少工具链或测试依赖时，报告具体阻塞与未执行的检查。
 
+本次 Linux/Rust 1.98.1 环境在增量扩展构建时出现内部符号链接错误，使用 `CARGO_INCREMENTAL=0` 重建后通过；在同一环境复现时沿用该设置。Windows 先用 `$env:CARGO_INCREMENTAL = "0"` 设置环境变量，Linux 可在命令前添加 `CARGO_INCREMENTAL=0`。
+
 共享同一 `target/` 时，Cargo 检查、测试与 maturin 构建按顺序运行。maturin 会切换 PyO3 构建配置，与 Cargo 测试同时运行可能使文档测试引用失效的构建产物。
 
 ## 技术图检查

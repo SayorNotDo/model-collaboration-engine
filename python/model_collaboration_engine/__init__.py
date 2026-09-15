@@ -22,6 +22,7 @@ class Engine:
         return cls(await _Engine.open(json.dumps(config)))
 
     def stream(self, task: dict[str, Any], *, tools: ToolCallbacks | None = None) -> Run:
+        """Stream one submission's optional planning and bounded execution."""
         if self._closing:
             raise RuntimeError("Engine is closing or closed")
         return Run(self, task, tools)
@@ -33,7 +34,13 @@ class Engine:
         tools: ToolCallbacks | None = None,
         on_event: EventCallback | None = None,
     ) -> dict[str, Any]:
-        async with self.stream(task, tools=tools) as run:
+        """Run a submission; omitted planning means disabled and requires a strategy."""
+        return await self._consume(self.stream(task, tools=tools), task, on_event)
+
+    async def _consume(
+        self, stream: Run, task: dict[str, Any], on_event: EventCallback | None
+    ) -> dict[str, Any]:
+        async with stream as run:
             async for event in run:
                 if on_event is not None:
                     result = on_event(event)

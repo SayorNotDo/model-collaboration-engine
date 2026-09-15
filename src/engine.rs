@@ -1,14 +1,16 @@
 //! Bounded execution; the host retains ownership of cancellation and tool permissions.
 mod execution;
 mod invocation;
+mod planning;
 mod tools;
 
 use crate::{
     adapter::{ModelAdapter, OpenAIAdapter},
-    contracts::{digest, id, now_ms, Config, EngineError, Result, TaskResult, TaskSpec},
+    contracts::{
+        digest, id, now_ms, Config, EngineError, Result, SubmissionSpec, TaskResult, TaskSpec,
+    },
     events::{Event, EventSink},
     store::{RecoveryRecord, SqliteStore, Store},
-    strategy,
     tools::ToolExecutor,
 };
 use serde_json::json;
@@ -61,6 +63,7 @@ struct RunContext {
     sink: EventSink,
     sequence: Arc<AtomicU64>,
     tools: Option<Arc<dyn ToolExecutor>>,
+    routing: Option<crate::router::RoutingSnapshot>,
 }
 
 impl Engine {
@@ -88,7 +91,11 @@ impl Engine {
         })
     }
 
-    pub async fn run(&self, task: TaskSpec, cancel: CancellationToken) -> Result<TaskResult> {
+    pub async fn run(
+        &self,
+        task: impl Into<SubmissionSpec>,
+        cancel: CancellationToken,
+    ) -> Result<TaskResult> {
         self.run_with_host(task, cancel, None, None).await
     }
 
@@ -105,9 +112,30 @@ impl Engine {
         mpsc::channel(self.config.event_capacity)
     }
 
+    /// All inputs normalize to one submission, plan, snapshot and accounting path.
     pub async fn run_with_host(
         &self,
+        submission: impl Into<SubmissionSpec>,
+        cancel: CancellationToken,
+        tools: Option<Arc<dyn ToolExecutor>>,
+        events: Option<mpsc::Sender<Event>>,
+    ) -> Result<TaskResult> {
+        let submission = submission.into();
+        submission.validate(&self.config)?;
+        let task = submission.task(
+            submission
+                .strategy
+                .clone()
+                .unwrap_or(crate::contracts::Strategy::Single),
+        );
+        self.run_input(task, submission, cancel, tools, events)
+            .await
+    }
+
+    async fn run_input(
+        &self,
         task: TaskSpec,
+        submission: SubmissionSpec,
         cancel: CancellationToken,
         tools: Option<Arc<dyn ToolExecutor>>,
         events: Option<mpsc::Sender<Event>>,
@@ -149,14 +177,9 @@ impl Engine {
         };
         task.validate(&self.config)?;
         self.store
-            .create(
-                &task,
-                &digest(&self.config),
-                json!(strategy::compile(&task)),
-                json!({"version":1}),
-            )
+            .create_submission(&submission, &digest(&self.config))
             .await?;
-        let context = RunContext {
+        let mut context = RunContext {
             sink: EventSink {
                 sender: events,
                 max_bytes: self.config.event_max_bytes,
@@ -165,8 +188,27 @@ impl Engine {
             cancel,
             tools,
             sequence: Arc::new(AtomicU64::new(1)),
+            routing: None,
         };
-        let result = self.execute(&task, &context).await;
+        let result = async {
+            self.emit(
+                &task,
+                &context,
+                None,
+                None,
+                "task_started",
+                json!({
+                    "strategy": submission.strategy
+                }),
+            )
+            .await?;
+            let (effective_task, routing) = self
+                .prepare_submission(&submission, &task, &context)
+                .await?;
+            context.routing = Some(routing);
+            self.execute(&effective_task, &context).await
+        }
+        .await;
         match result {
             Ok(result) => {
                 self.store

@@ -18,7 +18,7 @@ impl Engine {
         quality_floor: f64,
         health: &BTreeMap<String, Health>,
         context: &RunContext,
-    ) -> Result<(ModelOutput, String, Model)> {
+    ) -> Result<(ModelOutput, String, Model, f64)> {
         let (mut messages, tools) = conversation(task, &snapshot);
         let cancel = &context.cancel;
         let mut attempted = excluded.clone();
@@ -49,7 +49,7 @@ impl Engine {
             if remaining == 0 {
                 return Err(EngineError::new("deadline", "execution deadline reached"));
             }
-            let (attempt, model) = self
+            let (attempt, model, quality) = self
                 .reserve_model(
                     task,
                     context,
@@ -77,7 +77,7 @@ impl Engine {
                         ));
                     }
                     if output.tool_calls.is_empty() {
-                        return Ok((output, attempt, model));
+                        return Ok((output, attempt, model, quality));
                     }
                     self.continue_tools(
                         task,
@@ -116,20 +116,21 @@ impl Engine {
         quality_floor: f64,
         health: &BTreeMap<String, Health>,
         input_tokens: u64,
-    ) -> Result<(String, Model)> {
+    ) -> Result<(String, Model, f64)> {
         let ledger = self.store.ledger(&task.task_id).await?;
-        let decision = router::route(
-            &self.config,
-            RouteRequest {
-                task,
-                node: &snapshot.role,
-                input_tokens,
-                available: ledger.available(),
-                excluded: attempted,
-                quality_floor,
-                health,
-            },
-        )?;
+        let request = RouteRequest {
+            task,
+            node: &snapshot.role,
+            input_tokens,
+            available: ledger.available(),
+            excluded: attempted,
+            quality_floor,
+            health,
+        };
+        let routing = context.routing.as_ref().ok_or_else(|| {
+            EngineError::new("routing", "execution requires a saved routing snapshot")
+        })?;
+        let decision = router::route_profiled(routing, request)?;
         let model = self
             .config
             .models
@@ -138,6 +139,11 @@ impl Engine {
             .unwrap()
             .clone();
         let attempt = id();
+        let quality = decision
+            .quality
+            .as_ref()
+            .map(|p| p.quality)
+            .unwrap_or(model.acceptance);
         self.emit(
             task,
             context,
@@ -153,10 +159,13 @@ impl Engine {
                 &attempt,
                 decision.estimated_cost,
                 task.max_calls,
-                json!({"route":decision,"snapshot":snapshot}),
+                json!({"route":decision,"snapshot":snapshot,"route_inputs":{
+                    "available":ledger.available(),"excluded":attempted,
+                    "quality_floor":quality_floor,"health":health,
+                }}),
             )
             .await?;
-        Ok((attempt, model))
+        Ok((attempt, model, quality))
     }
 }
 

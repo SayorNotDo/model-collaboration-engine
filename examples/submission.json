@@ -1,0 +1,36 @@
+{
+  "task_id": "submission-example-1",
+  "goal": "Return a JSON object with a short greeting.",
+  "evidence": [],
+  "acceptance": {
+    "version": "1",
+    "nonempty": true,
+    "required_substrings": [],
+    "json_object": true
+  },
+  "constraints": {
+    "allowed_models": [],
+    "allowed_providers": [],
+    "allowed_regions": [],
+    "local_only": true,
+    "required_capabilities": [],
+    "preferred_capabilities": [],
+    "different_critic": false
+  },
+  "budget": 100000,
+  "deadline_ms": 0,
+  "output_tokens": 256,
+  "max_calls": 4,
+  "max_rounds": 2,
+  "max_attempts": 2,
+  "max_call_cost": 20000,
+  "finalization_ms": 1000,
+  "tools": [],
+  "schema_version": 1,
+  "planning": {
+    "mode": "auto",
+    "max_calls": 1,
+    "max_cost": 20000,
+    "timeout_ms": 10000
+  }
+}

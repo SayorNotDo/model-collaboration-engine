@@ -4,7 +4,9 @@
 
 适合需要显式选择协作策略、追踪调用费用，并保留宿主工具授权控制的应用。Python 使用 JSON 可序列化字典；Rust 可通过组件接口接入自定义适配器、存储和工具执行器。
 
+- **按需规划**：`run` / `stream` 接收可选类型与策略；规划建议经确定性校验后执行，与模型及工具共享预算、调用次数和取消清理。
 - **模型协作**：支持 `single`、`cascade`、`generator_critic` 三种策略，以及 `chat_completions`、`responses` 两类端点。
+- **分类型路由**：提交可选启用宿主配置的版本化质量画像，按类型/角色回退，固定本任务快照并保留选择证据。
 - **预算与账本**：调用前预留，返回已知费用后结算；未知费用保留待对账证据。
 - **宿主集成**：异步工具回调、有界事件流、取消清理与分阶段关闭。
 - **恢复检查**：读取任务和调用证据，供宿主判断后续处理方式。
@@ -81,7 +83,7 @@ if __name__ == "__main__":
 | `strategy` | 执行方式 |
 | --- | --- |
 | `single` | 单个生成步骤，可包含工具调用及模型续写；确定性验收未通过时返回 `human_required` |
-| `cascade` | 验收失败后选择尚未尝试、质量先验不低于上一模型的候选 |
+| `cascade` | 验收失败后选择尚未尝试、Q 不低于上一模型的候选；评分和门槛使用同一固定快照 |
 | `generator_critic` | 生成、确定性验收、独立 JSON 评审，并在轮数上限内修订 |
 
 路由先检查能力、上下文、模型、供应商、地域和预算约束，再按配置权重评分。切换策略前需配置满足条件的候选模型；单模型样例不保证能够升级或使用不同评审模型。
@@ -97,6 +99,123 @@ if __name__ == "__main__":
 | `engine.stream(task, tools=...)` | 创建异步上下文，在其中迭代事件并获取结果 |
 | `await engine.recovery_records()` | 只读检查需关注的持久化任务与调用证据 |
 | `await engine.close()` | 停止准入，等待任务排空并关闭数据库 |
+
+## 按需规划
+
+`run/stream` 统一接收 [SubmissionSpec](src/contracts/planning.rs)，包含目标、证据、验收、约束、工具及资源字段。
+`schema_version` 缺省为 1，`task_type/strategy` 可选，`planning` 缺省为 disabled（不请求规划，要求显式策略）。
+未指定类型且不规划时使用 general。显式与按需规划任务都保存有效计划、固定画像快照，再进入同一执行路径。
+原 `submit/stream_submission` 方法已删除，调用方直接改用 `run/stream`。
+
+```python
+config["planner_models"] = ["local"]  # 宿主指定候选配置 ID，不是服务端模型名
+submission = json.loads(Path("examples/submission.json").read_text(encoding="utf-8"))
+submission["task_id"] = str(uuid4())
+submission["deadline_ms"] = int(time.time() * 1000) + 60_000
+async with await Engine.open(config) as engine:
+    result = await engine.run(submission)
+```
+
+该片段沿用快速上手的导入。完整示例为 [examples/submit.py](examples/submit.py)，从仓库根目录运行
+`.venv/bin/python examples/submit.py`（Windows 使用 `.venv/Scripts/python.exe`）。需先配置兼容服务及凭证。
+旧配置不必增加 `planner_models`；缺省为空池，显式执行仍可用，需要规划时会失败或采用宿主显式回退。
+池中的候选仍受 `allowed_models`、供应商、地域、本地性和上下文约束，必须支持 `text`、`json`。
+
+| `planning` 字段 | 行为 |
+| --- | --- |
+| `mode: disabled` | 要求显式策略，缺省类型为 `general`，跳过规划 |
+| `mode: auto` | 类型和策略都明确时跳过，否则调用规划模型 |
+| `mode: required` | 总是规划；与宿主显式类型或策略冲突的建议被拒绝 |
+| `max_calls` | 缺省 1；当前版本只接受 1，不自动重试或换规划器 |
+| `max_cost` | 本任务规划阶段费用占用上限，包含未知费用预留；同时受任务预算和 `max_call_cost` 限制 |
+| `timeout_ms` | 1 至 86,400,000；受任务剩余执行时间进一步限制 |
+| `fallback` | 可选 `{ "task_type": "general", "strategy": "single" }`；缺省不回退，且不得覆盖宿主明确选择 |
+
+类型支持 `general`、`code_generation`、`code_review`、`information_extraction`、`reasoning`、
+`writing`、`tool_execution`。提交可通过下节的 `routing_profiles` 启用分类型画像；
+未配置时 `routing_profile_version` 为 `global-prior-v1`，同一路由使用固定的全局先验作为冷启动。长期质量统计尚未实现。
+
+规划只能选择 `single`、`cascade`、`generator_critic`，不能新增工具或放宽硬约束。
+建议能力仅支持 `text/json/tools`，按并集增加要求；`tools` 需求必须已有宿主工具声明。
+建议验收仅支持原有版本的 `nonempty`、`required_substrings` 和 `json_object`，按 OR/并集加强宿主要求。
+未知字段、未知策略/能力、越权字段、工具调用或无效 JSON 均被拒绝，已知 usage 仍先结算。
+`classification_confidence` 是模型自报元数据，不参与路由质量评分。
+
+规划消耗同一任务的一次 `max_calls`。生成、评审、工具和续写继续使用余额；没有剩余调用额度时不再派发。
+无合法规划候选、无效建议或规划服务失败，仅在提供合法 `fallback` 时才可继续；未知规划费用不会被释放。
+任务取消、总截止时间或总预算耗尽、数据库/结算错误均不回退。有效计划找不到执行候选时返回 `routing`，不重新规划。
+`different_critic` 原样保留，保证不同候选 ID；不同 ID 不保证供应商底层模型不同。
+
+新事件包括 `planning_started`、`planning_completed`、`planning_failed`、`planning_fallback`、`plan_validated`。
+规划模型的 `model_started` 使用 `node_id: planner`。规划 JSON 只作为受字节限制的账务证据保存，
+不会发出候选 `content_delta`；`planning_completed` 仅表示建议已解析，不代表校验或任务成功。
+取消或总资源终止可能先中断实时事件投递，最终以任务结果和持久化证据为准。
+新入口沿用流提前退出、Python 重复取消、关闭等待清理的保护机制。
+
+### 规划恢复证据与兼容
+
+SQLite 表结构仍为 schema 1。所有新任务的 `tasks.spec` 为 `{payload_version: 1, submission: ...}`；
+旧 `TaskSpec` JSON 保留解码路径。旧版程序不理解新提交 envelope，因此含新提交的数据库应使用本版或更新版本读取。
+原始提交不覆盖，`tasks.plan` 记录规划建议/错误/回退与 `effective_plan`，有效计划和 `planned` 检查点原子保存。
+检查点区分 `admitted`、`planning`、`planning_failed`、`planned` 和 `executing`；后续轮次检查点沿用执行证据。
+规划原文位于对应 attempt 的 `outcome.planning_output`，包括截断与工具请求标记。
+
+`recovery_records()` 新增 `submission`（旧任务为 null）和 `plan`。旧任务的 `task` 保持原样；新提交的 `task`
+为任务投影，已计划时包含有效策略及验收。尚未计划时投影策略可为内部占位 `single`，不能据此推断已选策略，
+应以 `submission`、`plan.effective_plan` 和检查点为准。恢复筛选条件不变，已完成且费用核实的任务不一定出现在查询中。
+该接口不会恢复执行或重放调用。自定义 Rust `Store` 必须实现 `create_submission` 与 `save_plan`，不再提供兼容占位实现。
+旧记录的读取仅用于保留已有费用和恢复证据，不对应另一套执行算法；本次不删除现存数据库。
+
+## 静态类型/角色画像
+
+在打开引擎前加载 [examples/routing-profiles.json](examples/routing-profiles.json)：
+
+```python
+config["routing_profiles"] = json.loads(Path("examples/routing-profiles.json").read_text())
+submission["task_type"] = "writing"
+submission["strategy"] = "single"  # auto 模式下类型与策略都明确时，不产生规划调用
+```
+
+示例数值仅演示格式，不是实测效果。所有任务执行都使用该配置；省略或设为 null 时生成默认快照，质量回退全局先验。
+规划器在类型确定前使用宿主指定候选池和全局先验；这属于规划阶段的选择，不是旧接口的执行路径。
+
+| 字段 | 约定 |
+| --- | --- |
+| `schema_version` / `version` | 当前 schema 为 1；非空版本同时标识画像、父类型、角色映射和权重 |
+| `profiles` | 键为 `model_id + model_version + task_type + role + evaluator_version`；后者必须等于有效计划的 `acceptance.version` |
+| `prior` / `prior_weight` | 同一验收定义下的校准先验 p∈[0,1]、正权重 k；Q=(k×p+accepted)/(k+samples) |
+| `accepted` / `samples` | 宿主提供的通过数和有效样本数；0≤accepted≤samples≤2^53，prior_weight≤2^53 |
+| `parents` | 类型的单父级映射，不允许循环，`general` 不能有父级 |
+| `role_mappings` | 按原任务类型和实际节点 `invoke/generator/critic` 选择画像类型/角色；不改变节点权限或协作策略 |
+| `weights` | 按映射后的画像类型查找权重，依次检查父类型、general，最后使用 `config.weights` |
+
+画像优先级为精确类型/角色 → 沿配置父类型链同角色 → general/同角色 → `Model.acceptance` 全局先验。
+不同模型版本、角色或验收版本的样本不会混用；找不到画像表示缺失，不把质量设为零。
+每次选择记录 `exact/parent/general/global_prior` 来源。零样本但有正 prior_weight 的显式画像仍是有效先验。
+未知模型 ID、重复画像键、重复角色映射、非法数值/权重/版本在打开引擎时拒绝。
+历史模型版本的条目可以保留，但只有与当前候选版本相等的条目能匹配。
+
+默认代码生成任务的评审节点使用 `code_review/critic`，其他节点沿用有效计划的类型/角色。
+宿主映射只改变查询画像的标签：把 critic 映射到其他画像角色也不会授予工具权限，
+`different_critic`、能力、地域、本地性、上下文、预算及调用上限继续生效。
+价格、延迟、可靠性和不确定性独立于质量样本；静态质量不随本任务临时 Health 通过计数变化。
+不会自动收集质量反馈，也不把 critic 输出 pass 的次数当作正确率。
+
+### 快照与复现边界
+
+有效计划保存前固定 `routing_snapshot`，与计划和 planned 检查点一起原子写入 `tasks.plan`。
+快照含版本、配置摘要、候选模型配置元数据、逐节点权重与逐模型采用的质量证据；
+包含凭证环境变量名，不含环境变量中的密钥值。任务执行、换模、级联和工具续写不刷新画像。
+`attempts.metadata.route` 保存选中画像、快照摘要、权重版本及排除原因，`route_inputs` 保存
+当次余额、已排除候选、质量门槛和临时 Health；输入 token 估算保存在 `route.estimated_input`。
+
+Rust 的 `router::route_profiled` 可以用原有效 TaskSpec、已保存快照及当次 RouteRequest 复算。
+延迟归一化和不可用时间判断采用快照时刻；实际执行仍在每次派发前检查实时截止时间和余额。
+同一输入可复现模型、评分、排除原因和质量证据，新生成的 decision_id 不要求相同。
+这是纯路由复算，不会重放模型/工具请求，也不保证供应商输出可复现。
+SQLite schema 仍为 1，旧任务、旧计划和旧尝试保留只读解码能力，新写入统一保存提交、计划和快照。
+
+当前接口与验证记录见 [统一执行路径](docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](docs/designs/task-type-routing-implementation.md) 保留为历史决策。
 
 ## 宿主工具
 
@@ -218,7 +337,7 @@ Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流
 | 文档 | 内容 |
 | --- | --- |
 | [领域模型](CONTEXTS.md) | 术语、职责与概念关系 |
-| [模型规划与分类型路由设计](docs/designs/planner-routing-design.md) | 待实现方案：规划契约、资源边界、路由画像与分批验收 |
+| [模型规划与分类型路由设计](docs/designs/planner-routing-design.md) | 第一批规划实现与第二批画像路线；实施细节见 [落地记录](docs/designs/planning-implementation.md) |
 | [架构与关闭流程图](docs/diagrams/README.md) | 系统关系、关闭状态及图形验收记录 |
 | [仓库协作指南](AGENTS.md) | 代理工作入口、业务约束和交付要求 |
 | [代码参考](.agent/code-map.md) | 模块入口与回归场景 |
@@ -226,6 +345,6 @@ Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流
 ## 当前边界
 
 - 已提供宿主异步工具回调、工具预算结算、有界事件订阅、恢复检查及分阶段优雅关闭；两个端点均有本地模拟测试覆盖。
-- 健康统计仅在单任务内使用，持久化路由指标尚未实现。
+- 已实现第一批规划契约与执行生命周期；第二批分类型画像、独立反馈及持久化路由指标尚未实现。健康统计仍仅在单任务内使用。
 - 恢复检查只读取证据，不自动恢复或重放任务；对账通过 Rust `Store::reconcile` 完成。
 - 真实供应商联调尚未验证。预算控制调用准入，不能保证供应商最终报告的实际费用不超出预留。

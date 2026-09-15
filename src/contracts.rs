@@ -3,6 +3,14 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 
+mod planning;
+mod profiles;
+pub use planning::{
+    EffectivePlan, PlanChoice, PlannerProposal, PlanningConfig, PlanningMode, RoleProfile,
+    SubmissionSpec, TaskType,
+};
+pub use profiles::{QualityProfile, RoleMapping, RoutingProfiles};
+
 pub type Result<T> = std::result::Result<T, EngineError>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, thiserror::Error)]
@@ -106,6 +114,12 @@ pub struct Weights {
 pub struct Config {
     pub database_path: String,
     pub models: Vec<Model>,
+    /// Explicit candidate IDs for planning. Empty disables model-based planning.
+    #[serde(default)]
+    pub planner_models: BTreeSet<String>,
+    /// Optional quality evidence; missing profiles use the global prior in the same router.
+    #[serde(default)]
+    pub routing_profiles: Option<RoutingProfiles>,
     pub weights: Weights,
     pub max_concurrency: usize,
     pub event_capacity: usize,
@@ -135,22 +149,7 @@ impl Config {
         {
             return Err(bad("invalid concurrency or buffer bounds"));
         }
-        let w = &self.weights;
-        if w.version.is_empty()
-            || [
-                w.quality,
-                w.capability,
-                w.reliability,
-                w.cost,
-                w.latency,
-                w.uncertainty,
-            ]
-            .iter()
-            .any(|x| !x.is_finite() || *x < 0.0)
-            || w.quality + w.capability + w.reliability + w.cost + w.latency + w.uncertainty == 0.0
-        {
-            return Err(bad("weights must be finite, nonnegative and versioned"));
-        }
+        profiles::validate_weights(&self.weights)?;
         let mut ids = BTreeSet::new();
         for m in &self.models {
             if m.id.is_empty()
@@ -192,6 +191,12 @@ impl Config {
                     "phase one supports text, tools and json capabilities only",
                 ));
             }
+        }
+        if self.planner_models.iter().any(|id| !ids.contains(id)) {
+            return Err(bad("planner_models must reference configured model IDs"));
+        }
+        if let Some(profiles) = &self.routing_profiles {
+            profiles.validate(self)?;
         }
         Ok(())
     }

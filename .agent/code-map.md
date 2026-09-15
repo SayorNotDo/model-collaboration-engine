@@ -22,6 +22,13 @@
 
 ## 内部模块定位
 
+- `src/contracts/planning.rs`：SubmissionSpec、规划模式、建议与有效计划；经 `contracts` 稳定导出。
+- `src/contracts/profiles.rs`：可选静态画像、父类型/角色映射和权重契约及纯配置校验；通过 `contracts` 导出。
+- `src/router/profiles.rs`：画像回退、角色映射及固定 RoutingSnapshot；不持有网络或数据库。`router::route_profiled` 用快照与当次请求复算，`route` 仅用于类型确定前的规划候选选择，执行统一使用 `route_profiled`。
+- `src/planning.rs`、`src/planning/validation.rs`：内部提示构造及纯合并/越权校验，不持有网络和数据库。
+- `src/engine/planning.rs`、`src/engine/planning/attempt.rs`：受准入保护的规划、回退与阶段资源边界；复用 dispatch 的结算屏障。
+- `src/store/planning.rs`：schema 1 envelope 入库，有效计划与检查点原子保存；`store/recovery.rs` 同时解码旧任务和新提交。
+
 - `src/engine.rs`：引擎公共入口、准入、终态写入、事件与关闭生命周期。
 - `src/engine/execution.rs`：策略轮次、评审及产物结果。
 - `src/engine/invocation.rs`：模型选择、调用预留、失败换模与工具续写调度；`src/engine/invocation/dispatch.rs` 将模型派发与结算保持在同一步骤，结算失败直接终止，不进入换模重试。
@@ -29,9 +36,15 @@
 - `src/store/recovery.rs`：同一读事务内组合任务、账本和调用证据；`src/store.rs` 保留数据库所有权及写入事务。
 - `python/model_collaboration_engine/_types.py`：宿主工具和事件回调的共享类型约定，不依赖包入口。
 
-这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 接口调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
+这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 模块调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
 
 ## 测试定位
+
+- `tests/routing_profiles.rs`、`tests/routing/support.rs`：类型排序、画像版本隔离、回退、权重、级联同口径、存储复算及取消；复用 planning 的注入适配器夹具。
+- `tests/python/test_routing_profiles.py`：两个 HTTP/SSE 端点的画像提交/流、缺省 general 快照与配置拒绝。
+
+- `tests/planning.rs`、`tests/planning/`：规划模式、权限、资源、回退、故障注入及旧 schema 1 SQL 夹具；新规划场景不继续扩充原 `tests/engine.rs`。
+- `tests/python/test_planning.py`：两个端点真实 HTTP/SSE、本地规划服务、原生入口、增量隔离及取消/关闭清理。
 
 - `tests/engine.rs`：通过注入适配器与宿主工具验证执行结果、调用次数、事件和 SQLite 账本。
 - `tests/python/test_engine.py`：原生扩展的基础调用与 Python 取消链路。

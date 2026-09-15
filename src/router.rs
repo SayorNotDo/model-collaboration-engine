@@ -2,6 +2,8 @@ use crate::contracts::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
+mod profiles;
+pub use profiles::{FallbackTier, NodeProfile, ResolvedQuality, RoutingSnapshot};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Health {
@@ -25,6 +27,10 @@ pub struct RoutingDecision {
     pub weights_version: String,
     pub metrics_snapshot: String,
     pub uncertainty: f64,
+    #[serde(default)]
+    pub quality: Option<ResolvedQuality>,
+    #[serde(default)]
+    pub routing_snapshot: Option<String>,
 }
 pub struct RouteRequest<'a> {
     pub task: &'a TaskSpec,
@@ -36,9 +42,51 @@ pub struct RouteRequest<'a> {
     pub health: &'a BTreeMap<String, Health>,
 }
 pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
+    route_inner(&config.models, &config.weights, r, None, now_ms())
+}
+
+/// Re-evaluate a stored snapshot and recorded RouteRequest without refreshing profiles.
+/// Decision IDs are new audit identities; selection, score and evidence are reproducible.
+pub fn route_profiled(snapshot: &RoutingSnapshot, r: RouteRequest<'_>) -> Result<RoutingDecision> {
+    if snapshot.schema_version != 1 {
+        return Err(EngineError::new(
+            "routing",
+            "unsupported routing snapshot version",
+        ));
+    }
+    let node = snapshot
+        .nodes
+        .get(r.node)
+        .ok_or_else(|| EngineError::new("routing", "snapshot has no profile for this node"))?;
+    route_inner(
+        &snapshot.models,
+        &node.weights,
+        r,
+        Some((snapshot, node)),
+        snapshot.captured_at_ms,
+    )
+}
+
+fn route_inner(
+    models: &[Model],
+    weights: &Weights,
+    r: RouteRequest<'_>,
+    profile: Option<(&RoutingSnapshot, &NodeProfile)>,
+    at_ms: u64,
+) -> Result<RoutingDecision> {
     let mut rejected = BTreeMap::new();
     let mut candidates = vec![];
-    for m in &config.models {
+    let routing_snapshot = profile.map(|(snapshot, _)| digest(snapshot));
+    for m in models {
+        let resolved = profile.and_then(|(_, node)| node.qualities.get(&m.id));
+        if profile.is_some() && resolved.is_none() {
+            return Err(EngineError::new(
+                "routing",
+                "snapshot lacks model quality evidence",
+            ));
+        }
+        let h = r.health.get(&m.id).cloned().unwrap_or_default();
+        let acceptance = resolved.map(|p| p.quality).unwrap_or(m.acceptance);
         let mut reasons = vec![];
         let c = &r.task.constraints;
         let cost = r
@@ -83,18 +131,16 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
         if r.excluded.contains(&m.id) {
             reasons.push("attempt_history_or_diversity".into());
         }
-        if m.acceptance < r.quality_floor {
+        if resolved.map(|p| p.quality).unwrap_or(m.acceptance) < r.quality_floor {
             reasons.push("quality_floor".into());
         }
-        let h = r.health.get(&m.id).cloned().unwrap_or_default();
-        if h.unavailable_until > now_ms() {
+        if h.unavailable_until > at_ms {
             reasons.push("unavailable".into());
         }
         if !reasons.is_empty() {
             rejected.insert(m.id.clone(), reasons);
             continue;
         }
-        let acceptance = (m.acceptance * 10.0 + h.accepted as f64) / (10.0 + h.calls as f64);
         let reliability = (m.reliability * 10.0 + h.calls.saturating_sub(h.failures) as f64)
             / (10.0 + h.calls as f64);
         let capability = if c.preferred_capabilities.is_empty() {
@@ -105,7 +151,7 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
                 .count() as f64
                 / c.preferred_capabilities.len() as f64
         };
-        let w = &config.weights;
+        let w = weights;
         let parts = BTreeMap::from([
             ("quality".into(), w.quality * acceptance),
             ("capability".into(), w.capability * capability),
@@ -118,7 +164,7 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
                 "latency".into(),
                 -w.latency
                     * (m.latency_ms as f64
-                        / r.task.deadline_ms.saturating_sub(now_ms()).max(1) as f64)
+                        / r.task.deadline_ms.saturating_sub(at_ms).max(1) as f64)
                         .min(1.0),
             ),
             ("uncertainty".into(), -w.uncertainty * m.uncertainty),
@@ -137,6 +183,8 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
             weights_version: w.version.clone(),
             metrics_snapshot: digest(&r.health),
             uncertainty: m.uncertainty,
+            quality: resolved.cloned(),
+            routing_snapshot: routing_snapshot.clone(),
         });
     }
     candidates.sort_by(|a, b| {
