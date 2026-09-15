@@ -2,8 +2,8 @@
 use super::{Engine, RunContext};
 use crate::{
     contracts::{
-        digest, id, Artifact, EngineError, EvaluationStatus, Result, Snapshot, Strategy,
-        TaskResult, TaskSpec,
+        digest, id, Artifact, CriticVerdict, EngineError, EvaluationRecord, EvaluationStatus,
+        Result, Snapshot, Strategy, TaskResult, TaskSpec,
     },
     router::Health,
     strategy,
@@ -17,7 +17,7 @@ impl Engine {
         context: &RunContext,
     ) -> Result<TaskResult> {
         let mut excluded = BTreeSet::new();
-        let mut health = BTreeMap::<String, Health>::new();
+        let health = BTreeMap::<String, Health>::new();
         let mut artifact: Option<Artifact> = None;
         let mut feedback = Vec::new();
         let mut quality_floor = 0.0;
@@ -38,10 +38,6 @@ impl Engine {
                 .invoke(task, snapshot, &excluded, quality_floor, &health, context)
                 .await?;
             let evaluation = strategy::evaluate(&output.text, &task.acceptance);
-            health.entry(model.id.clone()).or_default().calls += 1;
-            if evaluation.status == EvaluationStatus::Pass {
-                health.entry(model.id.clone()).or_default().accepted += 1;
-            }
             artifact = Some(Artifact {
                 artifact_id: id(),
                 version: round,
@@ -49,13 +45,23 @@ impl Engine {
                 checksum: digest(&output.text),
                 text: output.text,
             });
+            let mut record = EvaluationRecord {
+                task_id: task.task_id.clone(),
+                artifact: artifact.as_ref().unwrap().clone(),
+                deterministic: evaluation.clone(),
+                critic: None,
+            };
+            self.store.record_evaluation(&record).await?;
             let mut evaluation = evaluation;
             if task.strategy == Strategy::GeneratorCritic
                 && evaluation.status == EvaluationStatus::Pass
             {
-                evaluation = self
+                let critic = self
                     .evaluate_with_critic(task, context, &model, artifact.as_ref(), round, &health)
                     .await?;
+                evaluation = critic.evaluation.clone();
+                record.critic = Some(critic);
+                self.store.record_evaluation(&record).await?;
             }
             self.record_evaluation(task, context, node, round, &artifact, &evaluation)
                 .await?;
@@ -111,7 +117,7 @@ impl Engine {
         artifact: Option<&Artifact>,
         round: u32,
         health: &BTreeMap<String, Health>,
-    ) -> Result<crate::contracts::Evaluation> {
+    ) -> Result<CriticVerdict> {
         let critic_excluded = if task.constraints.different_critic {
             BTreeSet::from([model.id.clone()])
         } else {
@@ -124,7 +130,7 @@ impl Engine {
             vec![],
             round,
         );
-        let (critic, _, _, _) = self
+        let (critic, attempt_id, _, _) = self
             .invoke(task, snapshot, &critic_excluded, 0.0, health, context)
             .await?;
         let evaluation: crate::contracts::Evaluation =
@@ -137,7 +143,10 @@ impl Engine {
                 "critic passed an artifact with unresolved defects",
             ));
         }
-        Ok(evaluation)
+        Ok(CriticVerdict {
+            attempt_id,
+            evaluation,
+        })
     }
     async fn record_evaluation(
         &self,

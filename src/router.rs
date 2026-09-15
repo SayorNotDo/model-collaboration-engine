@@ -48,7 +48,7 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
 /// Re-evaluate a stored snapshot and recorded RouteRequest without refreshing profiles.
 /// Decision IDs are new audit identities; selection, score and evidence are reproducible.
 pub fn route_profiled(snapshot: &RoutingSnapshot, r: RouteRequest<'_>) -> Result<RoutingDecision> {
-    if snapshot.schema_version != 1 {
+    if !matches!(snapshot.schema_version, 1 | 2) {
         return Err(EngineError::new(
             "routing",
             "unsupported routing snapshot version",

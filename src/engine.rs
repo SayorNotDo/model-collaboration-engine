@@ -1,4 +1,5 @@
 //! Bounded execution; the host retains ownership of cancellation and tool permissions.
+use crate::contracts::{EvaluationRecord, Feedback, MetricsSnapshot};
 mod execution;
 mod invocation;
 mod planning;
@@ -106,6 +107,35 @@ impl Engine {
             return Err(EngineError::new("closed", "engine is closing or closed"));
         }
         self.store.records().await
+    }
+
+    /// Record host acceptance for a terminal artifact; identical IDs are idempotent.
+    /// Cancellation of this await does not guarantee rollback: retry the same payload.
+    pub async fn record_feedback(&self, feedback: &Feedback) -> Result<()> {
+        let _close = self.close_gate.lock().await;
+        if self.lifecycle.lock().unwrap().closing {
+            return Err(EngineError::new("closed", "engine is closing or closed"));
+        }
+        self.store.record_feedback(feedback).await
+    }
+
+    /// Read saved candidates and separate deterministic/critic verdicts.
+    /// Unknown task IDs return an empty collection; closing engines reject inspection.
+    pub async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>> {
+        let _close = self.close_gate.lock().await;
+        if self.lifecycle.lock().unwrap().closing {
+            return Err(EngineError::new("closed", "engine is closing or closed"));
+        }
+        self.store.evaluations(task).await
+    }
+
+    /// Read consistent all-history aggregates; execution completion is not acceptance.
+    pub async fn metrics(&self) -> Result<MetricsSnapshot> {
+        let _close = self.close_gate.lock().await;
+        if self.lifecycle.lock().unwrap().closing {
+            return Err(EngineError::new("closed", "engine is closing or closed"));
+        }
+        self.store.metrics().await
     }
 
     pub fn event_channel(&self) -> (mpsc::Sender<Event>, mpsc::Receiver<Event>) {

@@ -27,7 +27,7 @@
 - `src/router/profiles.rs`：画像回退、角色映射及固定 RoutingSnapshot；不持有网络或数据库。`router::route_profiled` 用快照与当次请求复算，`route` 仅用于类型确定前的规划候选选择，执行统一使用 `route_profiled`。
 - `src/planning.rs`、`src/planning/validation.rs`：内部提示构造及纯合并/越权校验，不持有网络和数据库。
 - `src/engine/planning.rs`、`src/engine/planning/attempt.rs`：受准入保护的规划、回退与阶段资源边界；复用 dispatch 的结算屏障。
-- `src/store/planning.rs`：schema 1 envelope 入库，有效计划与检查点原子保存；`store/recovery.rs` 同时解码旧任务和新提交。
+- `src/store/planning.rs`：payload_version 1 envelope 入库，有效计划与检查点原子保存；`store/recovery.rs` 同时解码旧任务和新提交。
 
 - `src/engine.rs`：引擎公共入口、准入、终态写入、事件与关闭生命周期。
 - `src/engine/execution.rs`：策略轮次、评审及产物结果。
@@ -38,7 +38,16 @@
 
 这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 模块调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
 
+- `src/contracts/feedback.rs`：分层评价、宿主反馈及指标契约。
+- `src/store/feedback.rs`：schema 1→2 事务升级、候选证据及幂等反馈归因。
+- `src/store/metrics.rs`：一致性读事务汇总，不推断业务验收；路由仅消费所读快照。
+- `examples/compare_metrics.py`：导出指标的离线分组比较，不执行回放或外部调用。
+
 ## 测试定位
+
+- `tests/feedback.rs`：反馈幂等、归因、快照固定、版本隔离、迁移及调用指标。
+- `tests/python/test_feedback.py`、`test_metrics_summary.py`：两个端点的反馈 API 与离线汇总口径。
+
 
 - `tests/routing_profiles.rs`、`tests/routing/support.rs`：类型排序、画像版本隔离、回退、权重、级联同口径、存储复算及取消；复用 planning 的注入适配器夹具。
 - `tests/python/test_routing_profiles.py`：两个 HTTP/SSE 端点的画像提交/流、缺省 general 快照与配置拒绝。

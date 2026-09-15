@@ -4,7 +4,7 @@
 
 日期：2026-09-15　版本：0.1
 
-状态：第一批 A+B 已在 `feat/planning-submissions` 工作分支落地，第二批 C+D 待实施。本文保留目标设计与原分析依据，实际接口及偏差以 [第一批落地记录](planning-implementation.md) 和根目录 README 为准。技术图重新生成与验收待完成。
+状态：A+B、C 及统一执行已合并 master；D 反馈与指标本地实现见 [实施记录](feedback-metrics-implementation.md)。本文保留目标设计与原分析依据，实际接口及偏差以 [第一批落地记录](planning-implementation.md) 和根目录 README 为准。技术图重新生成与验收待完成。
 
 基线：SayorNotDo/model-collaboration-engine，提交 f94a9bcd4966673c9e1072cdb4d42cc32c7d8b5d。
 

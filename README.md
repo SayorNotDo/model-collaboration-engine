@@ -133,7 +133,7 @@ async with await Engine.open(config) as engine:
 
 类型支持 `general`、`code_generation`、`code_review`、`information_extraction`、`reasoning`、
 `writing`、`tool_execution`。提交可通过下节的 `routing_profiles` 启用分类型画像；
-未配置时 `routing_profile_version` 为 `global-prior-v1`，同一路由使用固定的全局先验作为冷启动。长期质量统计尚未实现。
+未配置时 `routing_profile_version` 为 `global-prior-v1`，同一路由使用固定的全局先验作为冷启动。持久化宿主反馈可为后续任务提供版本化质量样本。
 
 规划只能选择 `single`、`cascade`、`generator_critic`，不能新增工具或放宽硬约束。
 建议能力仅支持 `text/json/tools`，按并集增加要求；`tools` 需求必须已有宿主工具声明。
@@ -154,7 +154,7 @@ async with await Engine.open(config) as engine:
 
 ### 规划恢复证据与兼容
 
-SQLite 表结构仍为 schema 1。所有新任务的 `tasks.spec` 为 `{payload_version: 1, submission: ...}`；
+SQLite 表结构为 schema 2，打开已识别的 schema 1 引擎数据库时事务升级，保留原账本与证据。所有新任务的 `tasks.spec` 为 `{payload_version: 1, submission: ...}`；
 旧 `TaskSpec` JSON 保留解码路径。旧版程序不理解新提交 envelope，因此含新提交的数据库应使用本版或更新版本读取。
 原始提交不覆盖，`tasks.plan` 记录规划建议/错误/回退与 `effective_plan`，有效计划和 `planned` 检查点原子保存。
 检查点区分 `admitted`、`planning`、`planning_failed`、`planned` 和 `executing`；后续轮次检查点沿用执行证据。
@@ -163,10 +163,10 @@ SQLite 表结构仍为 schema 1。所有新任务的 `tasks.spec` 为 `{payload_
 `recovery_records()` 新增 `submission`（旧任务为 null）和 `plan`。旧任务的 `task` 保持原样；新提交的 `task`
 为任务投影，已计划时包含有效策略及验收。尚未计划时投影策略可为内部占位 `single`，不能据此推断已选策略，
 应以 `submission`、`plan.effective_plan` 和检查点为准。恢复筛选条件不变，已完成且费用核实的任务不一定出现在查询中。
-该接口不会恢复执行或重放调用。自定义 Rust `Store` 必须实现 `create_submission` 与 `save_plan`，不再提供兼容占位实现。
+该接口不会恢复执行或重放调用。自定义 Rust `Store` 必须实现提交、计划及评价/反馈/指标事务接口，不再提供兼容占位实现。
 旧记录的读取仅用于保留已有费用和恢复证据，不对应另一套执行算法；本次不删除现存数据库。
 
-## 静态类型/角色画像
+## 类型/角色画像
 
 在打开引擎前加载 [examples/routing-profiles.json](examples/routing-profiles.json)：
 
@@ -198,8 +198,8 @@ submission["strategy"] = "single"  # auto 模式下类型与策略都明确时�
 默认代码生成任务的评审节点使用 `code_review/critic`，其他节点沿用有效计划的类型/角色。
 宿主映射只改变查询画像的标签：把 critic 映射到其他画像角色也不会授予工具权限，
 `different_critic`、能力、地域、本地性、上下文、预算及调用上限继续生效。
-价格、延迟、可靠性和不确定性独立于质量样本；静态质量不随本任务临时 Health 通过计数变化。
-不会自动收集质量反馈，也不把 critic 输出 pass 的次数当作正确率。
+价格、延迟、可靠性和不确定性独立于质量样本；不会用任务内 Health 通过计数更新质量。
+业务反馈必须由宿主明确提交；不会把 critic 输出 pass 的次数当作正确率。
 
 ### 快照与复现边界
 
@@ -213,9 +213,60 @@ Rust 的 `router::route_profiled` 可以用原有效 TaskSpec、已保存快照�
 延迟归一化和不可用时间判断采用快照时刻；实际执行仍在每次派发前检查实时截止时间和余额。
 同一输入可复现模型、评分、排除原因和质量证据，新生成的 decision_id 不要求相同。
 这是纯路由复算，不会重放模型/工具请求，也不保证供应商输出可复现。
-SQLite schema 仍为 1，旧任务、旧计划和旧尝试保留只读解码能力，新写入统一保存提交、计划和快照。
+SQLite schema 为 2，旧任务、旧计划和旧尝试保留只读解码能力，新写入统一保存提交、计划和快照。
 
 当前接口与验证记录见 [统一执行路径](docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](docs/designs/task-type-routing-implementation.md) 保留为历史决策。
+
+## 验收反馈与持久化指标
+
+`completed` 表示执行检查通过，不等于业务验收。每个候选产物分别保存确定性检查与
+可选 critic 结论；critic 中断或返回非法结构时，已生成的候选及确定性证据仍保留。
+
+```python
+result = await engine.run(submission)
+await engine.record_feedback({
+    "feedback_id": "review-unique-id",  # 宿主生成，可用于网络/取消后重试
+    "task_id": result["task_id"],
+    "artifact_id": result["artifact"]["artifact_id"],
+    "kind": "business_acceptance",
+    "evaluator_version": submission["acceptance"]["version"],
+    "accepted": False,  # 实际业务检查结果，不复制 completed 状态
+    "reason": "人工检查发现事实错误",
+})
+evaluations = await engine.evaluations(result["task_id"])
+metrics = await engine.metrics()
+```
+
+- 只接受已终态任务的已保存产物；版本必须等于有效验收的 `acceptance.version`。
+- `business_acceptance` 归因到生成该产物的最终模型 attempt，而不是所有重试或工具续写。
+  `critic_correctness` 表示宿主认定 critic 判断是否正确（正确否决也可 accepted=true），要求存在有效 critic 结论。
+- 模型身份、模型版本及映射后的类型/角色从保存的调用证据推导，不接受宿主指定归因。
+  两种反馈分别统计，即使宿主把 critic 映射到生成角色，也不会混算。
+- 同 feedback_id、同内容重复提交成功且只计一次；同 ID 内容冲突或同产物/同种类的新 ID 拒绝。
+  本批不提供反馈撤销或改判接口。取消等待不保证写入撤销，应以同 ID、同内容重试确认。
+- 新任务在计划保存前读取一致性指标快照，保存 `feedback_revision` 与 `feedback_hash`。
+  相同键有持久化反馈时，其 accepted/samples **替换**配置样本数，避免未知重叠造成双计；
+  p/k 仍取同键配置，没有配置时采用 Model.acceptance 和 k=10。
+  仍按精确类型、父类型、general、全局先验回退；任务内不会刷新。
+- `metrics.quality` 保留版本化键和反馈种类；`tasks` 是执行终态数量。
+  `calls` 区分 model/tool/unknown，按配置摘要、模型版本、节点或工具名分组，
+  包含规划、重试、工具及续写的状态、整数 microcredits 已知费用、未知预留及平均派发耗时。
+  工具组的模型身份为 unknown，具体工具见 tool_name；历史无指标证据的调用状态记 unknown。
+  succeeded 仅表示调用返回完成结果，不等于产物通过业务验收。
+- 延迟为本地派发到返回/错误/取消的单次耗时，不含排队/账务，也不是任务总延迟；
+  未派发不计延迟样本。缺失费用不是零；即使预留为零，unknown_cost_attempts 仍标识费用未核实的调用，后续对账会反映在指标中。
+- 指标当前为全库查询，不是常数时间计数缓存；大规模历史库的分页、分 cohort 查询及性能优化后续处理。
+
+离线对比：对同一任务集、相同验收定义分别使用独立数据库，导出 `metrics()` 为两个 JSON 后执行
+`python examples/compare_metrics.py baseline.json candidate.json`。
+示例只汇总已导出的证据，不重放模型或工具；分别报告执行完成率、人工介入率、分版本业务反馈、
+费用、调用耗时与规划开销。未反馈样本不能算失败或成功，也不能据此宣称真实收益。
+
+schema 1 → 2 仅新增评价/反馈表和索引，不改写历史任务或费用；旧版引擎不可再打开升级后的库。
+迁移前应备份数据库。未知或更高 schema 拒绝，不猜测转换。
+旧任务没有候选评价记录时，不能补造归因提交反馈。
+
+实现范围与验证见 [反馈与指标实施记录](docs/designs/feedback-metrics-implementation.md)。
 
 ## 宿主工具
 
@@ -345,6 +396,6 @@ Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流
 ## 当前边界
 
 - 已提供宿主异步工具回调、工具预算结算、有界事件订阅、恢复检查及分阶段优雅关闭；两个端点均有本地模拟测试覆盖。
-- 已实现第一批规划契约与执行生命周期；第二批分类型画像、独立反馈及持久化路由指标尚未实现。健康统计仍仅在单任务内使用。
+- 已实现规划、类型画像及持久化验收反馈；新任务从历史反馈固定质量快照，调用指标支持离线对比。不会自动重放任务、更新端点可靠性策略或推断业务验收；真实供应商收益尚未验证。
 - 恢复检查只读取证据，不自动恢复或重放任务；对账通过 Rust `Store::reconcile` 完成。
 - 真实供应商联调尚未验证。预算控制调用准入，不能保证供应商最终报告的实际费用不超出预留。

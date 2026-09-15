@@ -62,6 +62,24 @@ class Engine:
             raise RuntimeError("Engine is closing or closed")
         return json.loads(await self._native.recovery_records())
 
+    async def record_feedback(self, feedback: dict[str, Any]) -> None:
+        """Save terminal-artifact feedback; identical feedback IDs are idempotent."""
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        await self._native.record_feedback(json.dumps(feedback))
+
+    async def evaluations(self, task_id: str) -> list[dict[str, Any]]:
+        """Read candidate artifacts and separate deterministic/critic evidence."""
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        return json.loads(await self._native.evaluations(task_id))
+
+    async def metrics(self) -> dict[str, Any]:
+        """Read an aggregate snapshot, without inferring acceptance."""
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        return json.loads(await self._native.metrics())
+
     async def close(self) -> None:
         if _tool_engine.get() is self:
             raise RuntimeError("Close the engine outside its tool callback to avoid waiting on itself")

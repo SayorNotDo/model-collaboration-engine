@@ -11,6 +11,19 @@ use std::sync::Arc;
 pub struct FailSettlement(pub Arc<dyn Store>);
 #[async_trait]
 impl Store for FailSettlement {
+    async fn record_evaluation(&self, record: &EvaluationRecord) -> Result<()> {
+        self.0.record_evaluation(record).await
+    }
+    async fn record_feedback(&self, feedback: &Feedback) -> Result<()> {
+        self.0.record_feedback(feedback).await
+    }
+    async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>> {
+        self.0.evaluations(task).await
+    }
+    async fn metrics(&self) -> Result<MetricsSnapshot> {
+        self.0.metrics().await
+    }
+
     async fn create_submission(&self, s: &SubmissionSpec, hash: &str) -> Result<()> {
         self.0.create_submission(s, hash).await
     }

@@ -1,7 +1,7 @@
 //! Pure resolution and serializable, fixed per-submission routing inputs.
 use crate::contracts::{
-    digest, Config, EffectivePlan, Model, QualityProfile, RoleProfile, RoutingProfiles, TaskType,
-    Weights,
+    digest, Config, EffectivePlan, FeedbackKind, MetricsSnapshot, Model, QualityProfile,
+    RoleProfile, RoutingProfiles, TaskType, Weights,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -34,6 +34,10 @@ pub struct NodeProfile {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingSnapshot {
     pub schema_version: u32,
+    #[serde(default)]
+    pub feedback_revision: u64,
+    #[serde(default)]
+    pub feedback_hash: String,
     pub profile_version: String,
     pub profile_config_hash: String,
     pub evaluator_version: String,
@@ -47,6 +51,14 @@ impl RoutingSnapshot {
     /// Capture only after Config validation and deterministic plan validation.
     /// The returned snapshot is never refreshed during execution.
     pub fn capture(config: &Config, plan: &mut EffectivePlan, at_ms: u64) -> Self {
+        Self::capture_with_metrics(config, plan, at_ms, &MetricsSnapshot::default())
+    }
+    pub fn capture_with_metrics(
+        config: &Config,
+        plan: &mut EffectivePlan,
+        at_ms: u64,
+        metrics: &MetricsSnapshot,
+    ) -> Self {
         let defaults = RoutingProfiles::default();
         let profiles = config.routing_profiles.as_ref().unwrap_or(&defaults);
         for mapping in &profiles.role_mappings {
@@ -71,7 +83,18 @@ impl RoutingSnapshot {
                     .map(|model| {
                         (
                             model.id.clone(),
-                            resolve(profiles, model, role, &plan.acceptance.version),
+                            resolve(
+                                profiles,
+                                model,
+                                role,
+                                &plan.acceptance.version,
+                                metrics,
+                                if node == "critic" {
+                                    FeedbackKind::CriticCorrectness
+                                } else {
+                                    FeedbackKind::BusinessAcceptance
+                                },
+                            ),
                         )
                     })
                     .collect();
@@ -86,7 +109,9 @@ impl RoutingSnapshot {
             })
             .collect();
         Self {
-            schema_version: 1,
+            schema_version: 2,
+            feedback_revision: metrics.revision,
+            feedback_hash: digest(&metrics.quality),
             profile_version: profiles.version.clone(),
             profile_config_hash: digest(profiles),
             evaluator_version: plan.acceptance.version.clone(),
@@ -126,15 +151,39 @@ fn resolve(
     model: &Model,
     role: &RoleProfile,
     evaluator: &str,
+    metrics: &MetricsSnapshot,
+    feedback_kind: FeedbackKind,
 ) -> ResolvedQuality {
     for (kind, tier) in lineage(profiles, role.task_type) {
-        if let Some(profile) = profiles.profiles.iter().find(|p| {
+        let configured = profiles.profiles.iter().find(|p| {
             p.model_id == model.id
                 && p.model_version == model.version
                 && p.task_type == kind
                 && p.role == role.role
                 && p.evaluator_version == evaluator
-        }) {
+        });
+        let live = metrics.quality.iter().find(|s| {
+            s.kind == feedback_kind
+                && s.key.model_id == model.id
+                && s.key.model_version == model.version
+                && s.key.task_type == kind
+                && s.key.role == role.role
+                && s.key.evaluator_version == evaluator
+        });
+        let profile = live
+            .map(|s| QualityProfile {
+                model_id: model.id.clone(),
+                model_version: model.version.clone(),
+                task_type: kind,
+                role: role.role.clone(),
+                evaluator_version: evaluator.to_owned(),
+                prior: configured.map_or(model.acceptance, |p| p.prior),
+                prior_weight: configured.map_or(10.0, |p| p.prior_weight),
+                accepted: s.accepted,
+                samples: s.samples,
+            })
+            .or_else(|| configured.cloned());
+        if let Some(profile) = profile {
             return ResolvedQuality {
                 quality: profile.quality(),
                 fallback: tier,

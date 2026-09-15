@@ -242,6 +242,33 @@ impl PythonEngine {
         })
     }
 
+    fn record_feedback<'py>(
+        &self,
+        py: Python<'py>,
+        feedback_json: String,
+    ) -> PyResult<Bound<'py, PyAny>> {
+        let feedback: Feedback = serde_json::from_str(&feedback_json)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        let engine = self.inner.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            engine.record_feedback(&feedback).await.map_err(py_error)
+        })
+    }
+    fn evaluations<'py>(&self, py: Python<'py>, task_id: String) -> PyResult<Bound<'py, PyAny>> {
+        let engine = self.inner.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            Ok(
+                serde_json::to_string(&engine.evaluations(&task_id).await.map_err(py_error)?)
+                    .unwrap(),
+            )
+        })
+    }
+    fn metrics<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
+        let engine = self.inner.clone();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            Ok(serde_json::to_string(&engine.metrics().await.map_err(py_error)?).unwrap())
+        })
+    }
     fn recovery_records<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let engine = self.inner.clone();
         pyo3_async_runtimes::tokio::future_into_py(py, async move {

@@ -5,7 +5,7 @@ use crate::{
     contracts::{now_ms, EngineError, Model, Result, Snapshot, TaskSpec, ToolSpec},
 };
 use serde_json::json;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 impl Engine {
     // The inner result is an adapter outcome; outer errors stop fallback (e.g. settlement failure).
     #[allow(clippy::too_many_arguments)]
@@ -30,7 +30,10 @@ impl Engine {
                     &task.task_id,
                     attempt,
                     Some(0),
-                    json!({"not_dispatched":true}),
+                    json!({
+                        "not_dispatched": true,
+                        "call_metrics": {"status": "not_dispatched"},
+                    }),
                 )
                 .await?;
             return Ok(Err(if cancel.is_cancelled() {
@@ -57,11 +60,13 @@ impl Engine {
             },
             sequence: context.sequence.clone(),
         };
+        let started = Instant::now();
         let output = tokio::select! {
             biased;
             _ = cancel.cancelled() => Err(EngineError::new("cancelled", "task cancelled during model invocation")),
             result = tokio::time::timeout(Duration::from_millis(remaining), self.adapter.invoke(request)) => result.unwrap_or_else(|_| Err(EngineError::new("deadline", "model invocation timed out"))),
         };
+        let latency_ms = started.elapsed().as_millis().min(u64::MAX as u128) as u64;
         match &output {
             Ok(output) => {
                 let cost = output.usage.as_ref().map(|u| {
@@ -69,8 +74,14 @@ impl Engine {
                         .saturating_mul(model.input_price)
                         .saturating_add(u.output_tokens.saturating_mul(model.output_price))
                 });
-                let mut outcome =
-                    json!({"request_id":output.request_id,"complete":output.complete});
+                let mut outcome = json!({
+                    "request_id": output.request_id,
+                    "complete": output.complete,
+                    "call_metrics": {
+                        "status": if output.complete { "succeeded" } else { "failed" },
+                        "latency_ms": latency_ms,
+                    },
+                });
                 if snapshot.role == "planner" {
                     let mut end = output.text.len().min(self.config.context_max_bytes);
                     while !output.text.is_char_boundary(end) {
@@ -87,7 +98,22 @@ impl Engine {
             }
             Err(error) => {
                 self.store
-                    .settle(&task.task_id, attempt, None, json!({"error":error}))
+                    .settle(
+                        &task.task_id,
+                        attempt,
+                        None,
+                        json!({
+                            "error": error,
+                            "call_metrics": {
+                                "status": match error.kind.as_str() {
+                                    "cancelled" => "cancelled",
+                                    "deadline" => "timed_out",
+                                    _ => "failed",
+                                },
+                                "latency_ms": latency_ms,
+                            },
+                        }),
+                    )
                     .await?;
             }
         }

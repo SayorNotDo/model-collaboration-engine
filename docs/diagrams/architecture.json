@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "模型协作引擎 · 含受限规划（待重新生成）",
+    "title": "模型协作引擎 · 反馈与指标（待重新生成）",
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
@@ -15,7 +15,7 @@
       "id": "host_api",
       "type": "frontend",
       "label": "Python 宿主",
-      "sublabel": "run / stream",
+      "sublabel": "运行 · 反馈 · 查询",
       "pos": [
         40,
         290
@@ -85,7 +85,7 @@
       "id": "routing_policy",
       "type": "backend",
       "label": "规划校验与模型路由",
-      "sublabel": "宿主边界 · 确定性策略",
+      "sublabel": "宿主边界 · 固定质量快照",
       "pos": [
         660,
         80
@@ -126,8 +126,8 @@
     {
       "id": "budget_store",
       "type": "database",
-      "label": "SQLite 账本",
-      "sublabel": "提交 · 计划 · 账本",
+      "label": "SQLite 证据与账本",
+      "sublabel": "计划 · 评价 · 指标",
       "pos": [
         660,
         500
@@ -214,7 +214,7 @@
       "dot": "slate",
       "title": "实现边界",
       "items": [
-        "自动恢复与持久化路由指标尚未实现"
+        "宿主独立反馈；无自动恢复或外部评测"
       ]
     }
   ]

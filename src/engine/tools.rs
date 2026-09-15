@@ -8,7 +8,10 @@ use crate::{
     tools::ToolRequest,
 };
 use serde_json::json;
-use std::{collections::BTreeSet, time::Duration};
+use std::{
+    collections::BTreeSet,
+    time::{Duration, Instant},
+};
 impl Engine {
     #[allow(clippy::too_many_arguments)]
     async fn execute_tool(
@@ -35,7 +38,10 @@ impl Engine {
                     &task.task_id,
                     &execution_id,
                     Some(0),
-                    json!({"not_dispatched":true}),
+                    json!({
+                        "not_dispatched": true,
+                        "call_metrics": {"status": "not_dispatched"},
+                    }),
                 )
                 .await?;
             return Err(if context.cancel.is_cancelled() {
@@ -44,11 +50,13 @@ impl Engine {
                 EngineError::new("deadline", "deadline before tool dispatch")
             });
         }
+        let started = Instant::now();
         let result = tokio::select! {
             biased;
             _ = context.cancel.cancelled() => Err(EngineError::new("cancelled", "cancelled during host tool execution")),
             result = tokio::time::timeout(Duration::from_millis(remaining), executor.execute(request)) => result.unwrap_or_else(|_| Err(EngineError::new("deadline", "host tool timed out"))),
         };
+        let latency_ms = started.elapsed().as_millis().min(u64::MAX as u128) as u64;
         match result {
             Ok(result) => {
                 self.store
@@ -56,7 +64,11 @@ impl Engine {
                         &task.task_id,
                         &execution_id,
                         result.actual_cost,
-                        json!({"kind":"tool","output_checksum":digest(&result.output)}),
+                        json!({
+                            "kind": "tool",
+                            "output_checksum": digest(&result.output),
+                            "call_metrics": {"status": "succeeded", "latency_ms": latency_ms},
+                        }),
                     )
                     .await?;
                 if result.output.len() > self.config.context_max_bytes {
@@ -82,7 +94,17 @@ impl Engine {
                         &task.task_id,
                         &execution_id,
                         None,
-                        json!({"kind":"tool","error":error}),
+                        json!({
+                            "kind": "tool", "error": error,
+                            "call_metrics": {
+                                "status": match error.kind.as_str() {
+                                    "cancelled" => "cancelled",
+                                    "deadline" => "timed_out",
+                                    _ => "failed",
+                                },
+                                "latency_ms": latency_ms,
+                            },
+                        }),
                     )
                     .await?;
                 Err(error)

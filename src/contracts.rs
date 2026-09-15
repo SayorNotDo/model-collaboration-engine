@@ -3,8 +3,13 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 
+mod feedback;
 mod planning;
 mod profiles;
+pub use feedback::{
+    CallStatistics, CriticVerdict, EvaluationRecord, Feedback, FeedbackKind, MetricsSnapshot,
+    ProfileKey, QualityStatistics, TaskStatistics,
+};
 pub use planning::{
     EffectivePlan, PlanChoice, PlannerProposal, PlanningConfig, PlanningMode, RoleProfile,
     SubmissionSpec, TaskType,

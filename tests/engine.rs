@@ -308,6 +308,15 @@ async fn tool_roundtrip_is_accounted_and_observable() {
         collect
     );
     let result = result.unwrap();
+    let metrics = engine.metrics().await.unwrap();
+    let tool = metrics
+        .calls
+        .iter()
+        .find(|c| c.attempt_kind == "tool")
+        .unwrap();
+    assert_eq!(tool.tool_name.as_deref(), Some("lookup"));
+    assert_eq!((tool.succeeded, tool.known_cost), (1, 7));
+    assert_eq!(metrics.calls.iter().map(|c| c.attempts).sum::<u64>(), 3);
     assert_eq!(result.settled_cost, 37);
     assert_eq!(result.reserved_cost, 0);
     assert_eq!(store.ledger(&task.task_id).await.unwrap().calls, 3);
@@ -573,6 +582,19 @@ struct SlowFinish {
 }
 #[async_trait]
 impl Store for SlowFinish {
+    async fn record_evaluation(&self, record: &EvaluationRecord) -> Result<()> {
+        self.inner.record_evaluation(record).await
+    }
+    async fn record_feedback(&self, feedback: &Feedback) -> Result<()> {
+        self.inner.record_feedback(feedback).await
+    }
+    async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>> {
+        self.inner.evaluations(task).await
+    }
+    async fn metrics(&self) -> Result<MetricsSnapshot> {
+        self.inner.metrics().await
+    }
+
     async fn create_submission(&self, submission: &SubmissionSpec, hash: &str) -> Result<()> {
         self.inner.create_submission(submission, hash).await
     }
