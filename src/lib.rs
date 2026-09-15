@@ -2,6 +2,7 @@
 pub mod adapter;
 #[cfg(feature = "python")]
 mod bindings;
+pub mod configuration;
 pub mod contracts;
 pub mod engine;
 pub mod events;

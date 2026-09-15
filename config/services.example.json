@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "storage": {
+    "database_path": "../services-example.db"
+  },
+  "providers": [
+    {
+      "id": "official",
+      "kind": "direct",
+      "base_url": "https://api.deepseek.com/v1",
+      "auth": {
+        "type": "bearer",
+        "env": "OFFICIAL_API_KEY"
+      },
+      "endpoints": [
+        "chat_completions",
+        "responses"
+      ],
+      "region": "configure-region",
+      "local": false,
+      "models": [
+        {
+          "id": "official-a",
+          "model": "replace-with-model-a",
+          "version": "1",
+          "endpoint": "chat_completions",
+          "capabilities": [
+            "text",
+            "json"
+          ],
+          "context_tokens": 32768,
+          "input_price": 1,
+          "output_price": 1,
+          "price_version": "example-only",
+          "acceptance": 0.8,
+          "reliability": 0.9,
+          "latency_ms": 1000,
+          "uncertainty": 0.2
+        },
+        {
+          "id": "official-b",
+          "model": "replace-with-model-b",
+          "version": "1",
+          "endpoint": "chat_completions",
+          "capabilities": [
+            "text",
+            "json"
+          ],
+          "context_tokens": 32768,
+          "input_price": 1,
+          "output_price": 1,
+          "price_version": "example-only",
+          "acceptance": 0.8,
+          "reliability": 0.9,
+          "latency_ms": 1000,
+          "uncertainty": 0.2
+        }
+      ]
+    },
+    {
+      "id": "relay",
+      "kind": "relay",
+      "base_url": "https://relay.example/v1",
+      "auth": {
+        "type": "bearer",
+        "env": "RELAY_API_KEY"
+      },
+      "endpoints": [
+        "chat_completions",
+        "responses"
+      ],
+      "region": "configure-region",
+      "local": false,
+      "models": [
+        {
+          "id": "relay-a",
+          "model": "replace-with-relay-alias",
+          "version": "1",
+          "endpoint": "chat_completions",
+          "capabilities": [
+            "text",
+            "json"
+          ],
+          "context_tokens": 32768,
+          "input_price": 1,
+          "output_price": 1,
+          "price_version": "example-only",
+          "acceptance": 0.8,
+          "reliability": 0.9,
+          "latency_ms": 1000,
+          "uncertainty": 0.2
+        }
+      ]
+    }
+  ],
+  "routing": {
+    "planner_models": [],
+    "profiles": null,
+    "weights": {
+      "quality": 1,
+      "capability": 1,
+      "reliability": 1,
+      "cost": 1,
+      "latency": 1,
+      "uncertainty": 1,
+      "version": "1"
+    }
+  },
+  "runtime": {
+    "max_concurrency": 4,
+    "event_capacity": 64,
+    "event_max_bytes": 8192,
+    "stream_frame_max_bytes": 65536,
+    "context_max_bytes": 1048576,
+    "close_grace_ms": 1000,
+    "cleanup_timeout_ms": 1000
+  }
+}

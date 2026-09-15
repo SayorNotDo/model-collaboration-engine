@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "模型协作引擎 · 反馈与指标（待重新生成）",
+    "title": "模型协作引擎 · 当前架构",
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
@@ -57,7 +57,7 @@
       "id": "provider_adapter",
       "type": "backend",
       "label": "模型适配器",
-      "sublabel": "HTTP / SSE",
+      "sublabel": "HTTP / SSE · 用量证据",
       "pos": [
         970,
         290
@@ -84,8 +84,8 @@
     {
       "id": "routing_policy",
       "type": "backend",
-      "label": "规划校验与模型路由",
-      "sublabel": "宿主边界 · 固定质量快照",
+      "label": "规划校验与类型路由",
+      "sublabel": "硬约束 · 固定质量快照",
       "pos": [
         660,
         80
@@ -143,7 +143,7 @@
       "id": "submit_task",
       "from": "host_api",
       "to": "native_bridge",
-      "label": "异步任务",
+      "label": "运行与反馈",
       "variant": "emphasis"
     },
     {
@@ -191,7 +191,7 @@
       "id": "account_cost",
       "from": "engine_core",
       "to": "budget_store",
-      "label": "事务记账",
+      "label": "账务与指标",
       "labelDy": 75
     }
   ],
@@ -207,7 +207,7 @@
       "dot": "amber",
       "title": "费用与终态",
       "items": [
-        "规划和执行共用预算；未知费用保留预留"
+        "失败仍结算已知用量；未知费用保留预留"
       ]
     },
     {

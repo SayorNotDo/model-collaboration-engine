@@ -1,57 +1,35 @@
 # 技术图索引
 
-本目录使用 archify 维护技术图。第一批规划实现已更新架构 JSON 与源码映射，HTML 尚未重新生成。此前下载的 archify 2.16 曾通过自检，但个人技能持久保存未成功，当前会话已找不到其安装目录；重生成与验收仍待完成。**现有架构 HTML、截图及通过回执只对应规划接入前的历史版本，不能作为本次实现的图形验收。** 图不表示生产部署拓扑，也不代表真实供应商联调已通过。
+本次使用 archify 2.17 更新工作区技术资料，代码基线为 `72df77c` 及工作区变更。2026-09-16 同步架构与反馈图中的用量证据和对账保留语义。图形验收只针对图产物，不代表代码测试或真实供应商联调通过。
 
-| 技术图 | 阅读范围 | 当前验收 |
+| 技术图 | 范围与状态 | 验收 |
 | --- | --- | --- |
-| [架构总览](architecture.html) · architecture | Python 宿主、原生桥接、执行引擎、工具权限、模型适配、事件和账本的职责关系 | 新图源待生成；结构、浏览器、视觉检查均未执行，旧通过记录仅供历史参考 |
-| [关闭与重试](shutdown.html) · lifecycle | 停止准入、排空、清理超时保留所有权、重试关闭及数据库释放 | 结构 9/9、浏览器通过；视觉未通过，默认 Outcomes 泳道产生空白带 |
+| [架构总览](architecture.html) · architecture | 当前实现：统一入口、规划校验、类型路由、工具、事件和账本 | 结构 9/9、浏览器通过、视觉通过 |
+| [反馈与后续路由](feedback-routing.html) · architecture | 当前实现：宿主反馈、持久化指标、新任务固定质量快照 | 结构 9/9、浏览器通过、视觉通过 |
+| [关闭与重试](shutdown.html) · lifecycle | 当前实现：停止准入、排空、清理超时和释放数据库 | 结构 9/9、浏览器通过；视觉未通过，布局仍偏左 |
+| [策略对比评测](evaluation-plan.html) · architecture | 当前实现：固定任务集、两组独立数据库、延后反馈与对比报告 | 结构 9/9、浏览器通过、视觉通过；限定范围真实结果见[联调记录](../designs/live-evaluation-results.md) |
 
-架构图的连线表示模块协作关系，不表示每次调用的严格时序。持久化反馈与指标已接入既有模块关系，自动恢复尚未实现。关闭图把宽限等待、取消及清理合并为“等待排空”；它不承诺数据库关闭或不配合的宿主回调具有硬性总时限。取消信号发出不等于清理完成，费用未知也不阻止已完成执行的排空。
+## 阅读边界
 
-## 编辑源与证据
+架构连线表示模块协作，不代表每次调用的严格时序。规划、执行、工具和续写共用资源限制；宿主保有工具权限。反馈图按数据依赖展开，指标是 SQLite 的一致性查询，不是独立数据库或后台服务；质量回退顺序为精确类型/角色、父类型链、general、全局先验。新反馈不刷新运行中任务的快照。
 
-- 本次架构图更新：规划校验仍为纯规则，引擎复用既有模型适配与账本关系；关闭状态不新增分支，规划纳入活动任务排空。新标签、职责及源码引用已更新，HTML 待重新生成。
-- 编辑源：[architecture.json](architecture.json)、[shutdown.json](shutdown.json)。HTML 由生成器产生。
-- 源码映射：[source-map.json](source-map.json)，记录节点/状态、相关实现与工作区文件 SHA-256。源码变化后需要重新判断图义，不能只刷新哈希。
-- 冻结交付回执：[架构](architecture.delivery.json)、[关闭](shutdown.delivery.json)，包含规格与 HTML 的 SHA-256、字节数和结构检查结果。
-- 浏览器回执：[架构](architecture.visual-check.json)、[关闭](shutdown.visual-check.json)；检查尺寸为 1440×900、1600×1000、1920×1080、2048×1320。
-- 截图索引：[架构](architecture.visual-check.html)、[关闭](shutdown.visual-check.html)，包含最小/最大尺寸的明暗主题截图。
-- 独立视觉审查与交付汇总：[review.json](review.json)。浏览器自动回执中的 `visualReview: pending` 不代表已做视觉判断；实际截图审查结论在此单独记录。
+关闭图将宽限等待、取消和清理合并为等待排空。规划也属于活动任务；费用未知不等于任务仍在执行。数据库释放和不配合的宿主回调没有硬性总时限。结果泳道已补齐，原空 Outcomes 泳道问题已消除；压缩宽度的候选造成浏览器溢出，已恢复无溢出版本，版面偏左仍待改进。
 
-关闭图已尝试两轮视觉修正，后续候选未通过结构检查，当前恢复为与交付回执完全一致的版本。该图可用于理解关闭语义，但视觉排版仍待完善；不能报告为完整验收通过。上述图形验收记录仅针对图产物。后续恢复检查接口沿既有宿主、桥接、引擎和账本关系读取证据，不改变图中模块关系或关闭状态；已核对并更新源码映射，图形与其验收回执保持原版本。
+评测图对应[已确认设计](../designs/live-evaluation-design.md)和独立 Python 示例，已提供合成任务集与逐任务报告。图中展示两组配对流程；前置联调使用额外 smoke 数据库，费用单列。现有 Engine、反馈和指标接口可复用；开始真实调用前仍需模型配置和费用额度。草案记录的规划超时测试已拆为派发后与派发前场景，并通过 Rust 全量回归。图中的参考答案供宿主验收，不发给模型。
+
+## 编辑源与检查证据
+
+每张图均有同名 JSON 编辑源、HTML 产物、`.delivery.json` 交付回执、`.visual-check.json` 浏览器回执和 `.visual-check.html` 截图索引：
+
+- 架构：[JSON](architecture.json) · [交付](architecture.delivery.json) · [浏览器](architecture.visual-check.json) · [截图](architecture.visual-check.html)
+- 反馈：[JSON](feedback-routing.json) · [交付](feedback-routing.delivery.json) · [浏览器](feedback-routing.visual-check.json) · [截图](feedback-routing.visual-check.html)
+- 关闭：[JSON](shutdown.json) · [交付](shutdown.delivery.json) · [浏览器](shutdown.visual-check.json) · [截图](shutdown.visual-check.html)
+- 评测：[JSON](evaluation-plan.json) · [交付](evaluation-plan.delivery.json) · [浏览器](evaluation-plan.visual-check.json) · [截图](evaluation-plan.visual-check.html)
+
+[源码与设计映射](source-map.json) 区分当前实现和待实现节点，保存文件 SHA-256；[视觉审查](review.json) 绑定最终规格、HTML 和实际查看的截图。浏览器检查覆盖 1440×900、1600×1000、1920×1080、2048×1320，明暗截图覆盖最小和最大尺寸。自动回执中的 visualReview=pending 由独立审查记录补充，不修改自动回执。
+
+此前“archify 不可用、HTML 待生成”的记录已由本次交付取代；历史图形及验收状态可查 Git 历史。结构、浏览器和视觉结论分别记录，任一通过不替代其他检查。
 
 ## 维护入口
 
-选择与执行步骤统一见 [技术图工作流](../../.agent/workflows/diagram.md)，命令见 [本地验证流程](../../.agent/README.md#技术图检查)。维护触发条件见 [AGENTS.md](../../AGENTS.md)，领域术语见 [CONTEXTS.md](../../CONTEXTS.md)。每次更新图都需使编辑源、HTML、回执、截图与审查记录对应同一版本。
-
-代码规范整改后，引擎内部按策略执行、模型调用和工具处理拆分，恢复查询独立为存储子模块。已更新源码映射；当前总览的模块关系和关闭图的状态语义均保持一致，沿用与原 HTML 哈希匹配的图形验收证据。内部入口见 [代码参考](../../.agent/code-map.md#内部模块定位)。
-
-本次维护状态以 `review.json.feedback_metrics` 为准，`typed_routing_update` 与 `planning_update` 保留先前历史状态。上文历史修正与整改记录不表示本次新架构规格已通过验收。
-
-## C1+C2 类型画像更新
-
-本批增加静态画像与固定路由快照，没有新增架构边或关闭状态：`routing_policy` 仍负责纯规则，
-`engine_core` 固定并消费快照，`budget_store` 保存计划与逐调用证据。源码映射已加入画像契约、
-快照解析与类型路由测试；图源原有“规划校验与模型路由”职责仍适用，未手改 HTML。
-
-当前会话找不到此前的 archify 安装目录，前述“本地可用”仅是历史状态。规划后的架构图生成、
-结构、浏览器和视觉验收仍待完成，见 `review.json.typed_routing_update`；旧回执原样保留，
-不能据此报告本批图形通过。代码测试结果见 [类型路由实施记录](../designs/task-type-routing-implementation.md)。
-
-## 统一执行入口更新
-
-当前 API 为 `run/stream`；原 submit 分支已删除。所有任务由引擎保存有效计划和固定快照后执行，缺失画像是同一路由的全局先验回退。现有模块拓扑与关闭状态不变；图源标签及源码映射更新，archify 重生成和三类图形验收仍待完成，历史回执不能沿用为当前通过证据。
-
-## D 反馈与指标更新
-
-宿主反馈/查询仍经原生桥接和引擎访问 SQLite；Router 仅接收固定质量证据，拓扑与关闭状态不变。
-图源更新宿主、路由与存储职责，并补充源码映射。
-当前没有可用 archify 命令，HTML 重生成及结构、浏览器、视觉验收均待完成；
-现存生成文件和回执保持历史版本，不作为本批验收证据。
-
-## 开发期数据库规则调整
-
-当前 schema 的初始化与版本校验集中在 store/schema.rs；自动迁移入口已移除。
-数据库结构不匹配时拒绝打开，提示备份后使用新路径；不改变模块拓扑或关闭状态，
-源码映射已更新。该变更不代表此前待完成的 archify 图形验收已通过。
+遵循[技术图工作流](../../.agent/workflows/diagram.md)，命令见[本地验证流程](../../.agent/README.md#技术图检查)。只修改 JSON，通过生成器更新 HTML；图源变化后重新收集验收证据。领域术语见 [CONTEXTS.md](../../CONTEXTS.md)，开发期数据库操作以 [README](../../README.md#开发期数据库规则) 为准。

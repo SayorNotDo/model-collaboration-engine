@@ -1,4 +1,7 @@
 //! SDK wire contracts with a pull-based, bounded SSE transport. No hidden retries.
+mod evidence;
+pub use evidence::ModelEvidence;
+
 use crate::{
     contracts::*,
     events::{Event, EventSink},
@@ -43,6 +46,8 @@ pub struct InvokeRequest {
     pub attempt_id: String,
     pub event_sink: EventSink,
     pub sequence: Arc<AtomicU64>,
+    /// Record received usage here so errors or cancellation cannot discard billing evidence.
+    pub evidence: ModelEvidence,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ModelOutput {
@@ -339,7 +344,9 @@ impl ModelAdapter for OpenAIAdapter {
                     }
                     let value: Value = serde_json::from_str(data.trim_end())
                         .map_err(|_| EngineError::new("protocol", "invalid SSE JSON"))?;
-                    let delta = acc.frame(value, &r.model.endpoint)?;
+                    let frame = acc.frame(value, &r.model.endpoint);
+                    r.evidence.record(acc.usage.clone(), acc.request_id.clone());
+                    let delta = frame?;
                     if acc.bytes() > self.output_limit || acc.tools.len() > 128 {
                         return Err(EngineError::new(
                             "protocol",

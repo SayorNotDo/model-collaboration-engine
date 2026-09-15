@@ -1,0 +1,32 @@
+[
+  {
+    "group": "smoke",
+    "tasks": 1,
+    "calls": 1,
+    "cost": 1034,
+    "reserved": 0,
+    "unknown_cost": 0,
+    "correct": 1,
+    "mean_task_ms": 993.8710999995237
+  },
+  {
+    "group": "single",
+    "tasks": 12,
+    "calls": 12,
+    "cost": 14488,
+    "reserved": 0,
+    "unknown_cost": 0,
+    "correct": 12,
+    "mean_task_ms": 786.5145916657639
+  },
+  {
+    "group": "cascade",
+    "tasks": 12,
+    "calls": 12,
+    "cost": 14448,
+    "reserved": 0,
+    "unknown_cost": 0,
+    "correct": 12,
+    "mean_task_ms": 746.9325166663717
+  }
+]

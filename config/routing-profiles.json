@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "version": "example-static-v1",
+  "parents": {"code_generation": "reasoning"},
+  "role_mappings": [
+    {"task_type": "code_generation", "node": "critic", "profile": {"task_type": "code_review", "role": "critic"}}
+  ],
+  "weights": {
+    "writing": {"quality": 2, "capability": 1, "reliability": 1, "cost": 1, "latency": 0.5, "uncertainty": 1, "version": "writing-example-v1"}
+  },
+  "profiles": [
+    {"model_id": "local", "model_version": "1", "task_type": "writing", "role": "invoke", "evaluator_version": "1", "prior": 0.8, "prior_weight": 10, "accepted": 0, "samples": 0},
+    {"model_id": "local", "model_version": "1", "task_type": "code_review", "role": "critic", "evaluator_version": "1", "prior": 0.7, "prior_weight": 10, "accepted": 0, "samples": 0}
+  ]
+}

@@ -1,8 +1,8 @@
 """Host event-loop ownership and cleanup for one native execution."""
 import asyncio
-from contextvars import ContextVar
 import inspect
 import json
+from contextvars import ContextVar
 from typing import Any, Self
 
 from ._types import ToolCallbacks

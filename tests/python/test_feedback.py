@@ -5,8 +5,9 @@ import sqlite3
 from pathlib import Path
 
 import pytest
+from test_planning import planning_server as planning_server
+
 from model_collaboration_engine import Engine
-from test_planning import planning_server  # noqa: F401
 
 
 def test_feedback_persists_and_rejects_conflicts(planning_server):

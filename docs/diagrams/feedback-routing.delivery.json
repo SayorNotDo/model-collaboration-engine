@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "command": "deliver",
+  "type": "architecture",
+  "input": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\feedback-routing.json",
+  "output": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\feedback-routing.html",
+  "specification": {
+    "sha256": "bf8a8ff8b4af9182baf2640fe14abd342a4d62d7acde5f2bfb24f1c5e14a110c",
+    "bytes": 3209
+  },
+  "artifact": {
+    "sha256": "8329b70835a2c3fe8457e8ae55b0260c55ccbcc18d92c4122b217338285b6e4a",
+    "bytes": 801240
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  }
+}

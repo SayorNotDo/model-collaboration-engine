@@ -1,16 +1,17 @@
 {
-  "review_date": "2026-09-15",
-  "reviewer": "Codex image inspection",
+  "review_date": "2026-09-16",
+  "reviewer": "Codex screenshot inspection",
+  "scope": "Default READ / Still, endpoint viewport themes; screenshots only for visual judgment",
   "diagrams": {
     "architecture": {
       "type": "architecture",
       "specification": {
-        "sha256": "ffd3a7301ff2560069199ea1e4125cce66af73fb4ee92e50e78b83a00f7c8c0c",
-        "bytes": 4372
+        "sha256": "c86ef5c64a9757627387341093cbeac2a86dfdd9559f2601eef0e11341f5944b",
+        "bytes": 4448
       },
       "artifact": {
-        "sha256": "cb2a28cb86ba717a2e86f9c105cad6335da873aedb7ea8f4a3121d7ffe7bfdc2",
-        "bytes": 807762
+        "sha256": "6af6a5034556459662ec621c01fdeb90db83914b0042755fe9d2633985e3209e",
+        "bytes": 807964
       },
       "validation": {
         "checksPassed": 9,
@@ -24,22 +25,77 @@
       "visual_review": "passed",
       "correction_rounds": 0,
       "inspected_screenshots": [
-        "architecture.visual-check.1440x900.light.png",
-        "architecture.visual-check.1440x900.dark.png",
         "architecture.visual-check.2048x1320.light.png",
-        "architecture.visual-check.2048x1320.dark.png"
+        "architecture.visual-check.1440x900.dark.png"
       ],
-      "observation": "四张截图无裁切，关系清晰，桌面版面均衡。"
+      "observation": "本次核对所列明暗截图：新增用量证据和对账保留文字清晰，无裁切，节点、连线与标签可辨。",
+      "review_date": "2026-09-16"
+    },
+    "feedback-routing": {
+      "type": "architecture",
+      "specification": {
+        "sha256": "bf8a8ff8b4af9182baf2640fe14abd342a4d62d7acde5f2bfb24f1c5e14a110c",
+        "bytes": 3209
+      },
+      "artifact": {
+        "sha256": "8329b70835a2c3fe8457e8ae55b0260c55ccbcc18d92c4122b217338285b6e4a",
+        "bytes": 801240
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "visual_review": "passed",
+      "correction_rounds": 1,
+      "inspected_screenshots": [
+        "feedback-routing.visual-check.2048x1320.light.png",
+        "feedback-routing.visual-check.1440x900.dark.png"
+      ],
+      "observation": "本次核对所列明暗截图：新增用量证据和对账保留文字清晰，无裁切，节点、连线与标签可辨。",
+      "review_date": "2026-09-16"
+    },
+    "evaluation-plan": {
+      "type": "architecture",
+      "specification": {
+        "sha256": "7deb55edbfee97c82fc7a8cb162e72cd3d9a5f816f94d68082ce717c953f222c",
+        "bytes": 3173
+      },
+      "artifact": {
+        "sha256": "bc2da6c067927df3d6f391cee91e5c89a97ea97d77d7468f4b185bd2a0e2bf30",
+        "bytes": 801269
+      },
+      "validation": {
+        "checksPassed": 9,
+        "checkCount": 9,
+        "compositionProfile": "showcase",
+        "compositionStatus": "pass",
+        "errors": 0,
+        "warnings": 0
+      },
+      "browser_evidence": "passed",
+      "visual_review": "passed",
+      "correction_rounds": 1,
+      "inspected_screenshots": [
+        "evaluation-plan.visual-check.1440x900.dark.png",
+        "evaluation-plan.visual-check.2048x1320.light.png"
+      ],
+      "observation": "本次明暗截图中当前实现状态清晰，节点与连线标签无遮挡、无裁切；图表示配对主流程，额外 smoke 联调数据库在索引说明。",
+      "review_date": "2026-09-16"
     },
     "shutdown": {
       "type": "lifecycle",
       "specification": {
-        "sha256": "9e62736df2a45a9eb2db16f982c9f558841fb510c592bf10a2e44c7b56dba8aa",
-        "bytes": 2164
+        "sha256": "aaec41430f722756c3e78196c781b8a147dc4d5e5d2c75c752ae3b242b25ed45",
+        "bytes": 2386
       },
       "artifact": {
-        "sha256": "24fa4da415dabcd3431c75483dff68de375520c6c99ded69b2f9331133cd06cb",
-        "bytes": 799950
+        "sha256": "63f9f4826b2a5eecf2aecd525873c85a471d3b3ef7394068566b1027e655bf59",
+        "bytes": 800534
       },
       "validation": {
         "checksPassed": 9,
@@ -53,59 +109,10 @@
       "visual_review": "failed",
       "correction_rounds": 2,
       "inspected_screenshots": [
-        "shutdown.visual-check.1440x900.light.png",
-        "shutdown.visual-check.2048x1320.dark.png"
+        "shutdown.visual-check.2048x1320.dark.png",
+        "shutdown.visual-check.1440x900.light.png"
       ],
-      "observation": "默认 Outcomes 泳道空置，造成明显空白带；已达两轮视觉修正上限，恢复哈希匹配的结构/浏览器通过版本，视觉验收待完成。"
+      "observation": "结果泳道已补齐，无页面溢出，但整体偏左；压缩宽度导致溢出的候选已撤回。"
     }
-  },
-  "typed_routing_update": {
-    "status": "pending",
-    "source": "architecture.json",
-    "reason": "Current session cannot locate the previous archify installation. Typed routing keeps the existing topology; source evidence updated, generated artifacts untouched.",
-    "structure_validation": "not_run",
-    "browser_validation": "not_run",
-    "visual_review": "not_run",
-    "historical_receipts": "Existing diagrams entries describe pre-planning generated artifacts, not this implementation."
-  },
-  "planning_update": {
-    "status": "pending",
-    "source": "architecture.json",
-    "reason": "archify was unavailable during implementation; 2.16 now works locally, but generation and verification remain pending",
-    "structure_validation": "not_run",
-    "browser_validation": "not_run",
-    "visual_review": "not_run",
-    "historical_receipts": "diagrams entries below describe the previous generated artifacts only"
-  },
-  "execution_unification": {
-    "status": "pending",
-    "specification": {
-      "sha256": "5cb029d82133f4aeb504ee21c6d42a0c4d39bc0b877712cf50b872b6bdbc82d5",
-      "bytes": 4205
-    },
-    "reason": "Unified run/stream label and source evidence updated. archify unavailable; old HTML and receipts remain historical.",
-    "structure_validation": "not_run",
-    "browser_validation": "not_run",
-    "visual_review": "not_run"
-  },
-  "feedback_metrics": {
-    "status": "pending",
-    "specification": {
-      "bytes": 4234,
-      "sha256": "901706681ba39f5a85adff0601199c3350427d32f8375501f0904bbd6386d348"
-    },
-    "reason": "Feedback/metrics responsibilities updated in source. archify unavailable; generated HTML and prior receipts remain historical.",
-    "structure_validation": "not_run",
-    "browser_validation": "not_run",
-    "visual_review": "not_run"
-  },
-  "development_database_policy": {
-    "status": "source_evidence_updated",
-    "topology_change": false,
-    "shutdown_behavior_change": false,
-    "reason": "Schema initialization/checks moved to store/schema.rs; incompatible databases are rejected unchanged, without migration or reset. Existing archify generation/visual verification remains pending.",
-    "structure_validation": "not_run",
-    "browser_validation": "not_run",
-    "visual_review": "not_run"
   }
 }

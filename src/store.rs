@@ -4,6 +4,8 @@ mod metrics;
 mod planning;
 mod recovery;
 mod schema;
+mod settlement;
+use settlement::SettlementEvidence;
 
 use crate::{contracts::*, events::Event};
 use async_trait::async_trait;
@@ -268,72 +270,8 @@ impl Store for SqliteStore {
         cost: Option<u64>,
         outcome: Value,
     ) -> Result<()> {
-        let _gate = self.gate.lock().await;
-        let task = task.to_owned();
-        let attempt = attempt.to_owned();
-        db_call(&self.conn, move |c| {
-            let tx = c.transaction()?;
-            let (amount, old, state): (u64, Option<u64>, String) = tx.query_row(
-                "SELECT amount,cost,state FROM attempts WHERE task=? AND id=?",
-                params![task, attempt],
-                |r| {
-                    Ok((
-                        r.get::<_, i64>(0)? as u64,
-                        r.get::<_, Option<i64>>(1)?.map(|v| v as u64),
-                        r.get(2)?,
-                    ))
-                },
-            )?;
-            if state == "settled" {
-                if old == cost {
-                    return Ok(());
-                }
-                return Err(EngineError::new("storage", "conflicting settlement"));
-            }
-            if let Some(cost) = cost {
-                if cost > i64::MAX as u64 {
-                    return Err(EngineError::new(
-                        "budget",
-                        "reported cost exceeds ledger range",
-                    ));
-                }
-                let l = read_ledger(&tx, &task)?;
-                if l.settled
-                    .checked_add(cost)
-                    .is_none_or(|s| s > i64::MAX as u64)
-                {
-                    return Err(EngineError::new("budget", "ledger overflow"));
-                }
-                tx.execute(
-                    "UPDATE tasks SET settled=settled+?,reserved=reserved-? WHERE id=?",
-                    params![cost as i64, amount as i64, task],
-                )?;
-                tx.execute(
-                    "UPDATE attempts SET cost=?,state='settled',outcome=? WHERE id=?",
-                    params![cost as i64, outcome.to_string(), attempt],
-                )?;
-            } else {
-                tx.execute(
-                    "UPDATE attempts SET state='unresolved',outcome=? WHERE id=?",
-                    params![outcome.to_string(), attempt],
-                )?;
-            }
-            audit(
-                &tx,
-                &task,
-                "attempt_settled",
-                json!({"attempt_id":attempt,"actual_cost":cost,"outcome":outcome}),
-            )?;
-            tx.commit()?;
-            if cost.is_some_and(|cost| cost > amount) {
-                return Err(EngineError::new(
-                    "budget",
-                    "provider usage exceeded declared reservation; actual cost recorded",
-                ));
-            }
-            Ok(())
-        })
-        .await
+        self.settle_attempt(task, attempt, cost, SettlementEvidence::Invocation(outcome))
+            .await
     }
     async fn checkpoint(&self, task: &str, value: Value) -> Result<()> {
         let _gate = self.gate.lock().await;
@@ -399,11 +337,11 @@ impl Store for SqliteStore {
                 "reconciliation evidence required",
             ));
         }
-        self.settle(
+        self.settle_attempt(
             task,
             attempt,
             Some(cost),
-            json!({"reconciliation_evidence":evidence}),
+            SettlementEvidence::Reconciliation(evidence.to_owned()),
         )
         .await
     }

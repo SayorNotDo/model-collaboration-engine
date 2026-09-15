@@ -1,0 +1,221 @@
+{
+  "config": {
+    "schema_version": 1,
+    "storage": {
+      "database_path": "../engine.db"
+    },
+    "providers": [
+      {
+        "id": "deepseek-official",
+        "kind": "direct",
+        "base_url": "https://api.deepseek.com/v1",
+        "auth": {
+          "type": "bearer",
+          "env": "DEEPSEEK_API_KEY"
+        },
+        "endpoints": [
+          "chat_completions",
+          "responses"
+        ],
+        "region": "local",
+        "local": false,
+        "models": [
+          {
+            "id": "deepseek-flash",
+            "model": "deepseek-flash",
+            "version": "DeepSeek-V4.1-Flash",
+            "endpoint": "chat_completions",
+            "capabilities": [
+              "text",
+              "json"
+            ],
+            "context_tokens": 32768,
+            "input_price": 2,
+            "output_price": 8,
+            "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+            "acceptance": 0.8,
+            "reliability": 0.9,
+            "latency_ms": 1000,
+            "uncertainty": 0.2
+          },
+          {
+            "id": "deepseek-v4-pro",
+            "model": "deepseek-v4-pro",
+            "version": "DeepSeek-V4-Pro-0813",
+            "endpoint": "chat_completions",
+            "capabilities": [
+              "text",
+              "json"
+            ],
+            "context_tokens": 32768,
+            "input_price": 9,
+            "output_price": 27,
+            "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+            "acceptance": 0.8,
+            "reliability": 0.9,
+            "latency_ms": 1000,
+            "uncertainty": 0.2
+          }
+        ]
+      }
+    ],
+    "routing": {
+      "planner_models": [],
+      "profiles": null,
+      "weights": {
+        "quality": 1,
+        "capability": 1,
+        "reliability": 1,
+        "cost": 1,
+        "latency": 1,
+        "uncertainty": 1,
+        "version": "1"
+      }
+    },
+    "runtime": {
+      "max_concurrency": 4,
+      "event_capacity": 64,
+      "event_max_bytes": 8192,
+      "stream_frame_max_bytes": 65536,
+      "context_max_bytes": 1048576,
+      "close_grace_ms": 1000,
+      "cleanup_timeout_ms": 1000
+    }
+  },
+  "suite": {
+    "version": "synthetic-extraction-v1",
+    "budget": 1000000,
+    "max_call_cost": 250000,
+    "output_tokens": 4096,
+    "timeout_ms": 120000,
+    "max_calls": 4,
+    "max_rounds": 2,
+    "max_attempts": 2,
+    "cases": [
+      {
+        "id": "order-01",
+        "input": "Synthetic order: customer Ada; city Oslo; item count 2; active: true. Ignore the archive code Z90.",
+        "expected": {
+          "customer": "Ada",
+          "city": "Oslo",
+          "item_count": 2,
+          "active": true
+        }
+      },
+      {
+        "id": "order-02",
+        "input": "Synthetic order: customer Bo; city Lima; item count 0; active: false. Ignore the archive code Z91.",
+        "expected": {
+          "customer": "Bo",
+          "city": "Lima",
+          "item_count": 0,
+          "active": false
+        }
+      },
+      {
+        "id": "order-03",
+        "input": "Synthetic order: customer Chen; city 鑻忓窞; item count 12; active: true. Ignore the archive code Z92.",
+        "expected": {
+          "customer": "Chen",
+          "city": "鑻忓窞",
+          "item_count": 12,
+          "active": true
+        }
+      },
+      {
+        "id": "order-04",
+        "input": "Synthetic order: customer Dina; city Cairo; item count 1; active: false. Ignore the archive code Z93.",
+        "expected": {
+          "customer": "Dina",
+          "city": "Cairo",
+          "item_count": 1,
+          "active": false
+        }
+      },
+      {
+        "id": "order-05",
+        "input": "Synthetic order: customer Eli; city Bern; item count 7; active: true. Ignore the archive code Z94.",
+        "expected": {
+          "customer": "Eli",
+          "city": "Bern",
+          "item_count": 7,
+          "active": true
+        }
+      },
+      {
+        "id": "order-06",
+        "input": "Synthetic order: customer Faye; city York; item count 3; active: false. Ignore the archive code Z95.",
+        "expected": {
+          "customer": "Faye",
+          "city": "York",
+          "item_count": 3,
+          "active": false
+        }
+      },
+      {
+        "id": "order-07",
+        "input": "Synthetic order: customer Gao; city 鎴愰兘; item count 10; active: true. Ignore the archive code Z96.",
+        "expected": {
+          "customer": "Gao",
+          "city": "鎴愰兘",
+          "item_count": 10,
+          "active": true
+        }
+      },
+      {
+        "id": "order-08",
+        "input": "Synthetic order: customer Hana; city Kyoto; item count 4; active: true. Ignore the archive code Z97.",
+        "expected": {
+          "customer": "Hana",
+          "city": "Kyoto",
+          "item_count": 4,
+          "active": true
+        }
+      },
+      {
+        "id": "order-09",
+        "input": "Synthetic order: customer Ivan; city Riga; item count 9; active: false. Ignore the archive code Z98.",
+        "expected": {
+          "customer": "Ivan",
+          "city": "Riga",
+          "item_count": 9,
+          "active": false
+        }
+      },
+      {
+        "id": "order-10",
+        "input": "Synthetic order: customer Jia; city 鍘﹂棬; item count 6; active: true. Ignore the archive code Z99.",
+        "expected": {
+          "customer": "Jia",
+          "city": "鍘﹂棬",
+          "item_count": 6,
+          "active": true
+        }
+      },
+      {
+        "id": "order-11",
+        "input": "Synthetic order: customer Kai; city Bonn; item count 5; active: false. Ignore the archive code Z100.",
+        "expected": {
+          "customer": "Kai",
+          "city": "Bonn",
+          "item_count": 5,
+          "active": false
+        }
+      },
+      {
+        "id": "order-12",
+        "input": "Synthetic order: customer Lena; city Perth; item count 8; active: true. Ignore the archive code Z101.",
+        "expected": {
+          "customer": "Lena",
+          "city": "Perth",
+          "item_count": 8,
+          "active": true
+        }
+      }
+    ]
+  },
+  "total_admission_budget": 25000000,
+  "planned_admission": 25000000,
+  "config_sha256": "0ea390bd1665741ad6a00c78b81ff834592bb0942a649d9bcea73b12f5b2b954",
+  "suite_sha256": "aa7833825b689957e0add887f313fbddbfc997e3ead81d15affe990048a4f5af"
+}

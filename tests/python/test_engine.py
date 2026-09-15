@@ -6,8 +6,9 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from model_collaboration_engine import Engine
 import pytest
+
+from model_collaboration_engine import Engine
 
 
 def test_native_roundtrip(tmp_path, monkeypatch):

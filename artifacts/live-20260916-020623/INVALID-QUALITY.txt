@@ -1,0 +1,1 @@
+Quality comparison invalidated: mojibake in synthetic Chinese city references. Billing and transport evidence remain valid. Corrected suite uses synthetic-extraction-v2.

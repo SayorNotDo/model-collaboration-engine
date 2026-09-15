@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "宿主反馈与后续路由 · 当前实现",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1200,
+      650
+    ]
+  },
+  "components": [
+    {
+      "id": "saved_artifact",
+      "type": "backend",
+      "label": "已保存候选",
+      "sublabel": "终态任务 · 产物身份",
+      "pos": [
+        50,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "host_verdict",
+      "type": "frontend",
+      "label": "宿主业务验收",
+      "sublabel": "业务通过 / 评审正确性",
+      "pos": [
+        465,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "feedback_ledger",
+      "type": "database",
+      "label": "反馈事务",
+      "sublabel": "幂等身份 · 证据归因",
+      "pos": [
+        880,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "metrics_read",
+      "type": "database",
+      "label": "一致性指标",
+      "sublabel": "质量样本 · 费用与耗时",
+      "pos": [
+        880,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "task_snapshot",
+      "type": "backend",
+      "label": "新任务固定快照",
+      "sublabel": "模型 / 类型 / 角色 / 版本",
+      "pos": [
+        465,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "profile_route",
+      "type": "backend",
+      "label": "受约束选模",
+      "sublabel": "精确 / 父级 / general / 全局",
+      "pos": [
+        50,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "saved_artifact_to_host_verdict",
+      "from": "saved_artifact",
+      "to": "host_verdict",
+      "label": "验收证据"
+    },
+    {
+      "id": "host_verdict_to_feedback_ledger",
+      "from": "host_verdict",
+      "to": "feedback_ledger",
+      "label": "明确反馈"
+    },
+    {
+      "id": "feedback_ledger_to_metrics_read",
+      "from": "feedback_ledger",
+      "to": "metrics_read",
+      "label": "读取汇总",
+      "labelDy": 85
+    },
+    {
+      "id": "metrics_read_to_task_snapshot",
+      "from": "metrics_read",
+      "to": "task_snapshot",
+      "label": "计划保存前"
+    },
+    {
+      "id": "task_snapshot_to_profile_route",
+      "from": "task_snapshot",
+      "to": "profile_route",
+      "label": "固定质量"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "独立结论",
+      "items": [
+        "执行完成、critic 结论与业务验收分别记录"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "任务内固定",
+      "items": [
+        "新反馈只影响后续快照，不刷新运行中任务"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "证据保留",
+      "items": [
+        "对账保留调用指标；未知费用保留预留"
+      ]
+    }
+  ]
+}

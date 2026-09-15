@@ -5,6 +5,8 @@ import json
 import time
 from typing import Any, Self
 
+from ._configuration import Configuration, parse_config
+from ._configuration import load_config as load_config
 from ._native import Engine as _Engine
 from ._run import Run, _tool_engine
 from ._types import EventCallback, ToolCallbacks
@@ -18,7 +20,16 @@ class Engine:
         self._runs = set()
 
     @classmethod
-    async def open(cls, config: dict[str, Any]) -> Self:
+    async def open(cls, config: Configuration | dict[str, Any]) -> Self:
+        """Open a resolved configuration or a programmatic configuration dictionary.
+
+        Layered dictionaries use parse_config with the process directory as base.
+        Existing flat dictionaries remain the low-level component configuration.
+        """
+        if isinstance(config, dict) and "schema_version" in config:
+            config = parse_config(config)
+        if isinstance(config, Configuration):
+            return cls(await _Engine.open_resolved(config))
         return cls(await _Engine.open(json.dumps(config)))
 
     def stream(self, task: dict[str, Any], *, tools: ToolCallbacks | None = None) -> Run:

@@ -11,7 +11,7 @@
 - **宿主集成**：异步工具回调、有界事件流、取消清理与分阶段关闭。
 - **恢复检查**：读取任务和调用证据，供宿主判断后续处理方式。
 
-当前验证覆盖离线测试和本地模拟服务；真实供应商联调尚未验证，自动恢复与任务重放尚未实现。
+当前验证覆盖离线测试、本地模拟服务及 DeepSeek Flash 的真实 chat_completions 抽取任务；范围与费用口径见[真实联调记录](docs/designs/live-evaluation-results.md)。自动恢复与任务重放尚未实现。
 
 ## 快速上手
 
@@ -29,23 +29,23 @@ Linux/macOS 将 `.venv/Scripts/python.exe` 替换为 `.venv/bin/python`。修改
 
 ### 2. 配置模型服务
 
-编辑 [examples/config.json](examples/config.json)，将服务地址、模型名称、能力、上下文上限和价格替换为实际配置。示例指向本地兼容服务，本项目不负责启动模型服务。
+编辑 [config/engine.json](config/engine.json)。供应商接入点、模型、路由、运行参数和存储分组配置；多模型与中转站示例见 [services.example.json](config/services.example.json)，完整规则见[配置指南](config/README.md)。样例均需替换服务及模型信息。
 
-| 配置项 | 使用说明 |
+| 配置组 | 负责内容 |
 | --- | --- |
-| `endpoint` / `base_url` | 选择 `chat_completions` 或 `responses`，填写兼容服务的 API 基地址 |
-| `model` / `capabilities` | 填写服务端模型名并如实声明能力；工具调用需要 `tools` 能力 |
-| `api_key_env` | 填写保存密钥的环境变量名称，密钥本身不写入配置 |
-| `input_price` / `output_price` | 每 token 的整数 microcredits 费用，由调用方配置 |
-| `database_path` | 保存任务与账本的 SQLite 文件路径 |
+| `providers` | 实际接入站点 ID、direct/relay、API 基地址、Bearer 凭证变量、可用端点、地域和本地声明 |
+| `providers[].models` | 直接在所属站点下声明模型名、端点、能力、版本及每 token 价格；模型 ID 全局唯一 |
+| `routing` | `planner_models` 候选 ID、评分 `weights`、可选质量 `profiles` |
+| `runtime` | 并发、事件/上下文缓冲、关闭等待参数 |
+| `storage` | SQLite `database_path`，文件加载时相对配置文件所在目录解析 |
 
-在当前终端设置与 `api_key_env` 对应的变量，再运行程序：
+在当前终端设置与 `providers[].auth.env` 对应的变量，再运行程序：
 
 ```powershell
 $env:MODEL_API_KEY = "<替换为服务凭证>"
 ```
 
-[examples/task.json](examples/task.json) 默认要求 `local_only: true`。接入远端服务时，同时调整模型的 `local` 声明与任务约束，使其符合实际部署。
+[examples/task.json](examples/task.json) 默认要求 `local_only: true`。接入远端服务时，同时调整接入站点的 `local` 声明与任务约束，使其符合实际部署。
 
 ### 3. 运行任务
 
@@ -58,11 +58,11 @@ import time
 from pathlib import Path
 from uuid import uuid4
 
-from model_collaboration_engine import Engine
+from model_collaboration_engine import Engine, load_config, parse_config
 
 
 async def main():
-    config = json.loads(Path("examples/config.json").read_text(encoding="utf-8"))
+    config = load_config("config/engine.json")
     task = json.loads(Path("examples/task.json").read_text(encoding="utf-8"))
     task["task_id"] = str(uuid4())
     task["deadline_ms"] = int(time.time() * 1000) + 60_000
@@ -88,12 +88,13 @@ if __name__ == "__main__":
 
 路由先检查能力、上下文、模型、供应商、地域和预算约束，再按配置权重评分。切换策略前需配置满足条件的候选模型；单模型样例不保证能够升级或使用不同评审模型。
 
-模型调用、工具执行和模型续写共用 `max_calls`。任务总预算使用 `budget`，工具按声明的 `max_cost` 预留费用。完整配置与结果字段见 [src/contracts.rs](src/contracts.rs)，领域术语见 [CONTEXTS.md](CONTEXTS.md)。
+模型调用、工具执行和模型续写共用 `max_calls`。任务总预算使用 `budget`，工具按声明的 `max_cost` 预留费用。配置加载约定见[配置指南](config/README.md)，结果字段见 [src/contracts.rs](src/contracts.rs)，领域术语见 [CONTEXTS.md](CONTEXTS.md)。
 
 ## Python 接口速查
 
 | 接口 | 用途 |
 | --- | --- |
+| `load_config(path)` / `parse_config(document, base_dir=...)` | 统一解析与校验，返回只读配置；加载不联网或打开数据库 |
 | `await Engine.open(config)` | 打开引擎与账本 |
 | `await engine.run(task, tools=..., on_event=...)` | 消费事件并返回最终结果；事件回调可选 |
 | `engine.stream(task, tools=...)` | 创建异步上下文，在其中迭代事件并获取结果 |
@@ -108,7 +109,9 @@ if __name__ == "__main__":
 原 `submit/stream_submission` 方法已删除，调用方直接改用 `run/stream`。
 
 ```python
-config["planner_models"] = ["local"]  # 宿主指定候选配置 ID，不是服务端模型名
+document = json.loads(Path("config/engine.json").read_text(encoding="utf-8"))
+document["routing"]["planner_models"] = ["local"]  # 候选 ID，不是服务端模型名
+config = parse_config(document, base_dir="config")
 submission = json.loads(Path("examples/submission.json").read_text(encoding="utf-8"))
 submission["task_id"] = str(uuid4())
 submission["deadline_ms"] = int(time.time() * 1000) + 60_000
@@ -118,7 +121,7 @@ async with await Engine.open(config) as engine:
 
 该片段沿用快速上手的导入。完整示例为 [examples/submit.py](examples/submit.py)，从仓库根目录运行
 `.venv/bin/python examples/submit.py`（Windows 使用 `.venv/Scripts/python.exe`）。需先配置兼容服务及凭证。
-旧配置不必增加 `planner_models`；缺省为空池，显式执行仍可用，需要规划时会失败或采用宿主显式回退。
+`routing.planner_models` 可省略；缺省为空池，显式执行仍可用，需要规划时会失败或采用宿主显式回退。
 池中的候选仍受 `allowed_models`、供应商、地域、本地性和上下文约束，必须支持 `text`、`json`。
 
 | `planning` 字段 | 行为 |
@@ -168,10 +171,14 @@ SQLite 表结构为 schema 2；新库直接创建当前结构，版本不匹配�
 
 ## 类型/角色画像
 
-在打开引擎前加载 [examples/routing-profiles.json](examples/routing-profiles.json)：
+在解析配置、打开引擎前显式加载 [config/routing-profiles.json](config/routing-profiles.json)：
 
 ```python
-config["routing_profiles"] = json.loads(Path("examples/routing-profiles.json").read_text())
+document = json.loads(Path("config/engine.json").read_text(encoding="utf-8"))
+document["routing"]["profiles"] = json.loads(
+    Path("config/routing-profiles.json").read_text(encoding="utf-8")
+)
+config = parse_config(document, base_dir="config")
 submission["task_type"] = "writing"
 submission["strategy"] = "single"  # auto 模式下类型与策略都明确时，不产生规划调用
 ```
@@ -215,7 +222,7 @@ Rust 的 `router::route_profiled` 可以用原有效 TaskSpec、已保存快照�
 这是纯路由复算，不会重放模型/工具请求，也不保证供应商输出可复现。
 SQLite schema 为 2；当前结构内保留恢复查询，新写入统一保存提交、计划和快照。
 
-当前接口与验证记录见 [统一执行路径](docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](docs/designs/task-type-routing-implementation.md) 保留为历史决策。
+当前接口与验证记录见 [统一执行路径](docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](docs/designs/ta<YOUR_API_KEY>.md) 保留为历史决策。
 
 ## 验收反馈与持久化指标
 
@@ -271,7 +278,7 @@ metrics = await engine.metrics()
 需要重建时，先关闭所有使用该库的引擎：
 
 1. 确认是否包含真实调用、未结算费用或需要复现的证据；这些数据应先备份并完成必要对账。
-2. 将 `config["database_path"]` 改为新的、尚不存在的文件路径，重新打开引擎。
+2. 将配置文件的 `storage.database_path` 改为新的、尚不存在的文件路径，重新加载配置并打开引擎。
 3. 新库不继承旧任务、反馈或费用。旧库保留，确认无用后再由宿主显式删除。
 
 不需要为纯模拟数据维护迁移；回归样本以测试夹具保存在 Git。
@@ -293,7 +300,9 @@ async def lookup(request):
     value = {"engine": "模型协作执行内核"}.get(args["query"], "未找到")
     return {"output": value, "actual_cost": 0}
 
-config["models"][0]["capabilities"].append("tools")
+document = json.loads(Path("config/engine.json").read_text(encoding="utf-8"))
+document["models"][0]["capabilities"].append("tools")
+config = parse_config(document, base_dir="config")
 task["tools"] = [{
     "name": "lookup", "description": "查询本地术语表",
     "parameters": {"type": "object", "properties": {"query": {"type": "string"}},
@@ -339,6 +348,8 @@ async with await Engine.open(config) as engine:
 ## 执行与持久化约定
 
 调用前事务性预留预算并计数；返回 usage 后结算，未知用量保留预留金额。
+适配器收到有效 usage 后立即保留用量与请求身份；后续工具参数解析、SSE 解析失败或取消、超时仍按已知用量结算。失败状态与费用核实分别记录，费用超出预留时仍先记账再报错。
+Rust 自定义适配器可通过 `InvokeRequest.evidence.record` 在收到证据时记录 usage 与请求身份；应在后续可失败解析或 `.await` 前调用，以便引擎在 future 被取消后完成结算。正常返回的 `ModelOutput.usage` 仍用于成功返回路径的结算。
 模型报错后的换模型尝试也占用总调用额度。实际用量超过预留时先记账再报错。
 每次工具执行也计入 `max_calls`，工具费用按声明的 `max_cost` 预留；模型续写重新计算完整消息与工具定义的输入预算。
 工具批次不提供事务回滚，后续工具遇到额度不足时，之前完成的工具及费用仍然保留。
@@ -348,6 +359,7 @@ async with await Engine.open(config) as engine:
 Rust 调用方通过 `CancellationToken` 取消，并继续等待 `run` 返回，以完成结算与任务状态写入。
 直接丢弃 future 或进程崩溃可能留下 running 记录；通过 `Store::records` 检查，
 使用有证据的 `Store::reconcile` 对未知费用对账。当前不自动重放恢复任务。
+对账在同一账本事务中追加 `reconciliation_evidence`，保留已有请求身份、调用状态、耗时与规划证据；重复确认相同费用不会重复计费，冲突费用被拒绝。缺失的原始调用指标不会因对账而补造。
 Python 包装器将 asyncio 取消传递给 Rust，并等待本次清理；引擎用完后调用 `close` 或退出引擎上下文。
 执行截止时间保留 `finalization_ms` 用于结束写入，但数据库写入没有硬实时完成保证。
 
@@ -374,7 +386,7 @@ for record in records:
 记录按任务 ID 排序，目前一次返回全部匹配记录，适合受控规模的本地账本。
 关闭开始后引擎拒绝新查询；成功重开数据库后可再次检查。查询结果不授予重试副作用的权限，
 也不保证原任务配置与当前配置相同。对账仍由 Rust `Store::reconcile` 接收有证据的实际费用。
-当前恢复检查支持版本 1 的 SQLite 数据库。
+恢复检查要求数据库与当前 SQLite schema 2 匹配；schema 1 等不匹配版本会在打开时被拒绝，原文件保持不变。备份与显式重建步骤见[开发期数据库规则](#开发期数据库规则)。当前结构内旧任务载荷的解析能力不代表支持打开旧 schema 数据库。
 
 ## 优雅关闭
 
@@ -395,13 +407,29 @@ Rust 调用方若直接丢弃 `close` future，应再次调用并等待关闭；
 
 ## 验证与开发
 
+### 策略对比评测
+
+[评测脚本](examples/evaluate.py) 使用 [12 个合成抽取任务](examples/evaluation-cases.json)，对比 single 与 cascade。配置至少提供两个非占位模型候选，显式填写模型版本、端点和价格版本，并设置相应凭证环境变量。
+
+```powershell
+.venv/Scripts/python.exe examples/evaluate.py --config config/engine.json --output evaluation-run-001 --total-budget 2500000
+```
+
+默认任务预算为 100000 microcredits；12 个任务乘以两组，加一次独立联调，共需 2500000 的总准入额度。额度不足在派发前拒绝；供应商实际 usage 超额仍可能突破预留。`--suite` 可指定同格式任务集。输出目录必须不存在，不支持续跑或覆盖。
+
+脚本新建 smoke、single、cascade 三个数据库，串行交替两组顺序。所有模型调用结束后，按 JSON 键、类型和值严格验收并提交版本化业务反馈；参考值不放入提示。该验收不会触发策略内升级，cascade 仍依据引擎确定性检查决定升级。
+
+`manifest.json` 保存配置和任务集，`report.json` 保存实际顺序、逐任务结果、候选与验收证据、未执行原因和任务总耗时；各组另有 metrics 与恢复证据。配置只引用凭证变量，不读取其值写入报告。未知费用或费用超额停止后续派发；取消后等待清理并尽力导出，导出失败明确标为不完整，数据库保留。
+
+脚本已通过本地模拟服务及限定范围的真实 Flash 联调，见[结果与边界](docs/designs/live-evaluation-results.md)。小规模对比不代表统计显著收益；执行完成率、业务通过率、调用平均延迟与任务总耗时分别解释。设计与实施范围见[评测方案](docs/designs/live-evaluation-design.md)。
+
 Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流程](.agent/README.md)。共享同一 `target/` 时，Cargo 检查与 maturin 构建按顺序执行。
 
 | 文档 | 内容 |
 | --- | --- |
 | [领域模型](CONTEXTS.md) | 术语、职责与概念关系 |
 | [模型规划与分类型路由设计](docs/designs/planner-routing-design.md) | 第一批规划实现与第二批画像路线；实施细节见 [落地记录](docs/designs/planning-implementation.md) |
-| [架构与关闭流程图](docs/diagrams/README.md) | 系统关系、关闭状态及图形验收记录 |
+| [技术图索引](docs/diagrams/README.md) | 当前架构、反馈路由、关闭状态与策略评测流程；附验收记录 |
 | [仓库协作指南](AGENTS.md) | 代理工作入口、业务约束和交付要求 |
 | [代码参考](.agent/code-map.md) | 模块入口与回归场景 |
 
@@ -410,4 +438,4 @@ Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流
 - 已提供宿主异步工具回调、工具预算结算、有界事件订阅、恢复检查及分阶段优雅关闭；两个端点均有本地模拟测试覆盖。
 - 已实现规划、类型画像及持久化验收反馈；新任务从历史反馈固定质量快照，调用指标支持离线对比。不会自动重放任务、更新端点可靠性策略或推断业务验收；真实供应商收益尚未验证。
 - 恢复检查只读取证据，不自动恢复或重放任务；对账通过 Rust `Store::reconcile` 完成。
-- 真实供应商联调尚未验证。预算控制调用准入，不能保证供应商最终报告的实际费用不超出预留。
+- 已验证真实 DeepSeek Flash 抽取调用；Pro、级联升级、真实工具与规划尚未验证。预算控制调用准入，不能保证供应商最终报告的实际费用不超出预留。
