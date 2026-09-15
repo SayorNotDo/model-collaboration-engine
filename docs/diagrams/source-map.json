@@ -1,7 +1,7 @@
 {
   "basis": "working-tree",
   "captured_date": "2026-09-15",
-  "note": "D 反馈与指标工作区证据：终态产物反馈、分层评价与调用指标持久化；新任务固定反馈快照。图源职责已更新，archify 重生成及验收待完成。",
+  "note": "开发期数据库策略工作区证据：移除跨版本迁移，新库直接初始化当前 schema，版本不匹配时保留数据并提示备份重建。拓扑与关闭状态不变；此前 archify 图形验收仍待完成。",
   "files": {
     "python/model_collaboration_engine/__init__.py": {
       "sha256": "cc842b33a043f3216be5bce34fa45c410d07a270a9378636f2da0b99de741c26",
@@ -36,8 +36,8 @@
       "bytes": 7225
     },
     "src/store.rs": {
-      "sha256": "d51f2b865774d9f835cd150440988f0bea169884f8931bd055819c05cbbecf1b",
-      "bytes": 16704
+      "sha256": "24d737f9493dfa697dbdb0368b821084b451670cb56342de388f10423a36938f",
+      "bytes": 14508
     },
     "src/strategy.rs": {
       "sha256": "675180f9c3cd66fe8d76743ff03497a6595da6f3b60e842edbbea39c4246c3d2",
@@ -104,12 +104,12 @@
       "bytes": 4644
     },
     "src/store/planning.rs": {
-      "sha256": "e8058ea2bb700c5c3d7db655e78d49cf9e562ac3afce7aa3f46d5c9c8b51f929",
-      "bytes": 2447
+      "sha256": "c5807e038fb2263789389bed80da4d967186776877d93cd67046dfbbdb68598d",
+      "bytes": 2464
     },
     "tests/planning.rs": {
-      "sha256": "92b58ea8b1679e396de298d374da8c373ae95d2c6a86949b59f6fadb6feddfbb",
-      "bytes": 16869
+      "sha256": "5d73d8904adaeb4bf24c3a35bb50206663b80178186234edc1d0650e7d9fb6ba",
+      "bytes": 16925
     },
     "tests/python/test_planning.py": {
       "sha256": "b583a22633772021863dfbc06e28b1b7662820482c8f9ee01fb621ec276f5626",
@@ -140,20 +140,20 @@
       "bytes": 3059
     },
     "src/store/feedback.rs": {
-      "sha256": "a1511fa6f2a3c2179c407d6789733e0c056eb39b9501c5a7603b79a9be60d48f",
-      "bytes": 9691
+      "sha256": "94141a95ccc8890a2b01ca7dcc6bce026d020384878cc9b77ab54f9012f799ce",
+      "bytes": 8706
     },
     "src/store/metrics.rs": {
       "sha256": "9505be649e41e0f6de8855f3940793e4beab74691385d70e0ca973f9eadd0357",
       "bytes": 8068
     },
     "tests/feedback.rs": {
-      "sha256": "1adfd54ff1b2fd84acf2f694b86c6f5142f82a37ea754eb5a490a89372feeda9",
-      "bytes": 13125
+      "sha256": "84872b05cd20782d3d03b8360d6095e31a7c994afb3c3658d0b953839469da30",
+      "bytes": 11703
     },
     "tests/python/test_feedback.py": {
-      "sha256": "cbf0e0253d3a9f67c8934f545aebe63315fb4ad743011e9ad9b98bfb845cab7f",
-      "bytes": 2519
+      "sha256": "6bc996250d2dcdb77b04ecf42b7af96df78aa37eaed75169fefe25188581f50c",
+      "bytes": 3440
     },
     "tests/python/test_metrics_summary.py": {
       "sha256": "32474ca67dbd3656e2b526258d5187a6a1847f1dabc7198e523567a04b802c52",
@@ -162,6 +162,14 @@
     "examples/compare_metrics.py": {
       "sha256": "a39fcca8c97ea83b66d2a5a63509c41c9efcd9a59ab37b2d056b82bdeaf0d1a8",
       "bytes": 2671
+    },
+    "src/store/schema.rs": {
+      "sha256": "ddcfa5685848ac3113fb707658b65bd06c5f95b1890b43f886974c0300a041f0",
+      "bytes": 3415
+    },
+    "tests/database_schema.rs": {
+      "sha256": "44647e4a9014231d4315728b2aadfc106852ab61dce2f95a8894f6fa8eebabc1",
+      "bytes": 4253
     }
   },
   "diagrams": {
@@ -266,6 +274,9 @@
           },
           {
             "path": "src/store/metrics.rs"
+          },
+          {
+            "path": "src/store/schema.rs"
           }
         ]
       },
@@ -359,6 +370,19 @@
             "tests/feedback.rs",
             "tests/python/test_feedback.py",
             "tests/python/test_metrics_summary.py"
+          ],
+          "topology_change": false,
+          "responsibility_change": true
+        },
+        "development_database_policy": {
+          "sources": [
+            "src/store.rs",
+            "src/store/schema.rs",
+            "src/store/feedback.rs"
+          ],
+          "tests": [
+            "tests/database_schema.rs",
+            "tests/python/test_feedback.py"
           ],
           "topology_change": false,
           "responsibility_change": true

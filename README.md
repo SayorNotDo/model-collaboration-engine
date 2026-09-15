@@ -152,10 +152,10 @@ async with await Engine.open(config) as engine:
 取消或总资源终止可能先中断实时事件投递，最终以任务结果和持久化证据为准。
 新入口沿用流提前退出、Python 重复取消、关闭等待清理的保护机制。
 
-### 规划恢复证据与兼容
+### 规划恢复证据
 
-SQLite 表结构为 schema 2，打开已识别的 schema 1 引擎数据库时事务升级，保留原账本与证据。所有新任务的 `tasks.spec` 为 `{payload_version: 1, submission: ...}`；
-旧 `TaskSpec` JSON 保留解码路径。旧版程序不理解新提交 envelope，因此含新提交的数据库应使用本版或更新版本读取。
+SQLite 表结构为 schema 2；新库直接创建当前结构，版本不匹配时拒绝打开，不自动迁移或清库。所有新任务的 `tasks.spec` 为 `{payload_version: 1, submission: ...}`；
+当前 schema 内已有的任务证据保留读取能力，但不承诺跨 schema 兼容。
 原始提交不覆盖，`tasks.plan` 记录规划建议/错误/回退与 `effective_plan`，有效计划和 `planned` 检查点原子保存。
 检查点区分 `admitted`、`planning`、`planning_failed`、`planned` 和 `executing`；后续轮次检查点沿用执行证据。
 规划原文位于对应 attempt 的 `outcome.planning_output`，包括截断与工具请求标记。
@@ -213,7 +213,7 @@ Rust 的 `router::route_profiled` 可以用原有效 TaskSpec、已保存快照�
 延迟归一化和不可用时间判断采用快照时刻；实际执行仍在每次派发前检查实时截止时间和余额。
 同一输入可复现模型、评分、排除原因和质量证据，新生成的 decision_id 不要求相同。
 这是纯路由复算，不会重放模型/工具请求，也不保证供应商输出可复现。
-SQLite schema 为 2，旧任务、旧计划和旧尝试保留只读解码能力，新写入统一保存提交、计划和快照。
+SQLite schema 为 2；当前结构内保留恢复查询，新写入统一保存提交、计划和快照。
 
 当前接口与验证记录见 [统一执行路径](docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](docs/designs/task-type-routing-implementation.md) 保留为历史决策。
 
@@ -262,9 +262,21 @@ metrics = await engine.metrics()
 示例只汇总已导出的证据，不重放模型或工具；分别报告执行完成率、人工介入率、分版本业务反馈、
 费用、调用耗时与规划开销。未反馈样本不能算失败或成功，也不能据此宣称真实收益。
 
-schema 1 → 2 仅新增评价/反馈表和索引，不改写历史任务或费用；旧版引擎不可再打开升级后的库。
-迁移前应备份数据库。未知或更高 schema 拒绝，不猜测转换。
-旧任务没有候选评价记录时，不能补造归因提交反馈。
+### 开发期数据库规则
+
+当前不维护跨版本迁移链，已移除 `SqliteStore::migrate` 和 schema 1→2 自动升级路径。
+打开不匹配的 schema 时返回 `schema` 错误，details 包含 current、target 和
+`action=backup_and_rebuild`。原文件保持不变，数据库打开操作不会删除、重建或补造历史记录。
+
+需要重建时，先关闭所有使用该库的引擎：
+
+1. 确认是否包含真实调用、未结算费用或需要复现的证据；这些数据应先备份并完成必要对账。
+2. 将 `config["database_path"]` 改为新的、尚不存在的文件路径，重新打开引擎。
+3. 新库不继承旧任务、反馈或费用。旧库保留，确认无用后再由宿主显式删除。
+
+不需要为纯模拟数据维护迁移；回归样本以测试夹具保存在 Git。
+真实调用费用保留到对账完成，需要复现的问题和算法对比样本选择性归档。
+跨版本迁移在正式发布前按实际需要设计；不会因为处于开发期而自动丢弃账务证据。
 
 实现范围与验证见 [反馈与指标实施记录](docs/designs/feedback-metrics-implementation.md)。
 

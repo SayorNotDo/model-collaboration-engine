@@ -6,31 +6,6 @@ use crate::contracts::{
 use rusqlite::{params, Connection, OptionalExtension};
 use serde_json::{json, Value};
 
-pub(super) fn migrate(connection: &mut Connection) -> Result<()> {
-    let transaction = connection.transaction()?;
-    transaction.execute_batch(
-        "CREATE TABLE evaluations(
-            artifact_id TEXT PRIMARY KEY,
-            task TEXT NOT NULL REFERENCES tasks(id),
-            record TEXT NOT NULL);
-         CREATE INDEX evaluations_task ON evaluations(task);
-         CREATE TABLE feedback(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            feedback_id TEXT NOT NULL UNIQUE,
-            task TEXT NOT NULL REFERENCES tasks(id),
-            artifact_id TEXT NOT NULL REFERENCES evaluations(artifact_id),
-            kind TEXT NOT NULL,
-            key_json TEXT NOT NULL,
-            accepted INTEGER NOT NULL CHECK(accepted IN (0,1)),
-            payload TEXT NOT NULL,
-            UNIQUE(artifact_id,kind));
-         CREATE INDEX feedback_quality ON feedback(key_json,kind);
-         PRAGMA user_version=2;",
-    )?;
-    transaction.commit()?;
-    Ok(())
-}
-
 impl SqliteStore {
     pub(super) async fn persist_evaluation(&self, record: &EvaluationRecord) -> Result<()> {
         let _gate = self.gate.lock().await;

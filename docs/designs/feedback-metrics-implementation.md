@@ -1,5 +1,7 @@
 # D：持久化反馈与指标
 
+后续开发期数据库规则已调整：取消 schema 1→2 自动迁移及 migrate 接口，新库直接初始化 schema 2；版本不匹配时保留文件并提示备份重建。下文迁移实现与 59/56 测试数量为 PR #3 的历史记录，当前规则以根目录 README 为准。
+
 日期：2026-09-15。基线：master 4f8c1b7；工作分支 feat/feedback-metrics。
 本记录描述提交前的实现与本地验证；发布与合并状态以 GitHub PR 为准。
 
@@ -68,3 +70,17 @@ unknown_cost_attempts，不会混同已知零费用。
 技术图：模块拓扑和关闭状态不变，但宿主、引擎、存储及路由职责更新。
 当前无可用 archify 命令，图源与源码证据更新；HTML 未重生成，
 结构/浏览器/视觉验收未执行，旧回执不代表本批通过。
+
+## 开发期数据库策略调整验证
+
+2026-09-15，分支 refactor/development-database-policy；以下为提交前验证，发布与合并状态以 GitHub PR 为准。
+
+- 移除 schema 1→2 自动升级与 SqliteStore::migrate；新库一次性初始化当前 schema 2。
+- 新增 store/schema.rs 与 tests/database_schema.rs，验证空文件/新路径建库、
+  旧版/未知版/外部数据库拒绝，并逐字节确认原文件及未结算记录未被改写。
+- 当前 schema 的恢复查询继续保留；旧 SQL 夹具用于验证拒绝，不再作为迁移兼容承诺。
+- Rust 缓存检查发现旧用例名称，清理本项目构建缓存后重新全量执行：
+  61 项通过，包含 current_schema_preserves_existing_task_evidence。
+- 原生扩展已重建，Python 58 项通过；两个本地 HTTP 端点均验证版本错误与新路径建库。
+- Clippy（-D warnings）、cargo fmt --check、git diff --check、文档链接与源码哈希核对通过。
+- 没有清空任何现有业务数据库；技术图拓扑不变，之前待完成的 archify 验收仍未完成。

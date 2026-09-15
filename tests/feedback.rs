@@ -289,35 +289,6 @@ async fn live_feedback_changes_selection_but_model_versions_do_not_mix() {
 }
 
 #[tokio::test]
-async fn migration_preserves_legacy_ledger_and_rejects_unknown_schema() {
-    use model_collaboration_engine::store::{SqliteStore, Store};
-    let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("old.db");
-    let db = rusqlite::Connection::open(&path).unwrap();
-    db.execute_batch(include_str!("planning/legacy-v1.sql"))
-        .unwrap();
-    db.execute("INSERT INTO tasks(id,spec,config_hash,plan,status,total,reserved,calls,checkpoint) VALUES('old','{}','legacy','{}','cancelled',100,7,1,'{}')",[]).unwrap();
-    db.execute("INSERT INTO attempts(id,task,amount,state,metadata) VALUES('attempt','old',7,'unresolved','{}')",[]).unwrap();
-    drop(db);
-    let store = SqliteStore::open(path.to_str().unwrap()).await.unwrap();
-    assert_eq!(store.ledger("old").await.unwrap().reserved, 7);
-    let metrics = store.metrics().await.unwrap();
-    assert_eq!(metrics.calls[0].unknown_status, 1);
-    assert_eq!(metrics.calls[0].unresolved_reserved, 7);
-    assert!(metrics.quality.is_empty());
-    store.close().await.unwrap();
-    let db = rusqlite::Connection::open(&path).unwrap();
-    assert_eq!(
-        db.query_row("PRAGMA user_version", [], |r| r.get::<_, i64>(0))
-            .unwrap(),
-        2
-    );
-    db.execute_batch("PRAGMA user_version=99").unwrap();
-    drop(db);
-    assert!(matches!(SqliteStore::open(path.to_str().unwrap()).await,Err(e) if e.kind == "schema"));
-}
-
-#[tokio::test]
 async fn failed_model_attempt_keeps_metrics_and_reservation() {
     let f = setup(
         vec![Action::Reply(Err(EngineError::new(

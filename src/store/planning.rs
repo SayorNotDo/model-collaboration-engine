@@ -1,4 +1,4 @@
-//! Versioned payloads reuse schema 1; legacy tasks.spec stays readable.
+//! Versioned submission payloads and immutable plans within the current database schema.
 use super::{audit, db_call, SqliteStore};
 use crate::contracts::{EngineError, Result, SubmissionSpec};
 use rusqlite::{params, OptionalExtension};

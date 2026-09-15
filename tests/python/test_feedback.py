@@ -1,6 +1,8 @@
 """Feedback through both HTTP endpoints and the installed native boundary."""
 import asyncio
 import copy
+import sqlite3
+from pathlib import Path
 
 import pytest
 from model_collaboration_engine import Engine
@@ -50,3 +52,26 @@ def test_feedback_persists_and_rejects_conflicts(planning_server):
             assert (await reopened.metrics())["revision"] == 1
 
     asyncio.run(run())
+
+
+def test_old_database_is_rejected_without_reset(planning_server):
+    config, _, mode = planning_server
+    path = Path(config["database_path"])
+    with sqlite3.connect(path) as db:
+        db.executescript(
+            "CREATE TABLE evidence(value TEXT); INSERT INTO evidence VALUES('keep');"
+            "PRAGMA application_id=1296254257; PRAGMA user_version=1;"
+        )
+    before = path.read_bytes()
+
+    async def run():
+        with pytest.raises(RuntimeError, match="backup_and_rebuild"):
+            await Engine.open(config)
+        assert path.read_bytes() == before
+        fresh = config | {"database_path": str(path.with_name("fresh.db"))}
+        async with await Engine.open(fresh) as engine:
+            assert (await engine.metrics())["tasks"]["total"] == 0
+        assert path.read_bytes() == before
+
+    asyncio.run(run())
+    assert mode["requests"] == []
