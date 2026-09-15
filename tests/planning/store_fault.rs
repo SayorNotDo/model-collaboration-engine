@@ -8,27 +8,37 @@ use model_collaboration_engine::{
 use serde_json::Value;
 use std::sync::Arc;
 
-pub struct FailSettlement(pub Arc<dyn Store>);
+pub struct FaultStore {
+    pub inner: Arc<dyn Store>,
+    pub fail_settlement: bool,
+    pub reservation_gate: Option<Arc<ReservationGate>>,
+}
+
+#[derive(Default)]
+pub struct ReservationGate {
+    pub reached: tokio::sync::Notify,
+    pub release: tokio::sync::Notify,
+}
 #[async_trait]
-impl Store for FailSettlement {
+impl Store for FaultStore {
     async fn record_evaluation(&self, record: &EvaluationRecord) -> Result<()> {
-        self.0.record_evaluation(record).await
+        self.inner.record_evaluation(record).await
     }
     async fn record_feedback(&self, feedback: &Feedback) -> Result<()> {
-        self.0.record_feedback(feedback).await
+        self.inner.record_feedback(feedback).await
     }
     async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>> {
-        self.0.evaluations(task).await
+        self.inner.evaluations(task).await
     }
     async fn metrics(&self) -> Result<MetricsSnapshot> {
-        self.0.metrics().await
+        self.inner.metrics().await
     }
 
     async fn create_submission(&self, s: &SubmissionSpec, hash: &str) -> Result<()> {
-        self.0.create_submission(s, hash).await
+        self.inner.create_submission(s, hash).await
     }
     async fn save_plan(&self, task: &str, plan: Value, checkpoint: Value) -> Result<()> {
-        self.0.save_plan(task, plan, checkpoint).await
+        self.inner.save_plan(task, plan, checkpoint).await
     }
     async fn reserve(
         &self,
@@ -38,32 +48,48 @@ impl Store for FailSettlement {
         max_calls: u32,
         metadata: Value,
     ) -> Result<()> {
-        self.0
+        let planner = metadata["role"] == "planner";
+        self.inner
             .reserve(task, attempt, amount, max_calls, metadata)
-            .await
+            .await?;
+        if let Some(gate) = self.reservation_gate.as_ref().filter(|_| planner) {
+            gate.reached.notify_one();
+            gate.release.notified().await;
+        }
+        Ok(())
     }
-    async fn settle(&self, _: &str, _: &str, _: Option<u64>, _: Value) -> Result<()> {
-        Err(EngineError::new("storage", "injected settlement failure"))
+    async fn settle(
+        &self,
+        task: &str,
+        attempt: &str,
+        cost: Option<u64>,
+        outcome: Value,
+    ) -> Result<()> {
+        if self.fail_settlement {
+            Err(EngineError::new("storage", "injected settlement failure"))
+        } else {
+            self.inner.settle(task, attempt, cost, outcome).await
+        }
     }
     async fn checkpoint(&self, task: &str, value: Value) -> Result<()> {
-        self.0.checkpoint(task, value).await
+        self.inner.checkpoint(task, value).await
     }
     async fn event(&self, event: &Event) -> Result<()> {
-        self.0.event(event).await
+        self.inner.event(event).await
     }
     async fn finish(&self, task: &str, status: &str, value: Value) -> Result<()> {
-        self.0.finish(task, status, value).await
+        self.inner.finish(task, status, value).await
     }
     async fn ledger(&self, task: &str) -> Result<Ledger> {
-        self.0.ledger(task).await
+        self.inner.ledger(task).await
     }
     async fn records(&self) -> Result<Vec<RecoveryRecord>> {
-        self.0.records().await
+        self.inner.records().await
     }
     async fn reconcile(&self, task: &str, attempt: &str, cost: u64, evidence: &str) -> Result<()> {
-        self.0.reconcile(task, attempt, cost, evidence).await
+        self.inner.reconcile(task, attempt, cost, evidence).await
     }
     async fn close(&self) -> Result<()> {
-        self.0.close().await
+        self.inner.close().await
     }
 }

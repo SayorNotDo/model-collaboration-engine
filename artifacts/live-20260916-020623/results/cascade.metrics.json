@@ -1,0 +1,48 @@
+{
+  "revision": 12,
+  "captured_at_ms": 1789495634005,
+  "quality": [
+    {
+      "key": {
+        "model_id": "deepseek-flash",
+        "model_version": "DeepSeek-V4.1-Flash",
+        "task_type": "information_extraction",
+        "role": "invoke",
+        "evaluator_version": "synthetic-extraction-v1"
+      },
+      "kind": "business_acceptance",
+      "accepted": 11,
+      "samples": 12
+    }
+  ],
+  "calls": [
+    {
+      "attempt_kind": "model",
+      "tool_name": null,
+      "model_id": "deepseek-flash",
+      "model_version": "DeepSeek-V4.1-Flash",
+      "config_hash": "a361f3f56996300f4710d3cdd084739d242fa69bab81ca5b093b9a110e04e121",
+      "node": "invoke",
+      "attempts": 12,
+      "succeeded": 12,
+      "failed": 0,
+      "cancelled": 0,
+      "timed_out": 0,
+      "not_dispatched": 0,
+      "unknown_status": 0,
+      "known_cost": 43806,
+      "unresolved_reserved": 0,
+      "unknown_cost_attempts": 0,
+      "latency_samples": 12,
+      "mean_latency_ms": 2030.0833333333333
+    }
+  ],
+  "tasks": {
+    "total": 12,
+    "completed": 12,
+    "human_required": 0,
+    "failed": 0,
+    "cancelled": 0,
+    "running": 0
+  }
+}

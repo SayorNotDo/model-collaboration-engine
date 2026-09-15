@@ -6,8 +6,9 @@ import sqlite3
 from pathlib import Path
 
 import pytest
+from test_planning import planning_server as planning_server
+
 from model_collaboration_engine import Engine
-from test_planning import planning_server  # Shared parametrized HTTP fixture.
 
 
 def typed_config(config):

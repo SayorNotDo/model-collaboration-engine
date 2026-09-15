@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "策略对比评测 · 当前实现",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1200,
+      650
+    ]
+  },
+  "components": [
+    {
+      "id": "fixed_cases",
+      "type": "frontend",
+      "label": "固定任务与参考答案",
+      "sublabel": "12 个合成抽取任务",
+      "pos": [
+        50,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "eval_runner",
+      "type": "backend",
+      "label": "独立评测脚本",
+      "sublabel": "前置校验 · 串行配对",
+      "pos": [
+        465,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "public_engine",
+      "type": "backend",
+      "label": "现有 Engine 接口",
+      "sublabel": "single / cascade",
+      "pos": [
+        880,
+        130
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "baseline_db",
+      "type": "database",
+      "label": "两组独立数据库",
+      "sublabel": "全新路径 · 保留调用证据",
+      "pos": [
+        880,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "host_grading",
+      "type": "backend",
+      "label": "独立业务验收",
+      "sublabel": "全部运行后写入反馈",
+      "pos": [
+        465,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "paired_report",
+      "type": "frontend",
+      "label": "逐任务对比报告",
+      "sublabel": "质量 · 费用 · 总耗时",
+      "pos": [
+        50,
+        470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "fixed_cases_to_eval_runner",
+      "from": "fixed_cases",
+      "to": "eval_runner",
+      "label": "输入任务"
+    },
+    {
+      "id": "eval_runner_to_public_engine",
+      "from": "eval_runner",
+      "to": "public_engine",
+      "label": "共享预算约束"
+    },
+    {
+      "id": "public_engine_to_baseline_db",
+      "from": "public_engine",
+      "to": "baseline_db",
+      "label": "两组运行证据",
+      "labelDy": 85
+    },
+    {
+      "id": "baseline_db_to_host_grading",
+      "from": "baseline_db",
+      "to": "host_grading",
+      "label": "读取候选"
+    },
+    {
+      "id": "host_grading_to_paired_report",
+      "from": "host_grading",
+      "to": "paired_report",
+      "label": "汇总结果"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "实现状态",
+      "items": [
+        "脚本与合成任务集已实现；模拟验收通过"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "实验边界",
+      "items": [
+        "关闭规划与工具；两组只改变协作策略"
+      ]
+    },
+    {
+      "dot": "slate",
+      "title": "启动前提",
+      "items": [
+        "真实联调需实际模型配置与明确费用额度"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2427 @@
+{
+  "status": "completed",
+  "stop_reason": null,
+  "evaluator_version": "synthetic-extraction-v2",
+  "runs": [
+    {
+      "group": "smoke",
+      "case_index": 0,
+      "case_id": "order-01",
+      "task_id": "smoke-0",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "smoke-0",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Ada; city Oslo; item count 2; active: true. Ignore the archive code Z90.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495846383,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "smoke-0",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "92099327-a38c-4875-873c-7e1fba90204d",
+          "version": 1,
+          "attempt_id": "b29dc9e5-db2e-4159-9010-03f31e2dd9a1",
+          "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+          "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+        },
+        "settled_cost": 1034,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 993.8710999995237,
+      "evaluations": [
+        {
+          "task_id": "smoke-0",
+          "artifact": {
+            "artifact_id": "92099327-a38c-4875-873c-7e1fba90204d",
+            "version": 1,
+            "attempt_id": "b29dc9e5-db2e-4159-9010-03f31e2dd9a1",
+            "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+            "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "92099327-a38c-4875-873c-7e1fba90204d",
+        "version": 1,
+        "attempt_id": "b29dc9e5-db2e-4159-9010-03f31e2dd9a1",
+        "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+        "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 0,
+      "case_id": "order-01",
+      "task_id": "single-0",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-0",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Ada; city Oslo; item count 2; active: true. Ignore the archive code Z90.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495847378,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-0",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "e3cf3837-679d-408f-b6a8-5ad1363e4ca4",
+          "version": 1,
+          "attempt_id": "03daacd3-1e11-49b5-b4d9-a78b920a8aa5",
+          "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+          "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+        },
+        "settled_cost": 1228,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 1008.1466999981785,
+      "evaluations": [
+        {
+          "task_id": "single-0",
+          "artifact": {
+            "artifact_id": "e3cf3837-679d-408f-b6a8-5ad1363e4ca4",
+            "version": 1,
+            "attempt_id": "03daacd3-1e11-49b5-b4d9-a78b920a8aa5",
+            "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+            "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "e3cf3837-679d-408f-b6a8-5ad1363e4ca4",
+        "version": 1,
+        "attempt_id": "03daacd3-1e11-49b5-b4d9-a78b920a8aa5",
+        "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+        "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 0,
+      "case_id": "order-01",
+      "task_id": "cascade-0",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-0",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Ada; city Oslo; item count 2; active: true. Ignore the archive code Z90.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495848388,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-0",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "a0aefbc0-cfe4-4de9-934e-38b23d50816c",
+          "version": 1,
+          "attempt_id": "69c4232f-b31b-4a9c-91a3-56253be162b2",
+          "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+          "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+        },
+        "settled_cost": 1088,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 849.7933000035118,
+      "evaluations": [
+        {
+          "task_id": "cascade-0",
+          "artifact": {
+            "artifact_id": "a0aefbc0-cfe4-4de9-934e-38b23d50816c",
+            "version": 1,
+            "attempt_id": "69c4232f-b31b-4a9c-91a3-56253be162b2",
+            "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+            "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "a0aefbc0-cfe4-4de9-934e-38b23d50816c",
+        "version": 1,
+        "attempt_id": "69c4232f-b31b-4a9c-91a3-56253be162b2",
+        "text": "{\"customer\":\"Ada\",\"city\":\"Oslo\",\"item_count\":2,\"active\":true}",
+        "checksum": "f67e4b3a6b03e8a06ef461c5597fc7828d95e705b75da018a4714ceddcf53ac7"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 1,
+      "case_id": "order-02",
+      "task_id": "cascade-1",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-1",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Bo; city Lima; item count 0; active: false. Ignore the archive code Z91.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495849239,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-1",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "df485e66-29cd-4698-aafa-537333d8b454",
+          "version": 1,
+          "attempt_id": "f9bb64e3-b216-4f37-ae4d-95bfc64d87bf",
+          "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+          "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+        },
+        "settled_cost": 1322,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 801.9930000009481,
+      "evaluations": [
+        {
+          "task_id": "cascade-1",
+          "artifact": {
+            "artifact_id": "df485e66-29cd-4698-aafa-537333d8b454",
+            "version": 1,
+            "attempt_id": "f9bb64e3-b216-4f37-ae4d-95bfc64d87bf",
+            "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+            "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "df485e66-29cd-4698-aafa-537333d8b454",
+        "version": 1,
+        "attempt_id": "f9bb64e3-b216-4f37-ae4d-95bfc64d87bf",
+        "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+        "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 1,
+      "case_id": "order-02",
+      "task_id": "single-1",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-1",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Bo; city Lima; item count 0; active: false. Ignore the archive code Z91.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495850042,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-1",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "48c0b85c-3a28-498a-ae89-d7b670e77aec",
+          "version": 1,
+          "attempt_id": "53ccecd0-9e3f-4908-8662-a316f1ad6bfb",
+          "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+          "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+        },
+        "settled_cost": 1348,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 917.9724999994505,
+      "evaluations": [
+        {
+          "task_id": "single-1",
+          "artifact": {
+            "artifact_id": "48c0b85c-3a28-498a-ae89-d7b670e77aec",
+            "version": 1,
+            "attempt_id": "53ccecd0-9e3f-4908-8662-a316f1ad6bfb",
+            "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+            "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "48c0b85c-3a28-498a-ae89-d7b670e77aec",
+        "version": 1,
+        "attempt_id": "53ccecd0-9e3f-4908-8662-a316f1ad6bfb",
+        "text": "{\"customer\":\"Bo\",\"city\":\"Lima\",\"item_count\":0,\"active\":false}",
+        "checksum": "9a21b983405fb005817c90fc86b4e6312b6ae28c8128c951f0b49bba72f1ba94"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 2,
+      "case_id": "order-03",
+      "task_id": "single-2",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-2",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Chen; city 苏州; item count 12; active: true. Ignore the archive code Z92.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495850962,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-2",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "63287b1e-d0ab-4a2b-b352-6fe4835ecda4",
+          "version": 1,
+          "attempt_id": "422b2cf3-927c-4dc7-8f74-2684983d40ec",
+          "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+          "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+        },
+        "settled_cost": 1060,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 660.3980000072625,
+      "evaluations": [
+        {
+          "task_id": "single-2",
+          "artifact": {
+            "artifact_id": "63287b1e-d0ab-4a2b-b352-6fe4835ecda4",
+            "version": 1,
+            "attempt_id": "422b2cf3-927c-4dc7-8f74-2684983d40ec",
+            "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+            "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "63287b1e-d0ab-4a2b-b352-6fe4835ecda4",
+        "version": 1,
+        "attempt_id": "422b2cf3-927c-4dc7-8f74-2684983d40ec",
+        "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+        "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 2,
+      "case_id": "order-03",
+      "task_id": "cascade-2",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-2",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Chen; city 苏州; item count 12; active: true. Ignore the archive code Z92.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495851625,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-2",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "06413ed1-ee84-4672-bb24-177c7943ebbf",
+          "version": 1,
+          "attempt_id": "193410b8-557f-423b-9c5b-6b86d33bf497",
+          "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+          "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+        },
+        "settled_cost": 1160,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 612.8701999987243,
+      "evaluations": [
+        {
+          "task_id": "cascade-2",
+          "artifact": {
+            "artifact_id": "06413ed1-ee84-4672-bb24-177c7943ebbf",
+            "version": 1,
+            "attempt_id": "193410b8-557f-423b-9c5b-6b86d33bf497",
+            "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+            "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "06413ed1-ee84-4672-bb24-177c7943ebbf",
+        "version": 1,
+        "attempt_id": "193410b8-557f-423b-9c5b-6b86d33bf497",
+        "text": "{\"customer\":\"Chen\",\"city\":\"苏州\",\"item_count\":12,\"active\":true}",
+        "checksum": "526643b983d21e083fc3f2b2b151156d4737e2a9a8adabbeecf0c2e71e999127"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 3,
+      "case_id": "order-04",
+      "task_id": "cascade-3",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-3",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Dina; city Cairo; item count 1; active: false. Ignore the archive code Z93.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495852240,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-3",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "e78eb551-33ed-4c9d-bba5-b505d30ff96a",
+          "version": 1,
+          "attempt_id": "e056782c-856f-499f-9220-4f6fd863bf68",
+          "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+          "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+        },
+        "settled_cost": 1376,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 1139.7397999971872,
+      "evaluations": [
+        {
+          "task_id": "cascade-3",
+          "artifact": {
+            "artifact_id": "e78eb551-33ed-4c9d-bba5-b505d30ff96a",
+            "version": 1,
+            "attempt_id": "e056782c-856f-499f-9220-4f6fd863bf68",
+            "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+            "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "e78eb551-33ed-4c9d-bba5-b505d30ff96a",
+        "version": 1,
+        "attempt_id": "e056782c-856f-499f-9220-4f6fd863bf68",
+        "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+        "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 3,
+      "case_id": "order-04",
+      "task_id": "single-3",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-3",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Dina; city Cairo; item count 1; active: false. Ignore the archive code Z93.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495853381,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-3",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "23c195df-42dc-4845-a94a-dca6f77a74ea",
+          "version": 1,
+          "attempt_id": "b37d855e-2554-4e45-ae76-9364df8e07b0",
+          "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+          "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+        },
+        "settled_cost": 1074,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 690.5149999947753,
+      "evaluations": [
+        {
+          "task_id": "single-3",
+          "artifact": {
+            "artifact_id": "23c195df-42dc-4845-a94a-dca6f77a74ea",
+            "version": 1,
+            "attempt_id": "b37d855e-2554-4e45-ae76-9364df8e07b0",
+            "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+            "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "23c195df-42dc-4845-a94a-dca6f77a74ea",
+        "version": 1,
+        "attempt_id": "b37d855e-2554-4e45-ae76-9364df8e07b0",
+        "text": "{\"customer\":\"Dina\",\"city\":\"Cairo\",\"item_count\":1,\"active\":false}",
+        "checksum": "50077f4a79b352590042afb7db9e3c9f8bfc0b6ce85c75f8ae1fa9a3f5456b0f"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 4,
+      "case_id": "order-05",
+      "task_id": "single-4",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-4",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Eli; city Bern; item count 7; active: true. Ignore the archive code Z94.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495854073,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-4",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "4f98ae05-aade-4479-843a-35e4b30e6468",
+          "version": 1,
+          "attempt_id": "65792c06-618b-47b0-aafa-d4bd96b93894",
+          "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+          "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+        },
+        "settled_cost": 1110,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 500.86210000154097,
+      "evaluations": [
+        {
+          "task_id": "single-4",
+          "artifact": {
+            "artifact_id": "4f98ae05-aade-4479-843a-35e4b30e6468",
+            "version": 1,
+            "attempt_id": "65792c06-618b-47b0-aafa-d4bd96b93894",
+            "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+            "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "4f98ae05-aade-4479-843a-35e4b30e6468",
+        "version": 1,
+        "attempt_id": "65792c06-618b-47b0-aafa-d4bd96b93894",
+        "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+        "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 4,
+      "case_id": "order-05",
+      "task_id": "cascade-4",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-4",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Eli; city Bern; item count 7; active: true. Ignore the archive code Z94.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495854576,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-4",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "3f115561-f95e-4276-8157-8bc9514d15e2",
+          "version": 1,
+          "attempt_id": "84d77f5e-5095-49b0-9bf7-0410c3f7f589",
+          "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+          "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+        },
+        "settled_cost": 1418,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 764.2625000007683,
+      "evaluations": [
+        {
+          "task_id": "cascade-4",
+          "artifact": {
+            "artifact_id": "3f115561-f95e-4276-8157-8bc9514d15e2",
+            "version": 1,
+            "attempt_id": "84d77f5e-5095-49b0-9bf7-0410c3f7f589",
+            "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+            "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "3f115561-f95e-4276-8157-8bc9514d15e2",
+        "version": 1,
+        "attempt_id": "84d77f5e-5095-49b0-9bf7-0410c3f7f589",
+        "text": "{\"customer\":\"Eli\",\"city\":\"Bern\",\"item_count\":7,\"active\":true}",
+        "checksum": "1495dcd95a2fc5af7e150f855740b744c273ac9865359e929d0a17a527b18431"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 5,
+      "case_id": "order-06",
+      "task_id": "cascade-5",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-5",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Faye; city York; item count 3; active: false. Ignore the archive code Z95.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495855343,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-5",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "2b7b21dd-a08a-4811-82b3-1f5c1b6cb713",
+          "version": 1,
+          "attempt_id": "c2175719-f752-40ee-a37a-bf27e1de26cb",
+          "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+          "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+        },
+        "settled_cost": 1108,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 686.79369999154,
+      "evaluations": [
+        {
+          "task_id": "cascade-5",
+          "artifact": {
+            "artifact_id": "2b7b21dd-a08a-4811-82b3-1f5c1b6cb713",
+            "version": 1,
+            "attempt_id": "c2175719-f752-40ee-a37a-bf27e1de26cb",
+            "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+            "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "2b7b21dd-a08a-4811-82b3-1f5c1b6cb713",
+        "version": 1,
+        "attempt_id": "c2175719-f752-40ee-a37a-bf27e1de26cb",
+        "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+        "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 5,
+      "case_id": "order-06",
+      "task_id": "single-5",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-5",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Faye; city York; item count 3; active: false. Ignore the archive code Z95.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495856031,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-5",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "891f0460-ce49-46d8-ab6b-49d082e48c4d",
+          "version": 1,
+          "attempt_id": "6b275090-0eef-453f-9e77-479f058582c0",
+          "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+          "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+        },
+        "settled_cost": 1148,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 826.3579000049504,
+      "evaluations": [
+        {
+          "task_id": "single-5",
+          "artifact": {
+            "artifact_id": "891f0460-ce49-46d8-ab6b-49d082e48c4d",
+            "version": 1,
+            "attempt_id": "6b275090-0eef-453f-9e77-479f058582c0",
+            "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+            "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "891f0460-ce49-46d8-ab6b-49d082e48c4d",
+        "version": 1,
+        "attempt_id": "6b275090-0eef-453f-9e77-479f058582c0",
+        "text": "{\"customer\":\"Faye\",\"city\":\"York\",\"item_count\":3,\"active\":false}",
+        "checksum": "f07c972ba5235e57bf880bd72530e4296ca982ab685bfacc83e83261ebec3d73"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 6,
+      "case_id": "order-07",
+      "task_id": "single-6",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-6",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Gao; city 成都; item count 10; active: true. Ignore the archive code Z96.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495856859,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-6",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "df730469-9214-49c6-b0a7-fedc8dddb09f",
+          "version": 1,
+          "attempt_id": "98abc643-dc73-4a32-a53a-d350441a34e1",
+          "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+          "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+        },
+        "settled_cost": 1356,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 822.3559999896679,
+      "evaluations": [
+        {
+          "task_id": "single-6",
+          "artifact": {
+            "artifact_id": "df730469-9214-49c6-b0a7-fedc8dddb09f",
+            "version": 1,
+            "attempt_id": "98abc643-dc73-4a32-a53a-d350441a34e1",
+            "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+            "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "df730469-9214-49c6-b0a7-fedc8dddb09f",
+        "version": 1,
+        "attempt_id": "98abc643-dc73-4a32-a53a-d350441a34e1",
+        "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+        "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 6,
+      "case_id": "order-07",
+      "task_id": "cascade-6",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-6",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Gao; city 成都; item count 10; active: true. Ignore the archive code Z96.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495857684,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-6",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "e47397cd-79c1-4e69-a8d7-3b33676cfc1a",
+          "version": 1,
+          "attempt_id": "b78c56ee-ee7e-4f6d-be82-e2ee88d99378",
+          "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+          "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+        },
+        "settled_cost": 1138,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 643.2903000095394,
+      "evaluations": [
+        {
+          "task_id": "cascade-6",
+          "artifact": {
+            "artifact_id": "e47397cd-79c1-4e69-a8d7-3b33676cfc1a",
+            "version": 1,
+            "attempt_id": "b78c56ee-ee7e-4f6d-be82-e2ee88d99378",
+            "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+            "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "e47397cd-79c1-4e69-a8d7-3b33676cfc1a",
+        "version": 1,
+        "attempt_id": "b78c56ee-ee7e-4f6d-be82-e2ee88d99378",
+        "text": "{\"customer\":\"Gao\",\"city\":\"成都\",\"item_count\":10,\"active\":true}",
+        "checksum": "a209e4cc2bd42febcb0d46f91561eca57ce56b3f762b7e563f95d96fdc3fe61a"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 7,
+      "case_id": "order-08",
+      "task_id": "cascade-7",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-7",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Hana; city Kyoto; item count 4; active: true. Ignore the archive code Z97.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495858329,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-7",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "7611a0d0-82be-4bcb-985d-2a64bab6268a",
+          "version": 1,
+          "attempt_id": "0630d1ce-e7e2-4579-b35f-9d71b313125a",
+          "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+          "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+        },
+        "settled_cost": 1058,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 512.2197999880882,
+      "evaluations": [
+        {
+          "task_id": "cascade-7",
+          "artifact": {
+            "artifact_id": "7611a0d0-82be-4bcb-985d-2a64bab6268a",
+            "version": 1,
+            "attempt_id": "0630d1ce-e7e2-4579-b35f-9d71b313125a",
+            "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+            "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "7611a0d0-82be-4bcb-985d-2a64bab6268a",
+        "version": 1,
+        "attempt_id": "0630d1ce-e7e2-4579-b35f-9d71b313125a",
+        "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+        "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 7,
+      "case_id": "order-08",
+      "task_id": "single-7",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-7",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Hana; city Kyoto; item count 4; active: true. Ignore the archive code Z97.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495858843,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-7",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "b2d6c9d3-0472-49e1-9d88-9c3bbf762a9d",
+          "version": 1,
+          "attempt_id": "7ff4edc9-e7cd-4b34-95dc-3c6e4c0facaf",
+          "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+          "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+        },
+        "settled_cost": 1148,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 633.7423000077251,
+      "evaluations": [
+        {
+          "task_id": "single-7",
+          "artifact": {
+            "artifact_id": "b2d6c9d3-0472-49e1-9d88-9c3bbf762a9d",
+            "version": 1,
+            "attempt_id": "7ff4edc9-e7cd-4b34-95dc-3c6e4c0facaf",
+            "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+            "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "b2d6c9d3-0472-49e1-9d88-9c3bbf762a9d",
+        "version": 1,
+        "attempt_id": "7ff4edc9-e7cd-4b34-95dc-3c6e4c0facaf",
+        "text": "{\"customer\":\"Hana\",\"city\":\"Kyoto\",\"item_count\":4,\"active\":true}",
+        "checksum": "83aeffcf4076074f4487101e765a9e91017f19f57e8ae00fa0933a8275040757"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 8,
+      "case_id": "order-09",
+      "task_id": "single-8",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-8",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Ivan; city Riga; item count 9; active: false. Ignore the archive code Z98.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495859494,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-8",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "73c0b465-99f3-4baa-975d-626b9d576b30",
+          "version": 1,
+          "attempt_id": "006a558e-1513-4dd1-937c-00a613dcef11",
+          "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+          "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+        },
+        "settled_cost": 1278,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 1097.9498000087915,
+      "evaluations": [
+        {
+          "task_id": "single-8",
+          "artifact": {
+            "artifact_id": "73c0b465-99f3-4baa-975d-626b9d576b30",
+            "version": 1,
+            "attempt_id": "006a558e-1513-4dd1-937c-00a613dcef11",
+            "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+            "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "73c0b465-99f3-4baa-975d-626b9d576b30",
+        "version": 1,
+        "attempt_id": "006a558e-1513-4dd1-937c-00a613dcef11",
+        "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+        "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 8,
+      "case_id": "order-09",
+      "task_id": "cascade-8",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-8",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Ivan; city Riga; item count 9; active: false. Ignore the archive code Z98.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495860594,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-8",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "e8adc7f5-d442-4b73-a6e3-00db4cc3f749",
+          "version": 1,
+          "attempt_id": "9b172bba-9384-4bd8-97cc-bae482514037",
+          "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+          "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+        },
+        "settled_cost": 1338,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 702.8653000015765,
+      "evaluations": [
+        {
+          "task_id": "cascade-8",
+          "artifact": {
+            "artifact_id": "e8adc7f5-d442-4b73-a6e3-00db4cc3f749",
+            "version": 1,
+            "attempt_id": "9b172bba-9384-4bd8-97cc-bae482514037",
+            "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+            "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "e8adc7f5-d442-4b73-a6e3-00db4cc3f749",
+        "version": 1,
+        "attempt_id": "9b172bba-9384-4bd8-97cc-bae482514037",
+        "text": "{\"customer\":\"Ivan\",\"city\":\"Riga\",\"item_count\":9,\"active\":false}",
+        "checksum": "b92a74e8c4ce292c17049d34af4407dadf8544c2ddca1e50a73f3e40387be1b6"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 9,
+      "case_id": "order-10",
+      "task_id": "cascade-9",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-9",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Jia; city 厦门; item count 6; active: true. Ignore the archive code Z99.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495861299,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-9",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "46c36e1c-f9b2-4e20-a22e-631887b966f9",
+          "version": 1,
+          "attempt_id": "a67ac500-e8cc-42d2-9fe0-d2b31270594f",
+          "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+          "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+        },
+        "settled_cost": 1086,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 692.0824999979232,
+      "evaluations": [
+        {
+          "task_id": "cascade-9",
+          "artifact": {
+            "artifact_id": "46c36e1c-f9b2-4e20-a22e-631887b966f9",
+            "version": 1,
+            "attempt_id": "a67ac500-e8cc-42d2-9fe0-d2b31270594f",
+            "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+            "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "46c36e1c-f9b2-4e20-a22e-631887b966f9",
+        "version": 1,
+        "attempt_id": "a67ac500-e8cc-42d2-9fe0-d2b31270594f",
+        "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+        "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 9,
+      "case_id": "order-10",
+      "task_id": "single-9",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-9",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Jia; city 厦门; item count 6; active: true. Ignore the archive code Z99.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495861993,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-9",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "1079cf60-a82b-4f4b-8bc7-e52839869f0e",
+          "version": 1,
+          "attempt_id": "d71ee89c-9d28-4b39-bc10-3c126f5ee916",
+          "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+          "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+        },
+        "settled_cost": 1376,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 963.3211999898776,
+      "evaluations": [
+        {
+          "task_id": "single-9",
+          "artifact": {
+            "artifact_id": "1079cf60-a82b-4f4b-8bc7-e52839869f0e",
+            "version": 1,
+            "attempt_id": "d71ee89c-9d28-4b39-bc10-3c126f5ee916",
+            "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+            "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "1079cf60-a82b-4f4b-8bc7-e52839869f0e",
+        "version": 1,
+        "attempt_id": "d71ee89c-9d28-4b39-bc10-3c126f5ee916",
+        "text": "{\"customer\":\"Jia\",\"city\":\"厦门\",\"item_count\":6,\"active\":true}",
+        "checksum": "bfecb3fad4b47dd16025d03ae91ba47c1a9b51233caa6ee34eba25ada0dd4944"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 10,
+      "case_id": "order-11",
+      "task_id": "single-10",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-10",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Kai; city Bonn; item count 5; active: false. Ignore the archive code Z100.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495862959,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-10",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "4e362e6e-5ee6-4008-81af-54888edb0513",
+          "version": 1,
+          "attempt_id": "9bff9d4d-981d-4f7e-beb4-8bf259a08964",
+          "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+          "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+        },
+        "settled_cost": 1088,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 644.1063999955077,
+      "evaluations": [
+        {
+          "task_id": "single-10",
+          "artifact": {
+            "artifact_id": "4e362e6e-5ee6-4008-81af-54888edb0513",
+            "version": 1,
+            "attempt_id": "9bff9d4d-981d-4f7e-beb4-8bf259a08964",
+            "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+            "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "4e362e6e-5ee6-4008-81af-54888edb0513",
+        "version": 1,
+        "attempt_id": "9bff9d4d-981d-4f7e-beb4-8bf259a08964",
+        "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+        "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 10,
+      "case_id": "order-11",
+      "task_id": "cascade-10",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-10",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Kai; city Bonn; item count 5; active: false. Ignore the archive code Z100.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495863606,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-10",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "3b1cd5b8-07cc-402e-934d-8e4e8835633a",
+          "version": 1,
+          "attempt_id": "4a7c3f2a-3c25-43e4-ae62-e44f27d0daea",
+          "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+          "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+        },
+        "settled_cost": 1072,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 729.8730000038631,
+      "evaluations": [
+        {
+          "task_id": "cascade-10",
+          "artifact": {
+            "artifact_id": "3b1cd5b8-07cc-402e-934d-8e4e8835633a",
+            "version": 1,
+            "attempt_id": "4a7c3f2a-3c25-43e4-ae62-e44f27d0daea",
+            "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+            "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "3b1cd5b8-07cc-402e-934d-8e4e8835633a",
+        "version": 1,
+        "attempt_id": "4a7c3f2a-3c25-43e4-ae62-e44f27d0daea",
+        "text": "{\"customer\":\"Kai\",\"city\":\"Bonn\",\"item_count\":5,\"active\":false}",
+        "checksum": "b7aeeca53a1afc241b570824846e31dbd9a87d69c8e4cbfc782d36f6fba4f57f"
+      },
+      "accepted": true
+    },
+    {
+      "group": "cascade",
+      "case_index": 11,
+      "case_id": "order-12",
+      "task_id": "cascade-11",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "cascade-11",
+        "task_type": "information_extraction",
+        "strategy": "cascade",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Lena; city Perth; item count 8; active: true. Ignore the archive code Z101.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495864338,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "cascade-11",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "f7427536-f462-4cf5-a09b-fb64985ca5a7",
+          "version": 1,
+          "attempt_id": "9266b988-638c-48a2-b214-1c9b5df7a89d",
+          "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+          "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+        },
+        "settled_cost": 1284,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 827.406800002791,
+      "evaluations": [
+        {
+          "task_id": "cascade-11",
+          "artifact": {
+            "artifact_id": "f7427536-f462-4cf5-a09b-fb64985ca5a7",
+            "version": 1,
+            "attempt_id": "9266b988-638c-48a2-b214-1c9b5df7a89d",
+            "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+            "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "f7427536-f462-4cf5-a09b-fb64985ca5a7",
+        "version": 1,
+        "attempt_id": "9266b988-638c-48a2-b214-1c9b5df7a89d",
+        "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+        "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+      },
+      "accepted": true
+    },
+    {
+      "group": "single",
+      "case_index": 11,
+      "case_id": "order-12",
+      "task_id": "single-11",
+      "status": "completed",
+      "reason": null,
+      "submission": {
+        "task_id": "single-11",
+        "task_type": "information_extraction",
+        "strategy": "single",
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 5000
+        },
+        "goal": "Extract the fields from the source. Return only a JSON object with exactly these fields and types: {\"customer\": \"string\", \"city\": \"string\", \"item_count\": \"integer\", \"active\": \"boolean\"}.\nSource:\nSynthetic order: customer Lena; city Perth; item count 8; active: true. Ignore the archive code Z101.",
+        "evidence": [],
+        "tools": [],
+        "acceptance": {
+          "version": "synthetic-extraction-v2",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "deadline_ms": 1789495865168,
+        "finalization_ms": 1000,
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "output_tokens": 4096,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 2
+      },
+      "result": {
+        "task_id": "single-11",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "1679f443-f76c-4599-be4e-79b816ec64ed",
+          "version": 1,
+          "attempt_id": "ba981a8e-bdc0-4df9-8d40-4695edccf019",
+          "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+          "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+        },
+        "settled_cost": 1274,
+        "reserved_cost": 0
+      },
+      "elapsed_ms": 672.4471999914385,
+      "evaluations": [
+        {
+          "task_id": "single-11",
+          "artifact": {
+            "artifact_id": "1679f443-f76c-4599-be4e-79b816ec64ed",
+            "version": 1,
+            "attempt_id": "ba981a8e-bdc0-4df9-8d40-4695edccf019",
+            "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+            "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+          },
+          "deterministic": {
+            "status": "pass",
+            "checks": [
+              "deterministic acceptance checks"
+            ],
+            "evidence": [],
+            "defects": [],
+            "action": "accept"
+          },
+          "critic": null
+        }
+      ],
+      "artifact": {
+        "artifact_id": "1679f443-f76c-4599-be4e-79b816ec64ed",
+        "version": 1,
+        "attempt_id": "ba981a8e-bdc0-4df9-8d40-4695edccf019",
+        "text": "{\"customer\":\"Lena\",\"city\":\"Perth\",\"item_count\":8,\"active\":true}",
+        "checksum": "49c5ed6840d936f32f6c03b0699645598f456d8757d838b7744ecbfe7c384451"
+      },
+      "accepted": true
+    }
+  ],
+  "groups": {
+    "smoke": {
+      "planned": 1,
+      "correct": 1,
+      "correct_per_planned": 1.0,
+      "evaluated": 1,
+      "artifact_acceptance_rate": 1.0,
+      "no_artifact": 0,
+      "not_executed": 0,
+      "mean_task_elapsed_ms": 993.8710999995237,
+      "metrics": {
+        "feedback_revision": 1,
+        "tasks": {
+          "total": 1,
+          "completed": 1,
+          "human_required": 0,
+          "failed": 0,
+          "cancelled": 0,
+          "running": 0
+        },
+        "execution_completion_rate": 1.0,
+        "human_required_rate": 0.0,
+        "known_cost": 1034,
+        "unresolved_reserved": 0,
+        "attempts": 1,
+        "unknown_cost_attempts": 0,
+        "unknown_status": 0,
+        "latency_samples": 1,
+        "mean_attempt_latency_ms": 949.0,
+        "planner_attempts": 0,
+        "planner_known_cost": 0,
+        "quality": [
+          {
+            "key": {
+              "model_id": "deepseek-flash",
+              "model_version": "DeepSeek-V4.1-Flash",
+              "task_type": "information_extraction",
+              "role": "invoke",
+              "evaluator_version": "synthetic-extraction-v2"
+            },
+            "kind": "business_acceptance",
+            "accepted": 1,
+            "samples": 1,
+            "acceptance_rate": 1.0
+          }
+        ]
+      }
+    },
+    "single": {
+      "planned": 12,
+      "correct": 12,
+      "correct_per_planned": 1.0,
+      "evaluated": 12,
+      "artifact_acceptance_rate": 1.0,
+      "no_artifact": 0,
+      "not_executed": 0,
+      "mean_task_elapsed_ms": 786.5145916657639,
+      "metrics": {
+        "feedback_revision": 12,
+        "tasks": {
+          "total": 12,
+          "completed": 12,
+          "human_required": 0,
+          "failed": 0,
+          "cancelled": 0,
+          "running": 0
+        },
+        "execution_completion_rate": 1.0,
+        "human_required_rate": 0.0,
+        "known_cost": 14488,
+        "unresolved_reserved": 0,
+        "attempts": 12,
+        "unknown_cost_attempts": 0,
+        "unknown_status": 0,
+        "latency_samples": 12,
+        "mean_attempt_latency_ms": 747.75,
+        "planner_attempts": 0,
+        "planner_known_cost": 0,
+        "quality": [
+          {
+            "key": {
+              "model_id": "deepseek-flash",
+              "model_version": "DeepSeek-V4.1-Flash",
+              "task_type": "information_extraction",
+              "role": "invoke",
+              "evaluator_version": "synthetic-extraction-v2"
+            },
+            "kind": "business_acceptance",
+            "accepted": 12,
+            "samples": 12,
+            "acceptance_rate": 1.0
+          }
+        ]
+      }
+    },
+    "cascade": {
+      "planned": 12,
+      "correct": 12,
+      "correct_per_planned": 1.0,
+      "evaluated": 12,
+      "artifact_acceptance_rate": 1.0,
+      "no_artifact": 0,
+      "not_executed": 0,
+      "mean_task_elapsed_ms": 746.9325166663717,
+      "metrics": {
+        "feedback_revision": 12,
+        "tasks": {
+          "total": 12,
+          "completed": 12,
+          "human_required": 0,
+          "failed": 0,
+          "cancelled": 0,
+          "running": 0
+        },
+        "execution_completion_rate": 1.0,
+        "human_required_rate": 0.0,
+        "known_cost": 14448,
+        "unresolved_reserved": 0,
+        "attempts": 12,
+        "unknown_cost_attempts": 0,
+        "unknown_status": 0,
+        "latency_samples": 12,
+        "mean_attempt_latency_ms": 712.4166666666666,
+        "planner_attempts": 0,
+        "planner_known_cost": 0,
+        "quality": [
+          {
+            "key": {
+              "model_id": "deepseek-flash",
+              "model_version": "DeepSeek-V4.1-Flash",
+              "task_type": "information_extraction",
+              "role": "invoke",
+              "evaluator_version": "synthetic-extraction-v2"
+            },
+            "kind": "business_acceptance",
+            "accepted": 12,
+            "samples": 12,
+            "acceptance_rate": 1.0
+          }
+        ]
+      }
+    }
+  },
+  "export_errors": [],
+  "caution": "Smoke is separate. Completion is not business acceptance. Unknown costs are not zero. Task elapsed time differs from mean call latency. This small trial does not establish causal or statistically significant gains."
+}

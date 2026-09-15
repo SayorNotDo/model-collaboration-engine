@@ -1,7 +1,7 @@
 //! Model dispatch and settlement share one cancellation boundary.
 use super::super::{Engine, RunContext};
 use crate::{
-    adapter::{InvokeRequest, Message, ModelOutput},
+    adapter::{InvokeRequest, Message, ModelEvidence, ModelOutput},
     contracts::{now_ms, EngineError, Model, Result, Snapshot, TaskSpec, ToolSpec},
 };
 use serde_json::json;
@@ -42,6 +42,7 @@ impl Engine {
                 EngineError::new("deadline", "execution deadline reached before dispatch")
             }));
         }
+        let evidence = ModelEvidence::default();
         let request = InvokeRequest {
             model: model.clone(),
             messages: messages.to_vec(),
@@ -59,6 +60,7 @@ impl Engine {
                 context.sink.clone()
             },
             sequence: context.sequence.clone(),
+            evidence: evidence.clone(),
         };
         let started = Instant::now();
         let output = tokio::select! {
@@ -67,15 +69,23 @@ impl Engine {
             result = tokio::time::timeout(Duration::from_millis(remaining), self.adapter.invoke(request)) => result.unwrap_or_else(|_| Err(EngineError::new("deadline", "model invocation timed out"))),
         };
         let latency_ms = started.elapsed().as_millis().min(u64::MAX as u128) as u64;
+        let received = evidence.snapshot();
+        let usage = output
+            .as_ref()
+            .ok()
+            .and_then(|out| out.usage.as_ref())
+            .or(received.usage.as_ref());
+        let cost = usage.map(|usage| {
+            usage
+                .input_tokens
+                .saturating_mul(model.input_price)
+                .saturating_add(usage.output_tokens.saturating_mul(model.output_price))
+        });
         match &output {
             Ok(output) => {
-                let cost = output.usage.as_ref().map(|u| {
-                    u.input_tokens
-                        .saturating_mul(model.input_price)
-                        .saturating_add(u.output_tokens.saturating_mul(model.output_price))
-                });
                 let mut outcome = json!({
-                    "request_id": output.request_id,
+                    "request_id": output.request_id.as_ref().or(received.request_id.as_ref()),
+                    "usage": usage,
                     "complete": output.complete,
                     "call_metrics": {
                         "status": if output.complete { "succeeded" } else { "failed" },
@@ -101,9 +111,11 @@ impl Engine {
                     .settle(
                         &task.task_id,
                         attempt,
-                        None,
+                        cost,
                         json!({
                             "error": error,
+                            "request_id": received.request_id,
+                            "usage": received.usage,
                             "call_metrics": {
                                 "status": match error.kind.as_str() {
                                     "cancelled" => "cancelled",

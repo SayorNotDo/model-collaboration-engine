@@ -1,4 +1,7 @@
 //! JSON boundary keeps the Python API independent of provider SDK types.
+mod configuration;
+use configuration::PythonConfig;
+
 use crate::{
     contracts::*,
     engine::Engine,
@@ -209,6 +212,16 @@ impl PythonEngine {
     }
 
     #[staticmethod]
+    fn open_resolved<'py>(py: Python<'py>, config: &PythonConfig) -> PyResult<Bound<'py, PyAny>> {
+        let config = config.resolved.clone().into_config();
+        pyo3_async_runtimes::tokio::future_into_py(py, async move {
+            Ok(Self {
+                inner: Arc::new(Engine::open(config).await.map_err(py_error)?),
+            })
+        })
+    }
+
+    #[staticmethod]
     fn open(py: Python<'_>, config_json: String) -> PyResult<Bound<'_, PyAny>> {
         let config: Config = serde_json::from_str(&config_json)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
@@ -281,6 +294,7 @@ impl PythonEngine {
 
 #[pymodule]
 fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<PythonConfig>()?;
     m.add_class::<PythonEngine>()?;
     m.add_class::<PythonSession>()?;
     m.add_class::<PythonCancellation>()

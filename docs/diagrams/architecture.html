@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="generator" content="archify 2.17.0-dev.1">
-  <title>模型协作引擎 · 当前实现</title>
+  <title>模型协作引擎 · 当前架构</title>
   <script>
     // Resolve the theme before first paint so light-preference users don't
     // see a dark flash. The toolbar script below re-applies with UI state.
@@ -5081,7 +5081,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
            data-preset-badge-blueprint="蓝图 / 修订 01"
            data-preset-badge-editorial="编辑风格 / 现场笔记">
         <div class="pulse-dot"></div>
-        <h1>模型协作引擎 · 当前实现</h1>
+        <h1>模型协作引擎 · 当前架构</h1>
       </div>
     </div>
 
@@ -5131,7 +5131,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
     <div class="diagram-container" data-detail-level="read"
          data-preset-badge-editorial-plate="ARCHIFY / 图版 04">
       <svg viewBox="0 0 1200 650" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase">
-        <title id="archify-diagram-title">模型协作引擎 · 当前实现</title>
+        <title id="archify-diagram-title">模型协作引擎 · 当前架构</title>
         <desc id="archify-diagram-description">由 Archify 生成的架构图。</desc>
         <!-- Definitions -->
         <defs>
@@ -5159,18 +5159,18 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 
 
         <!-- Connection paths (before components for correct z-order) -->
-        <path data-edge-from="host_api" data-edge-to="native_bridge" data-edge-label="异步任务" data-edge-key="0" data-edge-id="submit_task" data-composition-points="220,328;350,328" d="M 220 328 L 350 328" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="host_api" data-edge-to="native_bridge" data-edge-label="运行与反馈" data-edge-key="0" data-edge-id="submit_task" data-composition-points="220,328;350,328" d="M 220 328 L 350 328" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="native_bridge" data-edge-to="engine_core" data-edge-label="运行与取消" data-edge-key="1" data-edge-id="dispatch_run" data-composition-points="530,328;660,328" d="M 530 328 L 660 328" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="engine_core" data-edge-to="provider_adapter" data-edge-label="模型调用" data-edge-key="2" data-edge-id="invoke_model" data-composition-points="840,328;970,328" d="M 840 328 L 970 328" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="provider_adapter" data-edge-to="model_endpoint" data-edge-label="HTTP / SSE" data-edge-key="3" data-edge-id="provider_stream" data-composition-points="1060,290;1060,156" d="M 1060 290 L 1060 156" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path data-edge-from="engine_core" data-edge-to="routing_policy" data-edge-label="计划与选模" data-edge-key="4" data-edge-id="choose_policy" data-composition-points="750,290;750,156" d="M 750 290 L 750 156" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <path data-edge-from="native_bridge" data-edge-to="host_tools" data-edge-label="请求与结果" data-edge-key="5" data-edge-id="host_execution" data-composition-points="440,290;440,156" d="M 440 290 L 440 156" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="native_bridge" data-edge-to="event_delivery" data-edge-label="事件接收" data-edge-key="6" data-edge-id="pull_events" data-composition-points="440,366;440,500" d="M 440 366 L 440 500" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="事务记账" data-edge-key="7" data-edge-id="account_cost" data-composition-points="750,366;750,500" d="M 750 366 L 750 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="账务与指标" data-edge-key="7" data-edge-id="account_cost" data-composition-points="750,366;750,500" d="M 750 366 L 750 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
-        <g id="node-host_api" data-node-id="host_api" data-node-label="Python 宿主" tabindex="0" role="button" aria-label="聚焦Python 宿主，run / stream / close, 架构组件" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="run / stream / close" data-node-context="架构组件">
-          <title>Python 宿主 · run / stream / close · 架构组件</title>
+        <g id="node-host_api" data-node-id="host_api" data-node-label="Python 宿主" tabindex="0" role="button" aria-label="聚焦Python 宿主，运行 · 反馈 · 查询, 架构组件" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="运行 · 反馈 · 查询" data-node-context="架构组件">
+          <title>Python 宿主 · 运行 · 反馈 · 查询 · 架构组件</title>
           <rect x="40" y="290" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="40" y="290" width="180" height="76" rx="6" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(46 296) scale(0.6875)">
@@ -5180,7 +5180,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="130" y="326" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">Python 宿主</text>
-        <text data-detail="context" x="130" y="342" class="t-muted" font-size="9" text-anchor="middle">run / stream / close</text>
+        <text data-detail="context" x="130" y="342" class="t-muted" font-size="9" text-anchor="middle">运行 · 反馈 · 查询</text>
         </g>
 
         <g id="node-native_bridge" data-node-id="native_bridge" data-node-label="原生会话桥接" tabindex="0" role="button" aria-label="聚焦原生会话桥接，PyO3 · 有界通道, 架构组件" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="PyO3 · 有界通道" data-node-context="架构组件">
@@ -5197,26 +5197,26 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="440" y="342" class="t-muted" font-size="9" text-anchor="middle">PyO3 · 有界通道</text>
         </g>
 
-        <g id="node-engine_core" data-node-id="engine_core" data-node-label="执行引擎" tabindex="0" role="button" aria-label="聚焦执行引擎，准入 · 编排 · 关闭, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="准入 · 编排 · 关闭" data-node-context="架构组件">
-          <title>执行引擎 · 准入 · 编排 · 关闭 · 架构组件</title>
+        <g id="node-engine_core" data-node-id="engine_core" data-node-label="执行引擎" tabindex="0" role="button" aria-label="聚焦执行引擎，规划 · 执行 · 关闭, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="规划 · 执行 · 关闭" data-node-context="架构组件">
+          <title>执行引擎 · 规划 · 执行 · 关闭 · 架构组件</title>
           <rect x="660" y="290" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="660" y="290" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 296) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="750" y="326" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">执行引擎</text>
-        <text data-detail="context" x="750" y="342" class="t-muted" font-size="9" text-anchor="middle">准入 · 编排 · 关闭</text>
+        <text data-detail="context" x="750" y="342" class="t-muted" font-size="9" text-anchor="middle">规划 · 执行 · 关闭</text>
         </g>
 
-        <g id="node-provider_adapter" data-node-id="provider_adapter" data-node-label="模型适配器" tabindex="0" role="button" aria-label="聚焦模型适配器，HTTP / SSE, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="HTTP / SSE" data-node-context="架构组件">
-          <title>模型适配器 · HTTP / SSE · 架构组件</title>
+        <g id="node-provider_adapter" data-node-id="provider_adapter" data-node-label="模型适配器" tabindex="0" role="button" aria-label="聚焦模型适配器，HTTP / SSE · 用量证据, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="HTTP / SSE · 用量证据" data-node-context="架构组件">
+          <title>模型适配器 · HTTP / SSE · 用量证据 · 架构组件</title>
           <rect x="970" y="290" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="970" y="290" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(976 296) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="1060" y="326" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">模型适配器</text>
-        <text data-detail="context" x="1060" y="342" class="t-muted" font-size="9" text-anchor="middle">HTTP / SSE</text>
+        <text data-detail="context" x="1060" y="342" class="t-muted" font-size="9" text-anchor="middle">HTTP / SSE · 用量证据</text>
         </g>
 
         <g id="node-host_tools" data-node-id="host_tools" data-node-label="宿主工具回调" tabindex="0" role="button" aria-label="聚焦宿主工具回调，授权 · 参数校验, 架构组件" aria-pressed="false" data-node-kind="security" data-node-sublabel="授权 · 参数校验" data-node-context="架构组件">
@@ -5231,15 +5231,15 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="440" y="132" class="t-muted" font-size="9" text-anchor="middle">授权 · 参数校验</text>
         </g>
 
-        <g id="node-routing_policy" data-node-id="routing_policy" data-node-label="策略与模型路由" tabindex="0" role="button" aria-label="聚焦策略与模型路由，有界协作 · 约束评分, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="有界协作 · 约束评分" data-node-context="架构组件">
-          <title>策略与模型路由 · 有界协作 · 约束评分 · 架构组件</title>
+        <g id="node-routing_policy" data-node-id="routing_policy" data-node-label="规划校验与类型路由" tabindex="0" role="button" aria-label="聚焦规划校验与类型路由，硬约束 · 固定质量快照, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="硬约束 · 固定质量快照" data-node-context="架构组件">
+          <title>规划校验与类型路由 · 硬约束 · 固定质量快照 · 架构组件</title>
           <rect x="660" y="80" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="660" y="80" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 86) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="750" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">策略与模型路由</text>
-        <text data-detail="context" x="750" y="132" class="t-muted" font-size="9" text-anchor="middle">有界协作 · 约束评分</text>
+          <text data-node-label="" data-detail-anchor="" x="750" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">规划校验与类型路由</text>
+        <text data-detail="context" x="750" y="132" class="t-muted" font-size="9" text-anchor="middle">硬约束 · 固定质量快照</text>
         </g>
 
         <g id="node-model_endpoint" data-node-id="model_endpoint" data-node-label="模型服务" tabindex="0" role="button" aria-label="聚焦模型服务，两种兼容端点, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="两种兼容端点" data-node-context="架构组件">
@@ -5268,22 +5268,22 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="440" y="552" class="t-muted" font-size="9" text-anchor="middle">候选增量 · 背压</text>
         </g>
 
-        <g id="node-budget_store" data-node-id="budget_store" data-node-label="SQLite 账本" tabindex="0" role="button" aria-label="聚焦SQLite 账本，预留 · 结算 · 终态, 架构组件" aria-pressed="false" data-node-kind="database" data-node-sublabel="预留 · 结算 · 终态" data-node-context="架构组件">
-          <title>SQLite 账本 · 预留 · 结算 · 终态 · 架构组件</title>
+        <g id="node-budget_store" data-node-id="budget_store" data-node-label="SQLite 证据与账本" tabindex="0" role="button" aria-label="聚焦SQLite 证据与账本，计划 · 评价 · 指标, 架构组件" aria-pressed="false" data-node-kind="database" data-node-sublabel="计划 · 评价 · 指标" data-node-context="架构组件">
+          <title>SQLite 证据与账本 · 计划 · 评价 · 指标 · 架构组件</title>
           <rect x="660" y="500" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="660" y="500" width="180" height="76" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(666 506) scale(0.6875)">
             <ellipse cx="8" cy="4" rx="5" ry="2"/>
             <path d="M3 4v8c0 1.1 2.2 2 5 2s5-.9 5-2V4M3 8c0 1.1 2.2 2 5 2s5-.9 5-2"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="750" y="536" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SQLite 账本</text>
-        <text data-detail="context" x="750" y="552" class="t-muted" font-size="9" text-anchor="middle">预留 · 结算 · 终态</text>
+          <text data-node-label="" data-detail-anchor="" x="750" y="536" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">SQLite 证据与账本</text>
+        <text data-detail="context" x="750" y="552" class="t-muted" font-size="9" text-anchor="middle">计划 · 评价 · 指标</text>
         </g>
 
         <!-- Connection labels -->
-        <g data-detail="context" data-edge-from="host_api" data-edge-to="native_bridge" data-edge-label="异步任务" data-edge-key="0" data-edge-id="submit_task">
-          <rect x="260.8" y="308" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="285" y="318" class="t-backend" font-size="8" text-anchor="middle">异步任务</text>
+        <g data-detail="context" data-edge-from="host_api" data-edge-to="native_bridge" data-edge-label="运行与反馈" data-edge-key="0" data-edge-id="submit_task">
+          <rect x="256" y="308" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="285" y="318" class="t-backend" font-size="8" text-anchor="middle">运行与反馈</text>
         </g>
         <g data-detail="context" data-edge-from="native_bridge" data-edge-to="engine_core" data-edge-label="运行与取消" data-edge-key="1" data-edge-id="dispatch_run">
           <rect x="566" y="308" width="58" height="14" rx="3" class="c-mask"/>
@@ -5309,9 +5309,9 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <rect x="415.8" y="421" width="48.4" height="14" rx="3" class="c-mask"/>
           <text x="440" y="431" class="t-messagebus" font-size="8" text-anchor="middle">事件接收</text>
         </g>
-        <g data-detail="context" data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="事务记账" data-edge-key="7" data-edge-id="account_cost">
-          <rect x="725.8" y="421" width="48.4" height="14" rx="3" class="c-mask"/>
-          <text x="750" y="431" class="t-muted" font-size="8" text-anchor="middle">事务记账</text>
+        <g data-detail="context" data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="账务与指标" data-edge-key="7" data-edge-id="account_cost">
+          <rect x="721" y="421" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="750" y="431" class="t-muted" font-size="8" text-anchor="middle">账务与指标</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
@@ -5537,7 +5537,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>进程内协作</h3>
         </div>
         <ul>
-          <li>&bull; Python 宿主控制工具权限与事件循环</li>
+          <li>&bull; 规划模型无工具权；宿主控制事件循环与工具权限</li>
         </ul>
       </div>
 
@@ -5547,7 +5547,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>费用与终态</h3>
         </div>
         <ul>
-          <li>&bull; 未知费用保留预留；关闭等待清理</li>
+          <li>&bull; 失败仍结算已知用量；未知费用保留预留</li>
         </ul>
       </div>
 
@@ -5557,7 +5557,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>实现边界</h3>
         </div>
         <ul>
-          <li>&bull; 自动恢复与持久化路由指标尚未实现</li>
+          <li>&bull; 宿主独立反馈；无自动恢复或外部评测</li>
         </ul>
       </div>
     </div>

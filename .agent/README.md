@@ -6,11 +6,26 @@
 
 ## Rust 行为变更
 
+Clippy 规则在 `Cargo.toml` 的 `[lints.clippy]` 中维护：默认规则组加同步锁和 RefCell 借用跨等待检查。下列命令将所有警告视为失败；不全量启用 pedantic/restriction，必要例外在最小范围说明原因。
+
 ```powershell
 cargo test --all-features
 cargo clippy --all-features --all-targets -- -D warnings
 cargo fmt --check
 ```
+
+## Python 静态检查
+
+Ruff 的固定版本、Python 目标版本、文件范围和规则统一维护在 `pyproject.toml`。安装检查依赖后，在仓库根目录运行：
+
+```powershell
+.venv/Scripts/python.exe -m pip install ".[lint]"
+.venv/Scripts/python.exe -m ruff check .
+```
+
+检查覆盖 `python/`、`examples/` 与 `tests/python/` 中的 Python 文件，启用 E4/E7/E9、F、I、B，分别检查基本语法与语句问题、未定义或未使用名称、导入顺序及常见易错写法。显式重导出的公共接口和 pytest 共享夹具使用 `name as name` 标注，避免全局忽略未使用导入检查。
+
+行宽目标为 100，当前未启用 E501 或 Python 全量格式门禁；长行仍按代码实现规范审查。Ruff 不替代静态类型检查、取消安全审查或行为测试；当前未配置类型检查器或 CI 工作流。自动修复后检查实际 diff，确认修改仅属本次范围。
 
 ## Python 接口与原生扩展变更
 

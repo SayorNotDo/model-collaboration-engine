@@ -266,35 +266,8 @@ async fn total_call_exhaustion_and_usage_overrun_never_fall_back() {
     }
 }
 
-#[tokio::test]
-async fn planning_stage_timeout_can_fall_back_but_global_deadline_cannot() {
-    for global in [false, true] {
-        let f = setup(vec![Action::Block, response("{}", true)], |_| {}).await;
-        let mut sub = submission();
-        sub.planning.fallback = Some(PlanChoice {
-            task_type: TaskType::General,
-            strategy: Strategy::Single,
-        });
-        if global {
-            sub.deadline_ms = now_ms() + 150;
-            sub.finalization_ms = 10;
-        } else {
-            sub.planning.timeout_ms = 50;
-        }
-        let result = f.engine.run(sub.clone(), CancellationToken::new()).await;
-        if global {
-            assert_eq!(result.unwrap_err().kind, "deadline");
-        } else {
-            assert_eq!(result.unwrap().status, "completed");
-        }
-        assert_eq!(
-            ledger(&f, &sub.task_id).await.calls,
-            if global { 1 } else { 2 }
-        );
-        assert!(ledger(&f, &sub.task_id).await.reserved > 0);
-        f.engine.close().await.unwrap();
-    }
-}
+#[path = "planning/timeouts.rs"]
+mod timeouts;
 
 #[tokio::test]
 async fn cancellation_and_close_finish_planning_accounting_without_fallback() {
@@ -374,7 +347,11 @@ async fn settlement_storage_failure_stops_before_fallback_or_execution() {
     let f = setup(vec![response(&proposal().to_string(), true)], |_| {}).await;
     let engine = model_collaboration_engine::engine::Engine::with_components(
         f.config.clone(),
-        std::sync::Arc::new(store_fault::FailSettlement(f.store.clone())),
+        std::sync::Arc::new(store_fault::FaultStore {
+            inner: f.store.clone(),
+            fail_settlement: true,
+            reservation_gate: None,
+        }),
         f.fake.clone(),
     )
     .unwrap();

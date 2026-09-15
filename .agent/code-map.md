@@ -32,21 +32,27 @@
 - `src/engine.rs`：引擎公共入口、准入、终态写入、事件与关闭生命周期。
 - `src/engine/execution.rs`：策略轮次、评审及产物结果。
 - `src/engine/invocation.rs`：模型选择、调用预留、失败换模与工具续写调度；`src/engine/invocation/dispatch.rs` 将模型派发与结算保持在同一步骤，结算失败直接终止，不进入换模重试。
+- `src/adapter/evidence.rs`：单次调用共享的已收到用量与请求身份；错误或取消丢弃适配器 future 后，dispatch 仍可读取证据结算。
+- `src/store/settlement.rs`：结算与对账的完整事务；对账追加凭据并保留原调用 outcome，费用超额先提交账本再报错。
 - `src/engine/tools.rs`：整批工具校验、逐次工具预留与执行、工具结果回填。
 - `src/store/recovery.rs`：同一读事务内组合任务、账本和调用证据；`src/store.rs` 保留数据库所有权及写入事务。
 - `python/model_collaboration_engine/_types.py`：宿主工具和事件回调的共享类型约定，不依赖包入口。
 
-这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 模块调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
+Store 子模块保持内部可见性，对外仍通过 Store 调用；恢复查询和结算事务分别由 recovery、settlement 承担，事务内部步骤保持完整。`ModelEvidence` 通过 adapter 公开，供自定义适配器记录已收到的用量。执行测试按可观察结果、调用次数与账本证据组织。
 
 - `src/contracts/feedback.rs`：分层评价、宿主反馈及指标契约。
 - `src/store/schema.rs`：当前 schema 一次性建库、版本拒绝及备份重建提示，不提供迁移或清库。
 - `src/store/feedback.rs`：候选证据及幂等反馈归因。
 - `src/store/metrics.rs`：一致性读事务汇总，不推断业务验收；路由仅消费所读快照。
 - `examples/compare_metrics.py`：导出指标的离线分组比较，不执行回放或外部调用。
+- `examples/evaluate.py`、`examples/evaluation/`：独立策略评测入口、预算准入、串行配对、延后宿主反馈与取消导出；不修改内核路由或账务算法。回归见 `tests/python/test_evaluation.py`。
 
 ## 测试定位
 
 - `tests/feedback.rs`：反馈幂等、归因、快照固定、版本隔离及调用指标。
+- `tests/reconciliation.rs`：对账保留调用指标及原始证据、重开读取、幂等、冲突和超额记账。
+- `tests/python/test_usage_evidence.py`：两个 HTTP/SSE 端点的失败/取消用量保留、未知费用与超额结算。
+- `tests/planning/timeouts.rs`：通过派发通知、虚拟计时和预留门控区分规划派发前后超时及全局截止时间。
 - `tests/python/test_feedback.py`、`test_metrics_summary.py`：两个端点的反馈 API 与离线汇总口径。
 
 

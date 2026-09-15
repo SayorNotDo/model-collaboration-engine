@@ -1,18 +1,20 @@
-"""Run from the repository root after configuring examples/config.json."""
+"""Run from the repository root after configuring config/engine.json."""
 import asyncio
 import json
 import time
 from pathlib import Path
 from uuid import uuid4
 
-from model_collaboration_engine import Engine
+from model_collaboration_engine import Engine, parse_config
 
 
 async def main() -> None:
     root = Path(__file__).resolve().parent
-    config = json.loads((root / "config.json").read_text(encoding="utf-8"))
+    config_dir = root.parent / "config"
+    document = json.loads((config_dir / "engine.json").read_text(encoding="utf-8"))
     # Host explicitly selects planning candidates; data constraints still apply.
-    config["planner_models"] = [config["models"][0]["id"]]
+    document["routing"]["planner_models"] = [document["models"][0]["id"]]
+    config = parse_config(document, base_dir=config_dir)
     submission = json.loads((root / "submission.json").read_text(encoding="utf-8"))
     submission["task_id"] = str(uuid4())
     submission["deadline_ms"] = int(time.time() * 1000) + 60_000

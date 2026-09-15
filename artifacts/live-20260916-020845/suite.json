@@ -1,0 +1,132 @@
+{
+  "version": "synthetic-extraction-v2",
+  "budget": 1000000,
+  "max_call_cost": 250000,
+  "output_tokens": 4096,
+  "timeout_ms": 120000,
+  "max_calls": 4,
+  "max_rounds": 2,
+  "max_attempts": 2,
+  "cases": [
+    {
+      "id": "order-01",
+      "input": "Synthetic order: customer Ada; city Oslo; item count 2; active: true. Ignore the archive code Z90.",
+      "expected": {
+        "customer": "Ada",
+        "city": "Oslo",
+        "item_count": 2,
+        "active": true
+      }
+    },
+    {
+      "id": "order-02",
+      "input": "Synthetic order: customer Bo; city Lima; item count 0; active: false. Ignore the archive code Z91.",
+      "expected": {
+        "customer": "Bo",
+        "city": "Lima",
+        "item_count": 0,
+        "active": false
+      }
+    },
+    {
+      "id": "order-03",
+      "input": "Synthetic order: customer Chen; city \u82cf\u5dde; item count 12; active: true. Ignore the archive code Z92.",
+      "expected": {
+        "customer": "Chen",
+        "city": "\u82cf\u5dde",
+        "item_count": 12,
+        "active": true
+      }
+    },
+    {
+      "id": "order-04",
+      "input": "Synthetic order: customer Dina; city Cairo; item count 1; active: false. Ignore the archive code Z93.",
+      "expected": {
+        "customer": "Dina",
+        "city": "Cairo",
+        "item_count": 1,
+        "active": false
+      }
+    },
+    {
+      "id": "order-05",
+      "input": "Synthetic order: customer Eli; city Bern; item count 7; active: true. Ignore the archive code Z94.",
+      "expected": {
+        "customer": "Eli",
+        "city": "Bern",
+        "item_count": 7,
+        "active": true
+      }
+    },
+    {
+      "id": "order-06",
+      "input": "Synthetic order: customer Faye; city York; item count 3; active: false. Ignore the archive code Z95.",
+      "expected": {
+        "customer": "Faye",
+        "city": "York",
+        "item_count": 3,
+        "active": false
+      }
+    },
+    {
+      "id": "order-07",
+      "input": "Synthetic order: customer Gao; city \u6210\u90fd; item count 10; active: true. Ignore the archive code Z96.",
+      "expected": {
+        "customer": "Gao",
+        "city": "\u6210\u90fd",
+        "item_count": 10,
+        "active": true
+      }
+    },
+    {
+      "id": "order-08",
+      "input": "Synthetic order: customer Hana; city Kyoto; item count 4; active: true. Ignore the archive code Z97.",
+      "expected": {
+        "customer": "Hana",
+        "city": "Kyoto",
+        "item_count": 4,
+        "active": true
+      }
+    },
+    {
+      "id": "order-09",
+      "input": "Synthetic order: customer Ivan; city Riga; item count 9; active: false. Ignore the archive code Z98.",
+      "expected": {
+        "customer": "Ivan",
+        "city": "Riga",
+        "item_count": 9,
+        "active": false
+      }
+    },
+    {
+      "id": "order-10",
+      "input": "Synthetic order: customer Jia; city \u53a6\u95e8; item count 6; active: true. Ignore the archive code Z99.",
+      "expected": {
+        "customer": "Jia",
+        "city": "\u53a6\u95e8",
+        "item_count": 6,
+        "active": true
+      }
+    },
+    {
+      "id": "order-11",
+      "input": "Synthetic order: customer Kai; city Bonn; item count 5; active: false. Ignore the archive code Z100.",
+      "expected": {
+        "customer": "Kai",
+        "city": "Bonn",
+        "item_count": 5,
+        "active": false
+      }
+    },
+    {
+      "id": "order-12",
+      "input": "Synthetic order: customer Lena; city Perth; item count 8; active: true. Ignore the archive code Z101.",
+      "expected": {
+        "customer": "Lena",
+        "city": "Perth",
+        "item_count": 8,
+        "active": true
+      }
+    }
+  ]
+}

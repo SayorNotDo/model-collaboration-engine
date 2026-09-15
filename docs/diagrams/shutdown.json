@@ -7,7 +7,7 @@
     "quality_profile": "showcase",
     "viewBox": [
       1080,
-      566
+      680
     ]
   },
   "lanes": [
@@ -18,6 +18,10 @@
     {
       "id": "shutdown_retry",
       "label": "清理未完成"
+    },
+    {
+      "id": "terminal",
+      "label": "关闭结果"
     }
   ],
   "states": [
@@ -62,9 +66,8 @@
       "type": "success",
       "label": "关闭完成",
       "sublabel": "重复关闭安全返回",
-      "lane": "main",
-      "col": 4,
-      "step": "05"
+      "lane": "terminal",
+      "col": 1
     },
     {
       "id": "cleanup_pending",
@@ -98,6 +101,13 @@
         450,
         250
       ]
+    },
+    {
+      "id": "store_released",
+      "from": "release_store",
+      "to": "engine_closed",
+      "label": "数据库已释放",
+      "labelDy": 170
     }
   ]
 }
