@@ -39,20 +39,22 @@
 这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 模块调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
 
 - `src/contracts/feedback.rs`：分层评价、宿主反馈及指标契约。
-- `src/store/feedback.rs`：schema 1→2 事务升级、候选证据及幂等反馈归因。
+- `src/store/schema.rs`：当前 schema 一次性建库、版本拒绝及备份重建提示，不提供迁移或清库。
+- `src/store/feedback.rs`：候选证据及幂等反馈归因。
 - `src/store/metrics.rs`：一致性读事务汇总，不推断业务验收；路由仅消费所读快照。
 - `examples/compare_metrics.py`：导出指标的离线分组比较，不执行回放或外部调用。
 
 ## 测试定位
 
-- `tests/feedback.rs`：反馈幂等、归因、快照固定、版本隔离、迁移及调用指标。
+- `tests/feedback.rs`：反馈幂等、归因、快照固定、版本隔离及调用指标。
 - `tests/python/test_feedback.py`、`test_metrics_summary.py`：两个端点的反馈 API 与离线汇总口径。
 
 
 - `tests/routing_profiles.rs`、`tests/routing/support.rs`：类型排序、画像版本隔离、回退、权重、级联同口径、存储复算及取消；复用 planning 的注入适配器夹具。
 - `tests/python/test_routing_profiles.py`：两个 HTTP/SSE 端点的画像提交/流、缺省 general 快照与配置拒绝。
 
-- `tests/planning.rs`、`tests/planning/`：规划模式、权限、资源、回退、故障注入及旧 schema 1 SQL 夹具；新规划场景不继续扩充原 `tests/engine.rs`。
+- `tests/database_schema.rs`：新库初始化及重开、旧版/未知版/外部数据库拒绝且原文件不变；使用旧 schema 1 夹具验证拒绝，非迁移承诺。
+- `tests/planning.rs`、`tests/planning/`：规划模式、权限、资源、回退、故障注入及当前结构中的恢复证据；新规划场景不继续扩充原 `tests/engine.rs`。
 - `tests/python/test_planning.py`：两个端点真实 HTTP/SSE、本地规划服务、原生入口、增量隔离及取消/关闭清理。
 
 - `tests/engine.rs`：通过注入适配器与宿主工具验证执行结果、调用次数、事件和 SQLite 账本。

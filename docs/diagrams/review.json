@@ -98,5 +98,14 @@
     "structure_validation": "not_run",
     "browser_validation": "not_run",
     "visual_review": "not_run"
+  },
+  "development_database_policy": {
+    "status": "source_evidence_updated",
+    "topology_change": false,
+    "shutdown_behavior_change": false,
+    "reason": "Schema initialization/checks moved to store/schema.rs; incompatible databases are rejected unchanged, without migration or reset. Existing archify generation/visual verification remains pending.",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run"
   }
 }

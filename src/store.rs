@@ -3,6 +3,7 @@ mod feedback;
 mod metrics;
 mod planning;
 mod recovery;
+mod schema;
 
 use crate::{contracts::*, events::Event};
 use async_trait::async_trait;
@@ -151,40 +152,12 @@ impl SqliteStore {
         let conn = Connection::open(path)
             .await
             .map_err(|_| EngineError::new("storage", "cannot open SQLite"))?;
-        db_call(&conn, |c| {
-            let version: i64 = c.query_row("PRAGMA user_version",[],|r|r.get(0))?;
-            let application: i64 = c.query_row("PRAGMA application_id",[],|r|r.get(0))?;
-            let tables: i64 = c.query_row("SELECT count(*) FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'",[],|r|r.get(0))?;
-            if version == 0 && application == 0 && tables == 0 {
-                let tx=c.transaction()?;
-                tx.execute_batch("CREATE TABLE tasks(id TEXT PRIMARY KEY,spec TEXT NOT NULL,config_hash TEXT NOT NULL,plan TEXT NOT NULL,status TEXT NOT NULL,total INTEGER NOT NULL,settled INTEGER NOT NULL DEFAULT 0,reserved INTEGER NOT NULL DEFAULT 0,calls INTEGER NOT NULL DEFAULT 0,checkpoint TEXT NOT NULL,result TEXT);
-                  CREATE TABLE attempts(id TEXT PRIMARY KEY,task TEXT NOT NULL REFERENCES tasks(id),amount INTEGER NOT NULL,cost INTEGER,state TEXT NOT NULL,metadata TEXT NOT NULL,outcome TEXT);
-                  CREATE TABLE events(id INTEGER PRIMARY KEY AUTOINCREMENT,task TEXT NOT NULL REFERENCES tasks(id),payload TEXT NOT NULL);
-                  PRAGMA application_id=1296254257; PRAGMA user_version=1;")?;
-                tx.commit()?;
-            } else if application != APPLICATION_ID { return Err(EngineError::new("schema", "file is not an engine database")); }
-            else if version != 1 && version != SCHEMA_VERSION { return Err(EngineError::new("schema", "explicit migration required or database is newer than this engine").details(json!({"current":version,"target":SCHEMA_VERSION}))); }
-            c.execute_batch("PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;")?;
-            let current: i64 = c.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-            if current == 1 { feedback::migrate(c)?; }
-            Ok(())
-        }).await?;
+        db_call(&conn, schema::open).await?;
         Ok(Self {
             conn,
             lock: Mutex::new(Some(lock)),
             gate: tokio::sync::Mutex::new(()),
         })
-    }
-    /// Upgrade known engine schemas transactionally; reject unknown files.
-    pub async fn migrate(path: &str) -> Result<()> {
-        if !Path::new(path).exists() {
-            return Err(EngineError::new(
-                "schema",
-                "migration requires an existing database",
-            ));
-        }
-        let store = Self::open(path).await?;
-        store.close().await
     }
 }
 async fn db_call<T: Send + 'static>(

@@ -471,15 +471,17 @@ async fn planned_critic_preserves_diversity_and_records_role_mapping() {
 }
 
 #[tokio::test]
-async fn legacy_schema_one_payload_remains_readable_and_new_payload_is_versioned() {
-    // Build the schema used by the baseline, without invoking the new store's create path.
+async fn current_schema_preserves_existing_task_evidence() {
+    // Existing records within the current schema remain readable without a migration.
     let dir = tempfile::tempdir().unwrap();
     let path = dir.path().join("legacy.db");
     let legacy: Value = serde_json::from_str(include_str!("../examples/task.json")).unwrap();
+    let initialized = model_collaboration_engine::store::SqliteStore::open(path.to_str().unwrap())
+        .await
+        .unwrap();
+    initialized.close().await.unwrap();
     {
         let db = rusqlite::Connection::open(&path).unwrap();
-        db.execute_batch(include_str!("planning/legacy-v1.sql"))
-            .unwrap();
         db.execute("INSERT INTO tasks(id,spec,config_hash,plan,status,total,checkpoint) VALUES(?,?,'old','{}','human_required',100000,'{\"version\":1}')",
             rusqlite::params![legacy["task_id"].as_str().unwrap(),legacy.to_string()]).unwrap();
     }
