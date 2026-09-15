@@ -218,6 +218,7 @@ Rust 检查、Python 扩展重建与测试命令集中维护在 [本地验证流
 | 文档 | 内容 |
 | --- | --- |
 | [领域模型](CONTEXTS.md) | 术语、职责与概念关系 |
+| [模型规划与分类型路由设计](docs/designs/planner-routing-design.md) | 待实现方案：规划契约、资源边界、路由画像与分批验收 |
 | [架构与关闭流程图](docs/diagrams/README.md) | 系统关系、关闭状态及图形验收记录 |
 | [仓库协作指南](AGENTS.md) | 代理工作入口、业务约束和交付要求 |
 | [代码参考](.agent/code-map.md) | 模块入口与回归场景 |
