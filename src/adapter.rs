@@ -378,6 +378,10 @@ impl ModelAdapter for OpenAIAdapter {
     }
 }
 async fn emit_delta(r: &InvokeRequest, text: String) -> Result<()> {
+    // Planning JSON is evidence, never a candidate artifact or a stream increment.
+    if r.node == "planner" {
+        return Ok(());
+    }
     r.event_sink
         .send(Event {
             task_id: r.task_id.clone(),

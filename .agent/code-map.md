@@ -22,6 +22,11 @@
 
 ## 内部模块定位
 
+- `src/contracts/planning.rs`：SubmissionSpec、规划模式、建议与有效计划；经 `contracts` 稳定导出。
+- `src/planning.rs`、`src/planning/validation.rs`：内部提示构造及纯合并/越权校验，不持有网络和数据库。
+- `src/engine/planning.rs`、`src/engine/planning/attempt.rs`：受准入保护的规划、回退与阶段资源边界；复用 dispatch 的结算屏障。
+- `src/store/planning.rs`：schema 1 envelope 入库，有效计划与检查点原子保存；`store/recovery.rs` 同时解码旧任务和新提交。
+
 - `src/engine.rs`：引擎公共入口、准入、终态写入、事件与关闭生命周期。
 - `src/engine/execution.rs`：策略轮次、评审及产物结果。
 - `src/engine/invocation.rs`：模型选择、调用预留、失败换模与工具续写调度；`src/engine/invocation/dispatch.rs` 将模型派发与结算保持在同一步骤，结算失败直接终止，不进入换模重试。
@@ -32,6 +37,9 @@
 这些子模块保持内部可见性，对外仍通过原有 Engine 与 Store 接口调用。`store.rs` 超过 400 行的评估线，但未达 600 行拆分线；本次已提取恢复查询，其余写事务保留原有完整边界。`tests/engine.rs` 的场景分组按功能定位，目前未达到 800 行拆分要求；本轮沿用这些公共接口回归场景验证重构。
 
 ## 测试定位
+
+- `tests/planning.rs`、`tests/planning/`：规划模式、权限、资源、回退、故障注入及旧 schema 1 SQL 夹具；新规划场景不继续扩充原 `tests/engine.rs`。
+- `tests/python/test_planning.py`：两个端点真实 HTTP/SSE、本地规划服务、原生入口、增量隔离及取消/关闭清理。
 
 - `tests/engine.rs`：通过注入适配器与宿主工具验证执行结果、调用次数、事件和 SQLite 账本。
 - `tests/python/test_engine.py`：原生扩展的基础调用与 Python 取消链路。

@@ -1,6 +1,6 @@
 //! Consistent, read-only task and attempt evidence.
 use super::{read_ledger, AttemptRecord, RecoveryRecord};
-use crate::contracts::{EngineError, Result};
+use crate::contracts::{EffectivePlan, EngineError, Result, Strategy, SubmissionSpec};
 use serde_json::Value;
 
 pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<RecoveryRecord>> {
@@ -8,7 +8,7 @@ pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<
     let transaction = connection.transaction()?;
     let records = {
         let mut statement = transaction.prepare(
-            "SELECT id,spec,config_hash,status,checkpoint,result FROM tasks
+            "SELECT id,spec,config_hash,status,checkpoint,result,plan FROM tasks
              WHERE status IN ('running','human_required') OR reserved>0
              OR EXISTS (SELECT 1 FROM attempts WHERE task=tasks.id AND state IN ('pending','unresolved'))
              ORDER BY id",
@@ -22,15 +22,46 @@ pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<
                     row.get::<_, String>(3)?,
                     row.get::<_, String>(4)?,
                     row.get::<_, Option<String>>(5)?,
+                    row.get::<_, String>(6)?,
                 ))
             })?
             .collect::<std::result::Result<Vec<_>, _>>()?;
         let mut records = Vec::with_capacity(rows.len());
-        for (id, spec, config_hash, status, checkpoint, result) in rows {
-            let task = serde_json::from_str(&spec)
-                .map_err(|_| EngineError::new("storage", "invalid saved task"))?;
+        for (id, spec, config_hash, status, checkpoint, result, plan) in rows {
+            let payload = saved_json(&spec)?;
+            let plan = saved_json(&plan)?;
+            let submission: Option<SubmissionSpec> =
+                if let Some(version) = payload.get("payload_version") {
+                    if version != 1 {
+                        return Err(EngineError::new(
+                            "storage",
+                            "unsupported submission payload version",
+                        ));
+                    }
+                    Some(
+                        serde_json::from_value(payload["submission"].clone())
+                            .map_err(|_| EngineError::new("storage", "invalid saved submission"))?,
+                    )
+                } else {
+                    None
+                };
+            let task = if let Some(submission) = &submission {
+                if !plan["effective_plan"].is_null() {
+                    let effective: EffectivePlan =
+                        serde_json::from_value(plan["effective_plan"].clone())
+                            .map_err(|_| EngineError::new("storage", "invalid saved plan"))?;
+                    effective.task(submission)
+                } else {
+                    submission.task(submission.strategy.clone().unwrap_or(Strategy::Single))
+                }
+            } else {
+                serde_json::from_value(payload)
+                    .map_err(|_| EngineError::new("storage", "invalid saved task"))?
+            };
             records.push(RecoveryRecord {
                 task,
+                submission,
+                plan,
                 config_hash,
                 status,
                 checkpoint: saved_json(&checkpoint)?,

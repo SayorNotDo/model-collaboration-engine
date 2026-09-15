@@ -58,5 +58,14 @@
       ],
       "observation": "默认 Outcomes 泳道空置，造成明显空白带；已达两轮视觉修正上限，恢复哈希匹配的结构/浏览器通过版本，视觉验收待完成。"
     }
+  },
+  "planning_update": {
+    "status": "pending",
+    "source": "architecture.json",
+    "reason": "archify was unavailable during implementation; 2.16 now works locally, but generation and verification remain pending",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run",
+    "historical_receipts": "diagrams entries below describe the previous generated artifacts only"
   }
 }

@@ -1,4 +1,5 @@
 //! Business transactions, not a generic key/value persistence interface.
+mod planning;
 mod recovery;
 
 use crate::{contracts::*, events::Event};
@@ -33,6 +34,11 @@ impl Ledger {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RecoveryRecord {
     pub task: TaskSpec,
+    /// Original submission, if this task uses the versioned planning entry point.
+    #[serde(default)]
+    pub submission: Option<SubmissionSpec>,
+    #[serde(default)]
+    pub plan: Value,
     pub config_hash: String,
     pub status: String,
     pub checkpoint: Value,
@@ -56,6 +62,25 @@ pub struct AttemptRecord {
 
 #[async_trait]
 pub trait Store: Send + Sync {
+    /// Atomically persist the immutable submission and initial ledger.
+    /// Custom stores must opt into planning persistence before submit is used.
+    async fn create_submission(
+        &self,
+        _submission: &SubmissionSpec,
+        _config_hash: &str,
+    ) -> Result<()> {
+        Err(EngineError::new(
+            "storage",
+            "store does not support submissions",
+        ))
+    }
+    /// Atomically save planning evidence, effective plan and checkpoint with an audit event.
+    async fn save_plan(&self, _task: &str, _plan: Value, _checkpoint: Value) -> Result<()> {
+        Err(EngineError::new(
+            "storage",
+            "store does not support effective plans",
+        ))
+    }
     async fn create(
         &self,
         task: &TaskSpec,
@@ -210,6 +235,16 @@ fn audit(c: &rusqlite::Connection, task: &str, kind: &str, data: Value) -> Resul
 }
 #[async_trait]
 impl Store for SqliteStore {
+    async fn create_submission(
+        &self,
+        submission: &SubmissionSpec,
+        config_hash: &str,
+    ) -> Result<()> {
+        self.insert_submission(submission, config_hash).await
+    }
+    async fn save_plan(&self, task: &str, plan: Value, checkpoint: Value) -> Result<()> {
+        self.persist_plan(task, plan, checkpoint).await
+    }
     async fn create(
         &self,
         task: &TaskSpec,

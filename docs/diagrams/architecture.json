@@ -2,7 +2,7 @@
   "schema_version": 1,
   "diagram_type": "architecture",
   "meta": {
-    "title": "模型协作引擎 · 当前实现",
+    "title": "模型协作引擎 · 含受限规划（待重新生成）",
     "locale": "zh-CN",
     "quality_profile": "showcase",
     "viewBox": [
@@ -15,7 +15,7 @@
       "id": "host_api",
       "type": "frontend",
       "label": "Python 宿主",
-      "sublabel": "run / stream / close",
+      "sublabel": "submit / run / stream",
       "pos": [
         40,
         290
@@ -43,7 +43,7 @@
       "id": "engine_core",
       "type": "backend",
       "label": "执行引擎",
-      "sublabel": "准入 · 编排 · 关闭",
+      "sublabel": "规划 · 执行 · 关闭",
       "pos": [
         660,
         290
@@ -84,8 +84,8 @@
     {
       "id": "routing_policy",
       "type": "backend",
-      "label": "策略与模型路由",
-      "sublabel": "有界协作 · 约束评分",
+      "label": "规划校验与模型路由",
+      "sublabel": "宿主边界 · 确定性策略",
       "pos": [
         660,
         80
@@ -127,7 +127,7 @@
       "id": "budget_store",
       "type": "database",
       "label": "SQLite 账本",
-      "sublabel": "预留 · 结算 · 终态",
+      "sublabel": "提交 · 计划 · 账本",
       "pos": [
         660,
         500
@@ -200,14 +200,14 @@
       "dot": "cyan",
       "title": "进程内协作",
       "items": [
-        "Python 宿主控制工具权限与事件循环"
+        "规划模型无工具权；宿主控制事件循环与工具权限"
       ]
     },
     {
       "dot": "amber",
       "title": "费用与终态",
       "items": [
-        "未知费用保留预留；关闭等待清理"
+        "规划和执行共用预算；未知费用保留预留"
       ]
     },
     {

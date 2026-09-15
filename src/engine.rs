@@ -1,11 +1,14 @@
 //! Bounded execution; the host retains ownership of cancellation and tool permissions.
 mod execution;
 mod invocation;
+mod planning;
 mod tools;
 
 use crate::{
     adapter::{ModelAdapter, OpenAIAdapter},
-    contracts::{digest, id, now_ms, Config, EngineError, Result, TaskResult, TaskSpec},
+    contracts::{
+        digest, id, now_ms, Config, EngineError, Result, SubmissionSpec, TaskResult, TaskSpec,
+    },
     events::{Event, EventSink},
     store::{RecoveryRecord, SqliteStore, Store},
     strategy,
@@ -112,6 +115,46 @@ impl Engine {
         tools: Option<Arc<dyn ToolExecutor>>,
         events: Option<mpsc::Sender<Event>>,
     ) -> Result<TaskResult> {
+        self.run_input(task, None, cancel, tools, events).await
+    }
+
+    /// Submit a goal with optional strategy/type. Planning shares execution resources.
+    /// Await cancellation through completion to preserve accounting, as with run().
+    pub async fn submit(
+        &self,
+        submission: SubmissionSpec,
+        cancel: CancellationToken,
+    ) -> Result<TaskResult> {
+        self.submit_with_host(submission, cancel, None, None).await
+    }
+
+    /// Submission equivalent of run_with_host, including bounded planning events.
+    pub async fn submit_with_host(
+        &self,
+        submission: SubmissionSpec,
+        cancel: CancellationToken,
+        tools: Option<Arc<dyn ToolExecutor>>,
+        events: Option<mpsc::Sender<Event>>,
+    ) -> Result<TaskResult> {
+        submission.validate(&self.config)?;
+        let task = submission.task(
+            submission
+                .strategy
+                .clone()
+                .unwrap_or(crate::contracts::Strategy::Single),
+        );
+        self.run_input(task, Some(submission), cancel, tools, events)
+            .await
+    }
+
+    async fn run_input(
+        &self,
+        task: TaskSpec,
+        submission: Option<SubmissionSpec>,
+        cancel: CancellationToken,
+        tools: Option<Arc<dyn ToolExecutor>>,
+        events: Option<mpsc::Sender<Event>>,
+    ) -> Result<TaskResult> {
         task.validate(&self.config)?;
         if !task.tools.is_empty() && tools.is_none() {
             return Err(EngineError::new(
@@ -148,14 +191,20 @@ impl Engine {
                     .map_err(|_| EngineError::new("closed", "engine is closed"))?,
         };
         task.validate(&self.config)?;
-        self.store
-            .create(
-                &task,
-                &digest(&self.config),
-                json!(strategy::compile(&task)),
-                json!({"version":1}),
-            )
-            .await?;
+        if let Some(submission) = &submission {
+            self.store
+                .create_submission(submission, &digest(&self.config))
+                .await?;
+        } else {
+            self.store
+                .create(
+                    &task,
+                    &digest(&self.config),
+                    json!(strategy::compile(&task)),
+                    json!({"version":1}),
+                )
+                .await?;
+        }
         let context = RunContext {
             sink: EventSink {
                 sender: events,
@@ -166,7 +215,17 @@ impl Engine {
             tools,
             sequence: Arc::new(AtomicU64::new(1)),
         };
-        let result = self.execute(&task, &context).await;
+        let result = async {
+            self.emit(&task, &context, None, None, "task_started", json!({
+                "strategy": submission.as_ref().map(|s| s.strategy.clone()).unwrap_or(Some(task.strategy.clone()))
+            })).await?;
+            if let Some(submission) = &submission {
+                let effective_task = self.prepare_submission(submission, &task, &context).await?;
+                self.execute(&effective_task, &context).await
+            } else {
+                self.execute(&task, &context).await
+            }
+        }.await;
         match result {
             Ok(result) => {
                 self.store

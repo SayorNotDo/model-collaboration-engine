@@ -9,7 +9,7 @@ use std::time::Duration;
 impl Engine {
     // The inner result is an adapter outcome; outer errors stop fallback (e.g. settlement failure).
     #[allow(clippy::too_many_arguments)]
-    pub(super) async fn dispatch_model(
+    pub(in crate::engine) async fn dispatch_model(
         &self,
         task: &TaskSpec,
         context: &RunContext,
@@ -33,11 +33,11 @@ impl Engine {
                     json!({"not_dispatched":true}),
                 )
                 .await?;
-            return Err(if cancel.is_cancelled() {
+            return Ok(Err(if cancel.is_cancelled() {
                 EngineError::new("cancelled", "task cancelled before dispatch")
             } else {
                 EngineError::new("deadline", "execution deadline reached before dispatch")
-            });
+            }));
         }
         let request = InvokeRequest {
             model: model.clone(),
@@ -48,7 +48,13 @@ impl Engine {
             task_id: task.task_id.clone(),
             node: snapshot.role.clone(),
             attempt_id: attempt.to_owned(),
-            event_sink: context.sink.clone(),
+            event_sink: if snapshot.role == "planner" {
+                let mut sink = context.sink.clone();
+                sink.sender = None;
+                sink
+            } else {
+                context.sink.clone()
+            },
             sequence: context.sequence.clone(),
         };
         let output = tokio::select! {
@@ -63,13 +69,20 @@ impl Engine {
                         .saturating_mul(model.input_price)
                         .saturating_add(u.output_tokens.saturating_mul(model.output_price))
                 });
+                let mut outcome =
+                    json!({"request_id":output.request_id,"complete":output.complete});
+                if snapshot.role == "planner" {
+                    let mut end = output.text.len().min(self.config.context_max_bytes);
+                    while !output.text.is_char_boundary(end) {
+                        end -= 1;
+                    }
+                    outcome["planning_output"] = json!({
+                        "text": &output.text[..end], "truncated": end < output.text.len(),
+                        "tool_calls_present": !output.tool_calls.is_empty(),
+                    });
+                }
                 self.store
-                    .settle(
-                        &task.task_id,
-                        attempt,
-                        cost,
-                        json!({"request_id":output.request_id,"complete":output.complete}),
-                    )
+                    .settle(&task.task_id, attempt, cost, outcome)
                     .await?;
             }
             Err(error) => {

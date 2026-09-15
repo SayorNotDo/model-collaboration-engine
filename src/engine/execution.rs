@@ -16,15 +16,6 @@ impl Engine {
         task: &TaskSpec,
         context: &RunContext,
     ) -> Result<TaskResult> {
-        self.emit(
-            task,
-            context,
-            None,
-            None,
-            "task_started",
-            json!({"strategy":task.strategy}),
-        )
-        .await?;
         let mut excluded = BTreeSet::new();
         let mut health = BTreeMap::<String, Health>::new();
         let mut artifact: Option<Artifact> = None;

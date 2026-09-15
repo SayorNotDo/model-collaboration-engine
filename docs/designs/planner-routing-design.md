@@ -2,7 +2,7 @@
 
 日期：2026-09-15　版本：0.1
 
-状态：目标架构方向已在会话确认；本文将其具体化为待实现设计。接口名称、默认值及拆分方式属于本设计建议，实现尚未落地。
+状态：第一批 A+B 已在 `feat/planning-submissions` 工作分支落地，第二批 C+D 待实施。本文保留目标设计与原分析依据，实际接口及偏差以 [第一批落地记录](planning-implementation.md) 和根目录 README 为准。技术图重新生成与验收待完成。
 
 基线：SayorNotDo/model-collaboration-engine，提交 f94a9bcd4966673c9e1072cdb4d42cc32c7d8b5d。
 

@@ -168,11 +168,13 @@ impl PythonCancellation {
     }
 }
 
-#[pymethods]
+enum SessionInput {
+    Task(TaskSpec),
+    Submission(SubmissionSpec),
+}
+
 impl PythonEngine {
-    fn start(&self, task_json: String, with_tools: bool) -> PyResult<PythonSession> {
-        let task: TaskSpec =
-            serde_json::from_str(&task_json).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+    fn start_session(&self, input: SessionInput, with_tools: bool) -> PyResult<PythonSession> {
         let engine = self.inner.clone();
         let cancel = CancellationToken::new();
         let worker_cancel = cancel.clone();
@@ -188,9 +190,18 @@ impl PythonEngine {
         };
         let (finished, outcome) = watch::channel(None);
         pyo3_async_runtimes::tokio::get_runtime().spawn(async move {
-            let result = engine
-                .run_with_host(task, worker_cancel, tools, Some(sender))
-                .await;
+            let result = match input {
+                SessionInput::Task(task) => {
+                    engine
+                        .run_with_host(task, worker_cancel, tools, Some(sender))
+                        .await
+                }
+                SessionInput::Submission(submission) => {
+                    engine
+                        .submit_with_host(submission, worker_cancel, tools, Some(sender))
+                        .await
+                }
+            };
             let _ = finished.send(Some(result));
         });
         Ok(PythonSession {
@@ -200,6 +211,25 @@ impl PythonEngine {
             outcome,
             cancel,
         })
+    }
+}
+
+#[pymethods]
+impl PythonEngine {
+    fn start(&self, task_json: String, with_tools: bool) -> PyResult<PythonSession> {
+        let task =
+            serde_json::from_str(&task_json).map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        self.start_session(SessionInput::Task(task), with_tools)
+    }
+
+    fn start_submission(
+        &self,
+        submission_json: String,
+        with_tools: bool,
+    ) -> PyResult<PythonSession> {
+        let submission = serde_json::from_str(&submission_json)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))?;
+        self.start_session(SessionInput::Submission(submission), with_tools)
     }
 
     #[staticmethod]

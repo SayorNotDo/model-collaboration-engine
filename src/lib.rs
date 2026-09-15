@@ -5,6 +5,7 @@ mod bindings;
 pub mod contracts;
 pub mod engine;
 pub mod events;
+mod planning;
 pub mod router;
 pub mod store;
 pub mod strategy;

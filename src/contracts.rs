@@ -3,6 +3,12 @@ use serde_json::Value;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 
+mod planning;
+pub use planning::{
+    EffectivePlan, PlanChoice, PlannerProposal, PlanningConfig, PlanningMode, RoleProfile,
+    SubmissionSpec, TaskType,
+};
+
 pub type Result<T> = std::result::Result<T, EngineError>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, thiserror::Error)]
@@ -106,6 +112,9 @@ pub struct Weights {
 pub struct Config {
     pub database_path: String,
     pub models: Vec<Model>,
+    /// Explicit candidate IDs for planning. Empty disables model-based planning.
+    #[serde(default)]
+    pub planner_models: BTreeSet<String>,
     pub weights: Weights,
     pub max_concurrency: usize,
     pub event_capacity: usize,
@@ -192,6 +201,9 @@ impl Config {
                     "phase one supports text, tools and json capabilities only",
                 ));
             }
+        }
+        if self.planner_models.iter().any(|id| !ids.contains(id)) {
+            return Err(bad("planner_models must reference configured model IDs"));
         }
         Ok(())
     }

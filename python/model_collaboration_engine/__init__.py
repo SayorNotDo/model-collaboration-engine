@@ -33,7 +33,33 @@ class Engine:
         tools: ToolCallbacks | None = None,
         on_event: EventCallback | None = None,
     ) -> dict[str, Any]:
-        async with self.stream(task, tools=tools) as run:
+        return await self._consume(self.stream(task, tools=tools), task, on_event)
+
+    def stream_submission(
+        self, submission: dict[str, Any], *, tools: ToolCallbacks | None = None
+    ) -> Run:
+        """Stream planning lifecycle and candidate events under one task budget."""
+        if self._closing:
+            raise RuntimeError("Engine is closing or closed")
+        return Run(self, submission, tools, submission=True)
+
+    async def submit(
+        self, submission: dict[str, Any], *, tools: ToolCallbacks | None = None,
+        on_event: EventCallback | None = None,
+    ) -> dict[str, Any]:
+        """Plan when requested, validate host boundaries, then execute an existing strategy.
+
+        Uses schema_version=1; planning mode is disabled, auto or required.
+        Cancellation waits for native accounting and host callback cleanup.
+        """
+        return await self._consume(
+            self.stream_submission(submission, tools=tools), submission, on_event
+        )
+
+    async def _consume(
+        self, stream: Run, task: dict[str, Any], on_event: EventCallback | None
+    ) -> dict[str, Any]:
+        async with stream as run:
             async for event in run:
                 if on_event is not None:
                     result = on_event(event)
