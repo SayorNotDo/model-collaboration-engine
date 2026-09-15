@@ -4,6 +4,7 @@ use super::{Engine, RunContext};
 use crate::{
     contracts::{now_ms, EffectivePlan, EngineError, Result, SubmissionSpec, TaskSpec},
     planning::validate_plan,
+    router::RoutingSnapshot,
 };
 use serde_json::{json, Value};
 
@@ -13,9 +14,9 @@ impl Engine {
         submission: &SubmissionSpec,
         task: &TaskSpec,
         context: &RunContext,
-    ) -> Result<TaskSpec> {
+    ) -> Result<(TaskSpec, RoutingSnapshot)> {
         self.planning_resources(task, context).await?;
-        let (plan, evidence) = if submission.needs_planning() {
+        let (mut plan, evidence) = if submission.needs_planning() {
             self.plan_submission(submission, task, context).await?
         } else {
             (
@@ -27,10 +28,11 @@ impl Engine {
         effective_task
             .validate(&self.config)
             .map_err(|error| EngineError::new("plan_validation", error.message))?;
+        let routing = RoutingSnapshot::capture(&self.config, &mut plan, now_ms());
         self.store
             .save_plan(
                 &task.task_id,
-                json!({"effective_plan":plan,"planning":evidence}),
+                json!({"effective_plan":plan,"planning":evidence,"routing_snapshot":routing}),
                 json!({"version":1,"phase":"planned"}),
             )
             .await?;
@@ -41,7 +43,7 @@ impl Engine {
         self.store
             .checkpoint(&task.task_id, json!({"version":1,"phase":"executing"}))
             .await?;
-        Ok(effective_task)
+        Ok((effective_task, routing))
     }
 
     async fn planning_resources(&self, task: &TaskSpec, context: &RunContext) -> Result<()> {

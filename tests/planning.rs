@@ -19,7 +19,7 @@ async fn planning_and_execution_share_accounting_and_preserve_host_acceptance() 
     let (sender, mut events) = f.engine.event_channel();
     let result = f
         .engine
-        .submit_with_host(sub.clone(), CancellationToken::new(), None, Some(sender))
+        .run_with_host(sub.clone(), CancellationToken::new(), None, Some(sender))
         .await
         .unwrap();
     assert_eq!(result.settled_cost, 30);
@@ -63,7 +63,7 @@ async fn explicit_disabled_and_complete_auto_skip_planning_without_a_pool() {
         sub.task_type = Some(TaskType::Writing);
         sub.strategy = Some(Strategy::Single);
         f.engine
-            .submit(sub.clone(), CancellationToken::new())
+            .run(sub.clone(), CancellationToken::new())
             .await
             .unwrap();
         assert_eq!(ledger(&f, &sub.task_id).await.calls, 1);
@@ -91,7 +91,7 @@ async fn required_plans_even_with_host_choices_and_rejects_conflicts() {
         } else {
             TaskType::Writing
         });
-        let result = f.engine.submit(sub.clone(), CancellationToken::new()).await;
+        let result = f.engine.run(sub.clone(), CancellationToken::new()).await;
         if conflict {
             assert_eq!(result.unwrap_err().kind, "plan_validation");
         } else {
@@ -129,7 +129,7 @@ async fn invalid_proposals_are_settled_before_rejection() {
         let sub = submission();
         assert_eq!(
             f.engine
-                .submit(sub.clone(), CancellationToken::new())
+                .run(sub.clone(), CancellationToken::new())
                 .await
                 .unwrap_err()
                 .kind,
@@ -159,7 +159,7 @@ async fn explicit_fallback_keeps_unknown_planning_cost_and_recovery_evidence() {
     });
     let result = f
         .engine
-        .submit(sub.clone(), CancellationToken::new())
+        .run(sub.clone(), CancellationToken::new())
         .await
         .unwrap();
     assert_eq!(result.settled_cost, 15);
@@ -214,7 +214,7 @@ async fn planning_pool_cannot_bypass_host_data_constraints() {
         }
         assert_eq!(
             f.engine
-                .submit(sub.clone(), CancellationToken::new())
+                .run(sub.clone(), CancellationToken::new())
                 .await
                 .unwrap_err()
                 .kind,
@@ -251,7 +251,7 @@ async fn total_call_exhaustion_and_usage_overrun_never_fall_back() {
         });
         assert_eq!(
             f.engine
-                .submit(sub.clone(), CancellationToken::new())
+                .run(sub.clone(), CancellationToken::new())
                 .await
                 .unwrap_err()
                 .kind,
@@ -281,7 +281,7 @@ async fn planning_stage_timeout_can_fall_back_but_global_deadline_cannot() {
         } else {
             sub.planning.timeout_ms = 50;
         }
-        let result = f.engine.submit(sub.clone(), CancellationToken::new()).await;
+        let result = f.engine.run(sub.clone(), CancellationToken::new()).await;
         if global {
             assert_eq!(result.unwrap_err().kind, "deadline");
         } else {
@@ -310,7 +310,7 @@ async fn cancellation_and_close_finish_planning_accounting_without_fallback() {
             let engine = f.engine.clone();
             let sub = sub.clone();
             let cancel = cancel.clone();
-            async move { engine.submit(sub, cancel).await }
+            async move { engine.run(sub, cancel).await }
         });
         tokio::time::timeout(std::time::Duration::from_secs(2), f.fake.started.notified())
             .await
@@ -354,7 +354,7 @@ async fn version_and_mode_errors_reject_before_admission() {
         }
         assert_eq!(
             f.engine
-                .submit(sub, CancellationToken::new())
+                .run(sub, CancellationToken::new())
                 .await
                 .unwrap_err()
                 .kind,
@@ -385,7 +385,7 @@ async fn settlement_storage_failure_stops_before_fallback_or_execution() {
     });
     assert_eq!(
         engine
-            .submit(sub.clone(), CancellationToken::new())
+            .run(sub.clone(), CancellationToken::new())
             .await
             .unwrap_err()
             .kind,
@@ -416,7 +416,7 @@ async fn planner_selection_failure_uses_only_explicit_validated_fallback() {
             strategy: Strategy::Single,
         });
         f.engine
-            .submit(sub.clone(), CancellationToken::new())
+            .run(sub.clone(), CancellationToken::new())
             .await
             .unwrap();
         assert_eq!(ledger(&f, &sub.task_id).await.calls, 1);
@@ -453,7 +453,7 @@ async fn planned_critic_preserves_diversity_and_records_role_mapping() {
     let mut sub = submission();
     sub.constraints.different_critic = true;
     f.engine
-        .submit(sub.clone(), CancellationToken::new())
+        .run(sub.clone(), CancellationToken::new())
         .await
         .unwrap();
     let plan = saved(&f, &sub.task_id).1;

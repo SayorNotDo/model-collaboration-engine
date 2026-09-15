@@ -17,15 +17,6 @@ impl Store for FailSettlement {
     async fn save_plan(&self, task: &str, plan: Value, checkpoint: Value) -> Result<()> {
         self.0.save_plan(task, plan, checkpoint).await
     }
-    async fn create(
-        &self,
-        task: &TaskSpec,
-        hash: &str,
-        plan: Value,
-        checkpoint: Value,
-    ) -> Result<()> {
-        self.0.create(task, hash, plan, checkpoint).await
-    }
     async fn reserve(
         &self,
         task: &str,

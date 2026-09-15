@@ -17,7 +17,7 @@ async def main() -> None:
     submission["task_id"] = str(uuid4())
     submission["deadline_ms"] = int(time.time() * 1000) + 60_000
     async with await Engine.open(config) as engine:
-        async with engine.stream_submission(submission) as run:
+        async with engine.stream(submission) as run:
             async for event in run:
                 if event["kind"] == "content_delta":
                     print(event["data"]["text"], end="", flush=True)

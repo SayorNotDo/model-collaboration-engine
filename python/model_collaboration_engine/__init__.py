@@ -22,6 +22,7 @@ class Engine:
         return cls(await _Engine.open(json.dumps(config)))
 
     def stream(self, task: dict[str, Any], *, tools: ToolCallbacks | None = None) -> Run:
+        """Stream one submission's optional planning and bounded execution."""
         if self._closing:
             raise RuntimeError("Engine is closing or closed")
         return Run(self, task, tools)
@@ -33,28 +34,8 @@ class Engine:
         tools: ToolCallbacks | None = None,
         on_event: EventCallback | None = None,
     ) -> dict[str, Any]:
+        """Run a submission; omitted planning means disabled and requires a strategy."""
         return await self._consume(self.stream(task, tools=tools), task, on_event)
-
-    def stream_submission(
-        self, submission: dict[str, Any], *, tools: ToolCallbacks | None = None
-    ) -> Run:
-        """Stream planning lifecycle and candidate events under one task budget."""
-        if self._closing:
-            raise RuntimeError("Engine is closing or closed")
-        return Run(self, submission, tools, submission=True)
-
-    async def submit(
-        self, submission: dict[str, Any], *, tools: ToolCallbacks | None = None,
-        on_event: EventCallback | None = None,
-    ) -> dict[str, Any]:
-        """Plan when requested, validate host boundaries, then execute an existing strategy.
-
-        Uses schema_version=1; planning mode is disabled, auto or required.
-        Cancellation waits for native accounting and host callback cleanup.
-        """
-        return await self._consume(
-            self.stream_submission(submission, tools=tools), submission, on_event
-        )
 
     async def _consume(
         self, stream: Run, task: dict[str, Any], on_event: EventCallback | None

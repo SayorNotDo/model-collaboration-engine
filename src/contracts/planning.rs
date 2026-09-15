@@ -1,11 +1,11 @@
-//! Versioned submission contracts; legacy TaskSpec remains unchanged.
+//! One public submission contract and its validated execution projection.
 use super::{
     Acceptance, Config, Constraints, EngineError, Evidence, Result, Strategy, TaskSpec, ToolSpec,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TaskType {
     #[default]
@@ -48,9 +48,22 @@ fn one_call() -> u32 {
     1
 }
 
+impl Default for PlanningConfig {
+    fn default() -> Self {
+        Self {
+            mode: PlanningMode::Disabled,
+            fallback: None,
+            max_calls: 1,
+            max_cost: 0,
+            timeout_ms: 5000,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SubmissionSpec {
+    #[serde(default = "one_call")]
     pub schema_version: u32,
     pub task_id: String,
     pub goal: String,
@@ -70,7 +83,34 @@ pub struct SubmissionSpec {
     pub max_call_cost: u64,
     pub finalization_ms: u64,
     pub tools: Vec<ToolSpec>,
+    #[serde(default)]
     pub planning: PlanningConfig,
+}
+
+/// An explicit execution specification normalizes to a general, unplanned submission.
+impl From<TaskSpec> for SubmissionSpec {
+    fn from(task: TaskSpec) -> Self {
+        Self {
+            schema_version: 1,
+            task_id: task.task_id,
+            goal: task.goal,
+            evidence: task.evidence,
+            task_type: Some(TaskType::General),
+            strategy: Some(task.strategy),
+            acceptance: task.acceptance,
+            constraints: task.constraints,
+            budget: task.budget,
+            deadline_ms: task.deadline_ms,
+            output_tokens: task.output_tokens,
+            max_calls: task.max_calls,
+            max_rounds: task.max_rounds,
+            max_attempts: task.max_attempts,
+            max_call_cost: task.max_call_cost,
+            finalization_ms: task.finalization_ms,
+            tools: task.tools,
+            planning: PlanningConfig::default(),
+        }
+    }
 }
 
 impl SubmissionSpec {

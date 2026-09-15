@@ -1,43 +1,43 @@
 {
   "basis": "working-tree",
   "captured_date": "2026-09-15",
-  "note": "第一批规划的工作区源码证据。architecture.json 已更新；旧 architecture.html 及其回执仅对应旧规格，待 archify 重生成和重新验收。关闭状态关系不变，已增加规划阶段清理测试。",
+  "note": "统一执行路径工作区证据：所有新任务经统一提交、计划和快照执行；图源标签已更新，旧图形回执不适用于当前规格，archify 验收待完成。",
   "files": {
     "python/model_collaboration_engine/__init__.py": {
-      "sha256": "2aac2550a24839f72dbdf8dfa9251679a624bb417ecb89e02bb61646544d8892",
-      "bytes": 4099
+      "sha256": "6203b23104ab3e95caadb385ef4c317b71f13c8c1a1343509cdad984345219a7",
+      "bytes": 3350
     },
     "python/model_collaboration_engine/_run.py": {
-      "sha256": "f01c14b3c8a989e771d6699ccc3e84972000c2254ae294f48d3e1144f758c05d",
-      "bytes": 5244
+      "sha256": "8d959af87fb2d2111860d9b25f010ac9e666d0b4501a28b40c79b00c445a903c",
+      "bytes": 5048
     },
     "src/adapter.rs": {
       "sha256": "4369fb2ceaf37cacd162062a1d10af663d8f7ba480db4563d5592b86a8ded10a",
       "bytes": 16150
     },
     "src/bindings.rs": {
-      "sha256": "82dd816da21df5df36e4ae557aba99dbb3c99c876c5f27a358f9ab2a30d667a2",
-      "bytes": 9335
+      "sha256": "807764532dce5ed05a86bd377686bdab35f0965235475c3df5ae11ada8d43cda",
+      "bytes": 8548
     },
     "src/contracts.rs": {
-      "sha256": "ac89d78073b4ceeeb9c5ec2e9d7870b4d376c45931dfc4a1d6f10be7c048aa55",
-      "bytes": 12040
+      "sha256": "984d85cdc5e35b412a9cc74f0e90010aaf262c140fbf5f41439316365ae1854f",
+      "bytes": 11908
     },
     "src/engine.rs": {
-      "sha256": "88109868a8288d9da66ecafeb521131eed1d4abb3497f54c525c74b1324c166f",
-      "bytes": 10947
+      "sha256": "271ea57066a56915fd8e2f8190dd03613ffd05148430731f9bcbcaffe5592525",
+      "bytes": 10093
     },
     "src/events.rs": {
       "sha256": "5d5fc363cb0848c8efd5bbf29251ec765eb0512d9cabee0cfd44213c2cdd20b4",
       "bytes": 1194
     },
     "src/router.rs": {
-      "sha256": "52bcbcb864d95ee26f44b9c60a13bc06c605aa0d3056be5ce914616642aa14be",
-      "bytes": 5521
+      "sha256": "3b1f740d692fbb8fe744d96375ac769951ba0ee13b0955244ea0f63d02414618",
+      "bytes": 7212
     },
     "src/store.rs": {
-      "sha256": "3c2589b5cee4cd0079c17f196e9955fe8732cdc028faf39eca0b0ddb66eb1f14",
-      "bytes": 17239
+      "sha256": "dae374aa75791dd7ae8c7a1ec0a0517d9671d29083d52b20ec2468f20c6ed802",
+      "bytes": 15757
     },
     "src/strategy.rs": {
       "sha256": "675180f9c3cd66fe8d76743ff03497a6595da6f3b60e842edbbea39c4246c3d2",
@@ -48,8 +48,8 @@
       "bytes": 813
     },
     "tests/engine.rs": {
-      "sha256": "2e942112f78170c699b002e7569d04097691097f70764d23a9f6cfaca67806c7",
-      "bytes": 25821
+      "sha256": "6dd001c675b80b495c9aa60d0e086371dde85bb1ab4c250482b41e52f25af8d9",
+      "bytes": 26034
     },
     "tests/python/test_tools_stream.py": {
       "sha256": "1fa80d9d512bf7308fde13f0f413d43760bf361767c3d6c3b32d3373028437bc",
@@ -60,8 +60,8 @@
       "bytes": 4833
     },
     "src/engine/execution.rs": {
-      "sha256": "72f5a31a1eaf1fa709f1192982152a43550b7ff35ae1cbfdd8436c25fccc3d68",
-      "bytes": 5821
+      "sha256": "a7a4eae29283c9c200d629957539e7a82d11fadd40fc95c30894b119f225d6d6",
+      "bytes": 5824
     },
     "python/model_collaboration_engine/_types.py": {
       "sha256": "645f053680f2e3f4c39f997b3e59f557acd3b9317e7f4849056fabba8417ef2d",
@@ -80,24 +80,24 @@
       "bytes": 3901
     },
     "src/engine/invocation.rs": {
-      "sha256": "c826c565b6afce69237c5f4d9f08dc34097d4dca39b933bfe5899eb821788406",
-      "bytes": 6705
+      "sha256": "1b491a1c3de0dfd45e008f6ca50e7fde626931628a101b3a5f22b5bd93c230ef",
+      "bytes": 7196
     },
     "src/contracts/planning.rs": {
-      "sha256": "3a36d7fc4a54658ab9d051b655b1ee869def3a88618d2b07734ce39ef7296cd4",
-      "bytes": 5698
+      "sha256": "733a43bce63734088bb7cb0c7889c3759dcfe9b32b50a3471410a7f84048abc8",
+      "bytes": 6955
     },
     "src/planning.rs": {
       "sha256": "84234cd57d6dfe770f4c019c48cd5af3c215de514545b9a4f8e36619c604e789",
       "bytes": 1650
     },
     "src/planning/validation.rs": {
-      "sha256": "8e1a4599ce531e7bd68cd74e20a865ad530304fc14db2ad51a93150664911b24",
-      "bytes": 3741
+      "sha256": "25a79ce832339535d588263f904fec4d01d17f35b5c03e96e27699a9f367392c",
+      "bytes": 3740
     },
     "src/engine/planning.rs": {
-      "sha256": "f8ce5c41e530690fa1ed5e2032ad556e9a80ede765825c92c20d371399601909",
-      "bytes": 6031
+      "sha256": "d5a771dacffd278afd6f25a03555af50943a7ad2b25d7f6c1c7b5ba784b37a0d",
+      "bytes": 6204
     },
     "src/engine/planning/attempt.rs": {
       "sha256": "794d76751b9297302cdeccaf7679193c6dc3622f01b9d0a4b87c9ee123eeb23a",
@@ -108,12 +108,32 @@
       "bytes": 2447
     },
     "tests/planning.rs": {
-      "sha256": "f0381d24ba4cba84672e83e5b9001b92e49066bb7c049863f5f1d9882a39aa0e",
-      "bytes": 16908
+      "sha256": "92b58ea8b1679e396de298d374da8c373ae95d2c6a86949b59f6fadb6feddfbb",
+      "bytes": 16869
     },
     "tests/python/test_planning.py": {
-      "sha256": "a5306e38b2d31cea9161aa25be3dc252058e769c62706820426f83d6275910a8",
-      "bytes": 10750
+      "sha256": "b583a22633772021863dfbc06e28b1b7662820482c8f9ee01fb621ec276f5626",
+      "bytes": 10713
+    },
+    "src/contracts/profiles.rs": {
+      "sha256": "bb72ceeb850e631a70d885ef2c6e302a6f7e1277367515454f9ddf8cba610ebe",
+      "bytes": 5574
+    },
+    "src/router/profiles.rs": {
+      "sha256": "af01552383c0bc5f85d5dee3c3cf599e0300b7c5742c93c130590f330f876ed3",
+      "bytes": 5192
+    },
+    "tests/routing_profiles.rs": {
+      "sha256": "8145d528900e273d32e5e2f9585ff5d96ff579490a1ecbce0e8f7e9e836579dd",
+      "bytes": 17682
+    },
+    "tests/routing/support.rs": {
+      "sha256": "3921c50cc4ee906f34735659615e8ddd6204000b1e0180b14673718aa47154c6",
+      "bytes": 2668
+    },
+    "tests/python/test_routing_profiles.py": {
+      "sha256": "077bd00a2716196144273600ac2058d6959594762c2bcdd15bff3ae8d6cf0918",
+      "bytes": 4207
     }
   },
   "diagrams": {
@@ -187,6 +207,12 @@
           },
           {
             "path": "src/contracts/planning.rs"
+          },
+          {
+            "path": "src/contracts/profiles.rs"
+          },
+          {
+            "path": "src/router/profiles.rs"
           }
         ],
         "event_delivery": [
@@ -229,7 +255,7 @@
           "topology_change": false
         },
         "planning": {
-          "api": "Engine.submit / Engine.stream_submission",
+          "api": "Engine.run / Engine.stream",
           "sources": [
             "src/contracts/planning.rs",
             "src/planning.rs",
@@ -244,9 +270,47 @@
           ],
           "topology_change": false,
           "responsibility_change": true
+        },
+        "typed_routing": {
+          "api": "Engine.run / Engine.stream / router::route_profiled",
+          "sources": [
+            "src/contracts/profiles.rs",
+            "src/router/profiles.rs",
+            "src/router.rs",
+            "src/engine/planning.rs",
+            "src/engine/invocation.rs",
+            "src/engine/execution.rs"
+          ],
+          "tests": [
+            "tests/routing_profiles.rs",
+            "tests/routing/support.rs",
+            "tests/python/test_routing_profiles.py"
+          ],
+          "topology_change": false,
+          "responsibility_change": true
+        },
+        "execution_unification": {
+          "api": "Engine.run / Engine.stream",
+          "sources": [
+            "src/engine.rs",
+            "src/bindings.rs",
+            "src/store.rs",
+            "src/contracts/planning.rs",
+            "src/router/profiles.rs",
+            "python/model_collaboration_engine/__init__.py",
+            "python/model_collaboration_engine/_run.py"
+          ],
+          "tests": [
+            "tests/engine.rs",
+            "tests/planning.rs",
+            "tests/routing_profiles.rs",
+            "tests/python/test_routing_profiles.py"
+          ],
+          "topology_change": false,
+          "responsibility_change": true
         }
       },
-      "generation_status": "pending: archify 2.16 available locally; generation and verification not yet performed"
+      "generation_status": "pending: previous archify installation unavailable in current session; historical generated artifacts unchanged"
     },
     "shutdown": {
       "type": "lifecycle",

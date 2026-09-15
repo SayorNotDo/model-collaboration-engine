@@ -1,5 +1,7 @@
 # 模型规划与分类型路由专项设计
 
+后续接口收敛以 [统一执行路径](execution-unification.md) 为准；本文涉及保留旧执行路径的兼容设想已被替代。
+
 日期：2026-09-15　版本：0.1
 
 状态：第一批 A+B 已在 `feat/planning-submissions` 工作分支落地，第二批 C+D 待实施。本文保留目标设计与原分析依据，实际接口及偏差以 [第一批落地记录](planning-implementation.md) 和根目录 README 为准。技术图重新生成与验收待完成。

@@ -34,7 +34,7 @@ impl Engine {
                 feedback.clone(),
                 round,
             );
-            let (output, attempt, model) = self
+            let (output, attempt, model, quality) = self
                 .invoke(task, snapshot, &excluded, quality_floor, &health, context)
                 .await?;
             let evaluation = strategy::evaluate(&output.text, &task.acceptance);
@@ -75,7 +75,7 @@ impl Engine {
                 Strategy::Single => break,
                 Strategy::Cascade => {
                     excluded.insert(model.id);
-                    quality_floor = model.acceptance;
+                    quality_floor = quality;
                 }
                 Strategy::GeneratorCritic => {}
             }
@@ -124,7 +124,7 @@ impl Engine {
             vec![],
             round,
         );
-        let (critic, _, _) = self
+        let (critic, _, _, _) = self
             .invoke(task, snapshot, &critic_excluded, 0.0, health, context)
             .await?;
         let evaluation: crate::contracts::Evaluation =

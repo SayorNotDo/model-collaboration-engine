@@ -15,7 +15,7 @@
       "id": "host_api",
       "type": "frontend",
       "label": "Python 宿主",
-      "sublabel": "submit / run / stream",
+      "sublabel": "run / stream",
       "pos": [
         40,
         290

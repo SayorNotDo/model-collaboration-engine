@@ -111,7 +111,7 @@ def test_submit_stream_hides_plan_json_and_preserves_acceptance(planning_server)
 
     async def run():
         async with await Engine.open(config) as engine:
-            async with engine.stream_submission(submission) as stream:
+            async with engine.stream(submission) as stream:
                 async for event in stream:
                     events.append(event)
                 result = await stream.result()
@@ -148,7 +148,7 @@ def test_unknown_usage_preserved_through_success_or_explicit_fallback(planning_s
 
     async def run():
         async with await Engine.open(config) as engine:
-            result = await engine.submit(submission, on_event=events.append)
+            result = await engine.run(submission, on_event=events.append)
             assert result["settled_cost"] == 15
             assert result["reserved_cost"] > 0
             records = await engine.recovery_records()
@@ -176,7 +176,7 @@ def test_invalid_planner_output_settles_without_execution(planning_server, viola
     async def run():
         async with await Engine.open(config) as engine:
             with pytest.raises(RuntimeError, match="plan_validation"):
-                await engine.submit(submission)
+                await engine.run(submission)
 
     asyncio.run(run())
     assert len(mode["requests"]) == 1
@@ -196,10 +196,10 @@ def test_planning_cancellation_and_shutdown_wait_for_accounting(planning_server,
     async def run():
         async with await Engine.open(config) as engine:
             if stop == "early_exit":
-                async with engine.stream_submission(submission):
+                async with engine.stream(submission):
                     assert await asyncio.to_thread(mode["entered"].wait, 3)
             else:
-                pending = asyncio.create_task(engine.submit(submission))
+                pending = asyncio.create_task(engine.run(submission))
                 assert await asyncio.to_thread(mode["entered"].wait, 3)
                 if stop == "cancel":
                     pending.cancel()
@@ -229,7 +229,7 @@ def test_explicit_host_choices_control_planning_mode(planning_server, mode_name)
 
     async def run():
         async with await Engine.open(config) as engine:
-            assert (await engine.submit(submission))["status"] == "completed"
+            assert (await engine.run(submission))["status"] == "completed"
 
     asyncio.run(run())
     assert len(mode["requests"]) == (2 if mode_name == "required" else 1)
@@ -242,6 +242,6 @@ def test_submission_missing_callback_rejected_before_planning(planning_server):
     async def run():
         async with await Engine.open(config) as engine:
             with pytest.raises(ValueError, match="Missing host tool callbacks"):
-                await engine.submit(submission)
+                await engine.run(submission)
     asyncio.run(run())
     assert mode["requests"] == []

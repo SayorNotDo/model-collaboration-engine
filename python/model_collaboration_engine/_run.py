@@ -14,11 +14,9 @@ class Run:
     """Use as an async context manager; consume events before awaiting result()."""
 
     def __init__(
-        self, engine: Any, task: dict[str, Any], tools: ToolCallbacks | None,
-        *, submission: bool = False
+        self, engine: Any, task: dict[str, Any], tools: ToolCallbacks | None
     ) -> None:
         self._engine = engine
-        self._submission = submission
         self._task_json = json.dumps(task)
         self._tools = dict(tools or {})
         names = {spec["name"] for spec in task.get("tools", [])}
@@ -36,11 +34,7 @@ class Run:
             raise RuntimeError("Engine is closing or closed")
         if self._session is not None:
             raise RuntimeError("A Run cannot be entered twice")
-        start = (
-            self._engine._native.start_submission if self._submission
-            else self._engine._native.start
-        )
-        self._session = start(self._task_json, bool(self._tools))
+        self._session = self._engine._native.start(self._task_json, bool(self._tools))
         self._worker = asyncio.create_task(self._serve_tools())
         self._outcome = asyncio.create_task(self._wait_result())
         self._engine._runs.add(self)

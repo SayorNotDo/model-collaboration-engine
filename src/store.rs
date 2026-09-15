@@ -5,7 +5,7 @@ mod recovery;
 use crate::{contracts::*, events::Event};
 use async_trait::async_trait;
 use fs2::FileExt;
-use rusqlite::{params, OptionalExtension};
+use rusqlite::params;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
@@ -63,31 +63,10 @@ pub struct AttemptRecord {
 #[async_trait]
 pub trait Store: Send + Sync {
     /// Atomically persist the immutable submission and initial ledger.
-    /// Custom stores must opt into planning persistence before submit is used.
-    async fn create_submission(
-        &self,
-        _submission: &SubmissionSpec,
-        _config_hash: &str,
-    ) -> Result<()> {
-        Err(EngineError::new(
-            "storage",
-            "store does not support submissions",
-        ))
-    }
-    /// Atomically save planning evidence, effective plan and checkpoint with an audit event.
-    async fn save_plan(&self, _task: &str, _plan: Value, _checkpoint: Value) -> Result<()> {
-        Err(EngineError::new(
-            "storage",
-            "store does not support effective plans",
-        ))
-    }
-    async fn create(
-        &self,
-        task: &TaskSpec,
-        config_hash: &str,
-        plan: Value,
-        checkpoint: Value,
-    ) -> Result<()>;
+    async fn create_submission(&self, submission: &SubmissionSpec, config_hash: &str)
+        -> Result<()>;
+    /// Atomically save the plan, routing snapshot and checkpoint.
+    async fn save_plan(&self, task: &str, plan: Value, checkpoint: Value) -> Result<()>;
     async fn reserve(
         &self,
         task: &str,
@@ -244,24 +223,6 @@ impl Store for SqliteStore {
     }
     async fn save_plan(&self, task: &str, plan: Value, checkpoint: Value) -> Result<()> {
         self.persist_plan(task, plan, checkpoint).await
-    }
-    async fn create(
-        &self,
-        task: &TaskSpec,
-        config_hash: &str,
-        plan: Value,
-        checkpoint: Value,
-    ) -> Result<()> {
-        let _gate = self.gate.lock().await;
-        let task = task.clone();
-        let hash = config_hash.to_owned();
-        db_call(&self.conn,move|c| {
-            let tx=c.transaction()?;
-            let exists=tx.query_row("SELECT 1 FROM tasks WHERE id=?",[&task.task_id], |_|Ok(())).optional()?.is_some();
-            if exists { return Err(EngineError::new("configuration","task_id already exists")); }
-            tx.execute("INSERT INTO tasks(id,spec,config_hash,plan,status,total,checkpoint) VALUES(?,?,?,?,?,?,?)",params![task.task_id,serde_json::to_string(&task).unwrap(),hash,plan.to_string(),"running",task.budget as i64,checkpoint.to_string()])?;
-            audit(&tx,&task.task_id,"task_created",plan)?;tx.commit()?;Ok(())
-        }).await
     }
     async fn reserve(
         &self,

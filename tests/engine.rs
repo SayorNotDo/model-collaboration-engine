@@ -573,14 +573,16 @@ struct SlowFinish {
 }
 #[async_trait]
 impl Store for SlowFinish {
-    async fn create(
+    async fn create_submission(&self, submission: &SubmissionSpec, hash: &str) -> Result<()> {
+        self.inner.create_submission(submission, hash).await
+    }
+    async fn save_plan(
         &self,
-        t: &TaskSpec,
-        h: &str,
-        p: serde_json::Value,
-        c: serde_json::Value,
+        task: &str,
+        plan: serde_json::Value,
+        checkpoint: serde_json::Value,
     ) -> Result<()> {
-        self.inner.create(t, h, p, c).await
+        self.inner.save_plan(task, plan, checkpoint).await
     }
     async fn reserve(&self, t: &str, a: &str, n: u64, m: u32, v: serde_json::Value) -> Result<()> {
         self.inner.reserve(t, a, n, m, v).await
@@ -665,7 +667,7 @@ async fn recovery_inspection_preserves_attempt_evidence_across_reopen() {
     completed.task_id = "completed".into();
     for task in [&pending, &unresolved, &completed] {
         store
-            .create(task, "original-config", json!({}), json!({"step": 1}))
+            .create_submission(&task.clone().into(), "original-config")
             .await
             .unwrap();
     }
@@ -733,7 +735,10 @@ async fn recovery_inspection_preserves_attempt_evidence_across_reopen() {
     assert_eq!(before.len(), 2);
     assert_eq!(before[0].task.task_id, "pending");
     assert_eq!(before[0].config_hash, "original-config");
-    assert_eq!(before[0].checkpoint, json!({"step":1}));
+    assert_eq!(
+        before[0].checkpoint,
+        json!({"version":1,"phase":"admitted"})
+    );
     assert!(before[0].result.is_none());
     assert_eq!(before[0].ledger.reserved, 20);
     assert_eq!(before[0].ledger.settled, 3);
