@@ -1,11 +1,11 @@
 {
   "basis": "working-tree",
   "captured_date": "2026-09-15",
-  "note": "统一执行路径工作区证据：所有新任务经统一提交、计划和快照执行；图源标签已更新，旧图形回执不适用于当前规格，archify 验收待完成。",
+  "note": "D 反馈与指标工作区证据：终态产物反馈、分层评价与调用指标持久化；新任务固定反馈快照。图源职责已更新，archify 重生成及验收待完成。",
   "files": {
     "python/model_collaboration_engine/__init__.py": {
-      "sha256": "6203b23104ab3e95caadb385ef4c317b71f13c8c1a1343509cdad984345219a7",
-      "bytes": 3350
+      "sha256": "cc842b33a043f3216be5bce34fa45c410d07a270a9378636f2da0b99de741c26",
+      "bytes": 4235
     },
     "python/model_collaboration_engine/_run.py": {
       "sha256": "8d959af87fb2d2111860d9b25f010ac9e666d0b4501a28b40c79b00c445a903c",
@@ -16,28 +16,28 @@
       "bytes": 16150
     },
     "src/bindings.rs": {
-      "sha256": "807764532dce5ed05a86bd377686bdab35f0965235475c3df5ae11ada8d43cda",
-      "bytes": 8548
+      "sha256": "101285ba4ad1ce6133fd5fe6a1af0742745fb4db912a952e3d8580f135d0e267",
+      "bytes": 9693
     },
     "src/contracts.rs": {
-      "sha256": "984d85cdc5e35b412a9cc74f0e90010aaf262c140fbf5f41439316365ae1854f",
-      "bytes": 11908
+      "sha256": "fbcca3f1eb5e7dc2029b637b50b8531c68e3bf1e2191f1a1ece8c015cb47bc81",
+      "bytes": 12090
     },
     "src/engine.rs": {
-      "sha256": "271ea57066a56915fd8e2f8190dd03613ffd05148430731f9bcbcaffe5592525",
-      "bytes": 10093
+      "sha256": "d4351dd3c3a6d0996cec25790a3ea9249c382ad0865574873aba7e1823dbd215",
+      "bytes": 11545
     },
     "src/events.rs": {
       "sha256": "5d5fc363cb0848c8efd5bbf29251ec765eb0512d9cabee0cfd44213c2cdd20b4",
       "bytes": 1194
     },
     "src/router.rs": {
-      "sha256": "3b1f740d692fbb8fe744d96375ac769951ba0ee13b0955244ea0f63d02414618",
-      "bytes": 7212
+      "sha256": "57184304ce6db38e26aa99904c879d91ae251210b3177ae73a58580bf1db7072",
+      "bytes": 7225
     },
     "src/store.rs": {
-      "sha256": "dae374aa75791dd7ae8c7a1ec0a0517d9671d29083d52b20ec2468f20c6ed802",
-      "bytes": 15757
+      "sha256": "d51f2b865774d9f835cd150440988f0bea169884f8931bd055819c05cbbecf1b",
+      "bytes": 16704
     },
     "src/strategy.rs": {
       "sha256": "675180f9c3cd66fe8d76743ff03497a6595da6f3b60e842edbbea39c4246c3d2",
@@ -48,8 +48,8 @@
       "bytes": 813
     },
     "tests/engine.rs": {
-      "sha256": "6dd001c675b80b495c9aa60d0e086371dde85bb1ab4c250482b41e52f25af8d9",
-      "bytes": 26034
+      "sha256": "153b3fa373e7a979f4d6fd3317b298f477c6179f63fca1dbef727719b25e2a79",
+      "bytes": 26889
     },
     "tests/python/test_tools_stream.py": {
       "sha256": "1fa80d9d512bf7308fde13f0f413d43760bf361767c3d6c3b32d3373028437bc",
@@ -60,8 +60,8 @@
       "bytes": 4833
     },
     "src/engine/execution.rs": {
-      "sha256": "a7a4eae29283c9c200d629957539e7a82d11fadd40fc95c30894b119f225d6d6",
-      "bytes": 5824
+      "sha256": "1ea4475e6ecf20fc15f5151f00fde9cc3847c7b0899ef778a2140953b20ba9f4",
+      "bytes": 6167
     },
     "python/model_collaboration_engine/_types.py": {
       "sha256": "645f053680f2e3f4c39f997b3e59f557acd3b9317e7f4849056fabba8417ef2d",
@@ -72,12 +72,12 @@
       "bytes": 4691
     },
     "src/engine/tools.rs": {
-      "sha256": "64d6302c4c7db378bd08e9c14b3b39405a5d21754d759e60acc3af3778d3f771",
-      "bytes": 6705
+      "sha256": "7bdec08f15ca85a1bed677fd0be4fa0f637649e5fb01c5a60eac8cf4d0d16255",
+      "bytes": 7625
     },
     "src/engine/invocation/dispatch.rs": {
-      "sha256": "6954dfed8490ccefe6197cf9200f737a61d668113d1404afc850ce4f59bb4de3",
-      "bytes": 3901
+      "sha256": "f7fdfb855d6764e8b1d845fdeb005d57ecd676509bf683ebc5765bf04cf3231a",
+      "bytes": 4987
     },
     "src/engine/invocation.rs": {
       "sha256": "1b491a1c3de0dfd45e008f6ca50e7fde626931628a101b3a5f22b5bd93c230ef",
@@ -96,8 +96,8 @@
       "bytes": 3740
     },
     "src/engine/planning.rs": {
-      "sha256": "d5a771dacffd278afd6f25a03555af50943a7ad2b25d7f6c1c7b5ba784b37a0d",
-      "bytes": 6204
+      "sha256": "540562a3a86ebb43d65715c552ba874d6216db6048e4a7021f3e0a6771c8b68a",
+      "bytes": 6290
     },
     "src/engine/planning/attempt.rs": {
       "sha256": "794d76751b9297302cdeccaf7679193c6dc3622f01b9d0a4b87c9ee123eeb23a",
@@ -120,8 +120,8 @@
       "bytes": 5574
     },
     "src/router/profiles.rs": {
-      "sha256": "af01552383c0bc5f85d5dee3c3cf599e0300b7c5742c93c130590f330f876ed3",
-      "bytes": 5192
+      "sha256": "160c2dd58decee17e9881fdca4fd5c91ac51b6626905e5752860d14c51a2e1d5",
+      "bytes": 7173
     },
     "tests/routing_profiles.rs": {
       "sha256": "8145d528900e273d32e5e2f9585ff5d96ff579490a1ecbce0e8f7e9e836579dd",
@@ -134,6 +134,34 @@
     "tests/python/test_routing_profiles.py": {
       "sha256": "077bd00a2716196144273600ac2058d6959594762c2bcdd15bff3ae8d6cf0918",
       "bytes": 4207
+    },
+    "src/contracts/feedback.rs": {
+      "sha256": "e44a10243959e7c3e1d1128c6d44c99d06458df5d69025c5eb3f74b462d88d47",
+      "bytes": 3059
+    },
+    "src/store/feedback.rs": {
+      "sha256": "a1511fa6f2a3c2179c407d6789733e0c056eb39b9501c5a7603b79a9be60d48f",
+      "bytes": 9691
+    },
+    "src/store/metrics.rs": {
+      "sha256": "9505be649e41e0f6de8855f3940793e4beab74691385d70e0ca973f9eadd0357",
+      "bytes": 8068
+    },
+    "tests/feedback.rs": {
+      "sha256": "1adfd54ff1b2fd84acf2f694b86c6f5142f82a37ea754eb5a490a89372feeda9",
+      "bytes": 13125
+    },
+    "tests/python/test_feedback.py": {
+      "sha256": "cbf0e0253d3a9f67c8934f545aebe63315fb4ad743011e9ad9b98bfb845cab7f",
+      "bytes": 2519
+    },
+    "tests/python/test_metrics_summary.py": {
+      "sha256": "32474ca67dbd3656e2b526258d5187a6a1847f1dabc7198e523567a04b802c52",
+      "bytes": 1657
+    },
+    "examples/compare_metrics.py": {
+      "sha256": "a39fcca8c97ea83b66d2a5a63509c41c9efcd9a59ab37b2d056b82bdeaf0d1a8",
+      "bytes": 2671
     }
   },
   "diagrams": {
@@ -232,6 +260,12 @@
           },
           {
             "path": "src/store/planning.rs"
+          },
+          {
+            "path": "src/store/feedback.rs"
+          },
+          {
+            "path": "src/store/metrics.rs"
           }
         ]
       },
@@ -305,6 +339,26 @@
             "tests/planning.rs",
             "tests/routing_profiles.rs",
             "tests/python/test_routing_profiles.py"
+          ],
+          "topology_change": false,
+          "responsibility_change": true
+        },
+        "feedback_metrics": {
+          "api": "Engine.record_feedback / Engine.evaluations / Engine.metrics",
+          "sources": [
+            "src/contracts/feedback.rs",
+            "src/store/feedback.rs",
+            "src/store/metrics.rs",
+            "src/engine/execution.rs",
+            "src/engine/invocation/dispatch.rs",
+            "src/engine/tools.rs",
+            "src/engine/planning.rs",
+            "src/router/profiles.rs"
+          ],
+          "tests": [
+            "tests/feedback.rs",
+            "tests/python/test_feedback.py",
+            "tests/python/test_metrics_summary.py"
           ],
           "topology_change": false,
           "responsibility_change": true

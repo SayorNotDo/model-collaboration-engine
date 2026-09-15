@@ -87,5 +87,16 @@
     "structure_validation": "not_run",
     "browser_validation": "not_run",
     "visual_review": "not_run"
+  },
+  "feedback_metrics": {
+    "status": "pending",
+    "specification": {
+      "bytes": 4234,
+      "sha256": "901706681ba39f5a85adff0601199c3350427d32f8375501f0904bbd6386d348"
+    },
+    "reason": "Feedback/metrics responsibilities updated in source. archify unavailable; generated HTML and prior receipts remain historical.",
+    "structure_validation": "not_run",
+    "browser_validation": "not_run",
+    "visual_review": "not_run"
   }
 }

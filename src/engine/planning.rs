@@ -28,7 +28,9 @@ impl Engine {
         effective_task
             .validate(&self.config)
             .map_err(|error| EngineError::new("plan_validation", error.message))?;
-        let routing = RoutingSnapshot::capture(&self.config, &mut plan, now_ms());
+        let metrics = self.store.metrics().await?;
+        let routing =
+            RoutingSnapshot::capture_with_metrics(&self.config, &mut plan, now_ms(), &metrics);
         self.store
             .save_plan(
                 &task.task_id,

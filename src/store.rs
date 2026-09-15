@@ -1,4 +1,6 @@
 //! Business transactions, not a generic key/value persistence interface.
+mod feedback;
+mod metrics;
 mod planning;
 mod recovery;
 
@@ -15,7 +17,7 @@ use std::{
 };
 use tokio_rusqlite::Connection;
 
-pub const SCHEMA_VERSION: i64 = 1;
+pub const SCHEMA_VERSION: i64 = 2;
 const APPLICATION_ID: i64 = 0x4d434531;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Ledger {
@@ -88,6 +90,10 @@ pub trait Store: Send + Sync {
     async fn ledger(&self, task: &str) -> Result<Ledger>;
     async fn records(&self) -> Result<Vec<RecoveryRecord>>;
     async fn reconcile(&self, task: &str, attempt: &str, cost: u64, evidence: &str) -> Result<()>;
+    async fn record_evaluation(&self, record: &EvaluationRecord) -> Result<()>;
+    async fn record_feedback(&self, feedback: &Feedback) -> Result<()>;
+    async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>>;
+    async fn metrics(&self) -> Result<MetricsSnapshot>;
     async fn close(&self) -> Result<()>;
 }
 
@@ -157,8 +163,10 @@ impl SqliteStore {
                   PRAGMA application_id=1296254257; PRAGMA user_version=1;")?;
                 tx.commit()?;
             } else if application != APPLICATION_ID { return Err(EngineError::new("schema", "file is not an engine database")); }
-            else if version != SCHEMA_VERSION { return Err(EngineError::new("schema", "explicit migration required or database is newer than this engine").details(json!({"current":version,"target":SCHEMA_VERSION}))); }
+            else if version != 1 && version != SCHEMA_VERSION { return Err(EngineError::new("schema", "explicit migration required or database is newer than this engine").details(json!({"current":version,"target":SCHEMA_VERSION}))); }
             c.execute_batch("PRAGMA foreign_keys=ON; PRAGMA synchronous=FULL; PRAGMA busy_timeout=5000;")?;
+            let current: i64 = c.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+            if current == 1 { feedback::migrate(c)?; }
             Ok(())
         }).await?;
         Ok(Self {
@@ -167,7 +175,7 @@ impl SqliteStore {
             gate: tokio::sync::Mutex::new(()),
         })
     }
-    /// Version 1 has no predecessor. Never guess a migration for unknown files.
+    /// Upgrade known engine schemas transactionally; reject unknown files.
     pub async fn migrate(path: &str) -> Result<()> {
         if !Path::new(path).exists() {
             return Err(EngineError::new(
@@ -214,6 +222,18 @@ fn audit(c: &rusqlite::Connection, task: &str, kind: &str, data: Value) -> Resul
 }
 #[async_trait]
 impl Store for SqliteStore {
+    async fn record_evaluation(&self, record: &EvaluationRecord) -> Result<()> {
+        self.persist_evaluation(record).await
+    }
+    async fn record_feedback(&self, feedback: &Feedback) -> Result<()> {
+        self.persist_feedback(feedback).await
+    }
+    async fn evaluations(&self, task: &str) -> Result<Vec<EvaluationRecord>> {
+        self.read_evaluations(task).await
+    }
+    async fn metrics(&self) -> Result<MetricsSnapshot> {
+        self.read_metrics().await
+    }
     async fn create_submission(
         &self,
         submission: &SubmissionSpec,
