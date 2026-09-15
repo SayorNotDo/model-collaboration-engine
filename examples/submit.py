@@ -13,7 +13,7 @@ async def main() -> None:
     config_dir = root.parent / "config"
     document = json.loads((config_dir / "engine.json").read_text(encoding="utf-8"))
     # Host explicitly selects planning candidates; data constraints still apply.
-    document["routing"]["planner_models"] = [document["models"][0]["id"]]
+    document["routing"]["planner_models"] = [document["providers"][0]["models"][0]["id"]]
     config = parse_config(document, base_dir=config_dir)
     submission = json.loads((root / "submission.json").read_text(encoding="utf-8"))
     submission["task_id"] = str(uuid4())
