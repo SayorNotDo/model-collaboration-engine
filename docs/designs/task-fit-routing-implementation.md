@@ -25,7 +25,7 @@
 
 | 检查 | 结果 |
 | --- | --- |
-| `cargo test --all-features` | 93 项通过 |
+| `cargo test --all-features` | 94 项通过 |
 | `cargo clippy --all-features --all-targets -- -D warnings` | 通过，零警告 |
 | `cargo fmt --check` | 通过 |
 | `maturin develop` | 原生扩展重建成功 |

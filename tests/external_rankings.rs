@@ -3,6 +3,7 @@
 mod support;
 use model_collaboration_engine::{contracts::*, router::RoutingSnapshot};
 use serde_json::{json, Value};
+use std::collections::{BTreeMap, BTreeSet};
 use support::{choose, config, plan, task};
 
 fn rankings() -> Value {
@@ -37,6 +38,41 @@ fn external_rank_cannot_override_unequal_task_fit_value() {
     let d = choose(&s, &task(), 0.0);
     assert_eq!(d.model_id, "local");
     assert_eq!(d.breakdown["ranking"], 0.0);
+}
+
+#[test]
+fn critic_uses_legacy_role_score_but_task_fit_ranking_tie_break() {
+    let mut ranking = rankings();
+    ranking["entries"][0]["role"] = json!("critic");
+    let mut config = configured(ranking);
+    config.models[0].acceptance = 0.8;
+    config.models[1].acceptance = 0.7;
+    let mut plan = plan(TaskType::Reasoning);
+    plan.strategy = Strategy::GeneratorCritic;
+    plan.selection.as_mut().unwrap().min_quality = 0.95;
+    plan.role_profiles.insert(
+        "critic".into(),
+        RoleProfile {
+            task_type: TaskType::Reasoning,
+            role: "critic".into(),
+        },
+    );
+    let snapshot = RoutingSnapshot::capture(&config, &mut plan, 10_000);
+    let decision = model_collaboration_engine::router::route_profiled(
+        &snapshot,
+        model_collaboration_engine::router::RouteRequest {
+            task: &task(),
+            node: "critic",
+            input_tokens: 100,
+            available: 100_000,
+            excluded: &BTreeSet::new(),
+            quality_floor: 0.0,
+            health: &BTreeMap::new(),
+        },
+    )
+    .unwrap();
+    assert_eq!(decision.model_id, "local");
+    assert_eq!(decision.score, 0.8);
 }
 
 #[test]

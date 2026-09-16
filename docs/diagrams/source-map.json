@@ -32,8 +32,8 @@
       "bytes": 1194
     },
     "src/router.rs": {
-      "sha256": "63fe32202acb32b00743bfd50fe8df3623a17de5ead37d679ad5007907de8aab",
-      "bytes": 9900
+      "sha256": "556d1f9067993a02a71d29d938b82a6559987be8c7ea3b98e2d66ea1d0db4fa6",
+      "bytes": 10067
     },
     "src/store.rs": {
       "sha256": "db45b097f73f14aa64ef4426090da5d716476a172bd6ea5f6e28fc5a165745cb",
@@ -236,8 +236,8 @@
       "bytes": 2572
     },
     "tests/external_rankings.rs": {
-      "sha256": "2f27b0c85bedc8fcefb5e4a52688d504f14e54dc561bcf256a44744f3900c58e",
-      "bytes": 9744
+      "sha256": "d688703ae1f1523cf88e4c43d4f2ba8c07408c0b2a6a290fb2017c694254dc81",
+      "bytes": 10962
     },
     "tests/python/test_rankings_import.py": {
       "sha256": "88c2844aa667580525617194dea5022a21b45634e05e91fa70625b6b128295ae",
@@ -276,7 +276,7 @@
       "bytes": 8324
     },
     "docs/designs/task-fit-routing-implementation.md": {
-      "sha256": "c3fa8f6023af7f313e74f1326d62dbf89491205d8396a10ca6c62763f858c708",
+      "sha256": "5999efb226ebb89d245a2babd6be31440027b8a123e56f203ef64c9892e6da15",
       "bytes": 3326
     }
   },

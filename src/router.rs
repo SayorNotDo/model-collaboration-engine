@@ -47,7 +47,15 @@ pub struct RouteRequest<'a> {
     pub health: &'a BTreeMap<String, Health>,
 }
 pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
-    route_inner(&config.models, &config.weights, r, None, None, now_ms())
+    route_inner(
+        &config.models,
+        &config.weights,
+        r,
+        None,
+        None,
+        false,
+        now_ms(),
+    )
 }
 
 /// Re-evaluate a stored snapshot and recorded RouteRequest without refreshing profiles.
@@ -79,6 +87,7 @@ pub fn route_profiled(snapshot: &RoutingSnapshot, r: RouteRequest<'_>) -> Result
         r,
         Some((snapshot, node)),
         task_fit.then_some(snapshot.selection.as_ref()).flatten(),
+        snapshot.schema_version >= 4,
         snapshot.captured_at_ms,
     )
 }
@@ -89,6 +98,7 @@ fn route_inner(
     r: RouteRequest<'_>,
     profile: Option<(&RoutingSnapshot, &NodeProfile)>,
     selection_policy: Option<&SelectionPolicy>,
+    task_fit_algorithm: bool,
     at_ms: u64,
 ) -> Result<RoutingDecision> {
     let mut rejected = BTreeMap::new();
@@ -227,7 +237,7 @@ fn route_inner(
             estimated_cost: cost,
             estimated_input: r.input_tokens,
             estimated_latency_ms: m.latency_ms,
-            score: if selection_policy.is_some() {
+            score: if task_fit_algorithm {
                 primary_score
             } else {
                 parts.values().sum()
@@ -246,7 +256,7 @@ fn route_inner(
         b.score
             .total_cmp(&a.score)
             .then_with(|| {
-                selection_policy.map_or(std::cmp::Ordering::Equal, |_| {
+                if task_fit_algorithm {
                     b.ranking
                         .as_ref()
                         .map_or(0.0, |ranking| ranking.contribution)
@@ -256,7 +266,9 @@ fn route_inner(
                                 .map_or(0.0, |ranking| ranking.contribution),
                         )
                         .then(a.estimated_cost.cmp(&b.estimated_cost))
-                })
+                } else {
+                    std::cmp::Ordering::Equal
+                }
             })
             .then(a.model_id.cmp(&b.model_id))
     });
