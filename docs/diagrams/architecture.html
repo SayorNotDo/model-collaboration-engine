@@ -5167,6 +5167,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <path data-edge-from="native_bridge" data-edge-to="host_tools" data-edge-label="请求与结果" data-edge-key="5" data-edge-id="host_execution" data-composition-points="440,290;440,156" d="M 440 290 L 440 156" class="a-security" stroke-width="1.5" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="native_bridge" data-edge-to="event_delivery" data-edge-label="事件接收" data-edge-key="6" data-edge-id="pull_events" data-composition-points="440,366;440,500" d="M 440 366 L 440 500" class="a-dashed" stroke-width="1.5" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="账务与指标" data-edge-key="7" data-edge-id="account_cost" data-composition-points="750,366;750,500" d="M 750 366 L 750 500" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="offline_rank_import" data-edge-to="host_api" data-edge-label="配置载入" data-edge-key="8" data-edge-id="ranking_config" data-composition-points="130,500;130,366" d="M 130 500 L 130 366" class="a-default" stroke-width="1.5" marker-end="url(#arrowhead)"/>
 
         <!-- Components -->
         <g id="node-host_api" data-node-id="host_api" data-node-label="Python 宿主" tabindex="0" role="button" aria-label="聚焦Python 宿主，运行 · 反馈 · 查询, 架构组件" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="运行 · 反馈 · 查询" data-node-context="架构组件">
@@ -5231,15 +5232,15 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="440" y="132" class="t-muted" font-size="9" text-anchor="middle">授权 · 参数校验</text>
         </g>
 
-        <g id="node-routing_policy" data-node-id="routing_policy" data-node-label="规划校验与类型路由" tabindex="0" role="button" aria-label="聚焦规划校验与类型路由，硬约束 · 固定质量快照, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="硬约束 · 固定质量快照" data-node-context="架构组件">
-          <title>规划校验与类型路由 · 硬约束 · 固定质量快照 · 架构组件</title>
+        <g id="node-routing_policy" data-node-id="routing_policy" data-node-label="规划校验与类型路由" tabindex="0" role="button" aria-label="聚焦规划校验与类型路由，硬约束 · 任务价值 · 升级门槛, 架构组件" aria-pressed="false" data-node-kind="backend" data-node-sublabel="硬约束 · 任务价值 · 升级门槛" data-node-context="架构组件">
+          <title>规划校验与类型路由 · 硬约束 · 任务价值 · 升级门槛 · 架构组件</title>
           <rect x="660" y="80" width="180" height="76" rx="6" class="c-mask"/>
           <rect x="660" y="80" width="180" height="76" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(666 86) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="750" y="116" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">规划校验与类型路由</text>
-        <text data-detail="context" x="750" y="132" class="t-muted" font-size="9" text-anchor="middle">硬约束 · 固定质量快照</text>
+        <text data-detail="context" x="750" y="132" class="t-muted" font-size="9" text-anchor="middle">硬约束 · 任务价值 · 升级门槛</text>
         </g>
 
         <g id="node-model_endpoint" data-node-id="model_endpoint" data-node-label="模型服务" tabindex="0" role="button" aria-label="聚焦模型服务，两种兼容端点, 架构组件" aria-pressed="false" data-node-kind="external" data-node-sublabel="两种兼容端点" data-node-context="架构组件">
@@ -5280,6 +5281,20 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <text data-detail="context" x="750" y="552" class="t-muted" font-size="9" text-anchor="middle">计划 · 评价 · 指标</text>
         </g>
 
+        <g id="node-offline_rank_import" data-node-id="offline_rank_import" data-node-label="榜单离线导入" tabindex="0" role="button" aria-label="聚焦榜单离线导入，Python · JSON / CSV 映射, 架构组件" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="Python · JSON / CSV 映射" data-node-context="架构组件">
+          <title>榜单离线导入 · Python · JSON / CSV 映射 · 架构组件</title>
+          <rect x="40" y="500" width="180" height="76" rx="6" class="c-mask"/>
+          <rect x="40" y="500" width="180" height="76" rx="6" class="c-frontend" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(46 506) scale(0.6875)">
+            <rect x="2" y="3" width="12" height="10" rx="2"/>
+            <path d="M2 6.5h12"/>
+            <circle cx="4.1" cy="4.8" r=".7" class="sigil-fill"/>
+            <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
+          </g>
+          <text data-node-label="" data-detail-anchor="" x="130" y="536" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">榜单离线导入</text>
+        <text data-detail="context" x="130" y="552" class="t-muted" font-size="9" text-anchor="middle">Python · JSON / CSV 映射</text>
+        </g>
+
         <!-- Connection labels -->
         <g data-detail="context" data-edge-from="host_api" data-edge-to="native_bridge" data-edge-label="运行与反馈" data-edge-key="0" data-edge-id="submit_task">
           <rect x="256" y="308" width="58" height="14" rx="3" class="c-mask"/>
@@ -5312,6 +5327,10 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
         <g data-detail="context" data-edge-from="engine_core" data-edge-to="budget_store" data-edge-label="账务与指标" data-edge-key="7" data-edge-id="account_cost">
           <rect x="721" y="421" width="58" height="14" rx="3" class="c-mask"/>
           <text x="750" y="431" class="t-muted" font-size="8" text-anchor="middle">账务与指标</text>
+        </g>
+        <g data-detail="context" data-edge-from="offline_rank_import" data-edge-to="host_api" data-edge-label="配置载入" data-edge-key="8" data-edge-id="ranking_config">
+          <rect x="105.8" y="480" width="48.4" height="14" rx="3" class="c-mask"/>
+          <text x="130" y="490" class="t-muted" font-size="8" text-anchor="middle">配置载入</text>
         </g>
 
         <!-- Boundary labels (foreground masks keep routes out of titles) -->
@@ -5557,7 +5576,7 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
           <h3>实现边界</h3>
         </div>
         <ul>
-          <li>&bull; 宿主独立反馈；无自动恢复或外部评测</li>
+          <li>&bull; 预算只作准入；榜单只裁决主评分平分</li>
         </ul>
       </div>
     </div>

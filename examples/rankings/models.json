@@ -1,0 +1,5 @@
+[
+  {"model": "synthetic-alpha", "version": "synthetic-v1", "rank": 1},
+  {"model": "synthetic-beta", "version": "synthetic-v1", "rank": 2},
+  {"model": "synthetic-unknown", "version": "synthetic-v1", "rank": null}
+]

@@ -1,0 +1,53 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.1",
+  "shape": "one completed task per settled attempt; one model group; no feedback",
+  "warmup_queries": 1,
+  "samples": [
+    {
+      "tasks": 100,
+      "attempts": 100,
+      "known_cost": 300,
+      "unknown_cost_attempts": 0,
+      "elapsed_ms": [
+        1.371199992718175,
+        1.1495999933686107,
+        1.2242000084370375,
+        1.240199984749779,
+        1.1616999981924891
+      ],
+      "median_ms": 1.2242000084370375,
+      "max_ms": 1.371199992718175
+    },
+    {
+      "tasks": 1000,
+      "attempts": 1000,
+      "known_cost": 3000,
+      "unknown_cost_attempts": 0,
+      "elapsed_ms": [
+        8.307000010972843,
+        8.576099993661046,
+        8.920199994463474,
+        8.303799986606464,
+        8.419199992204085
+      ],
+      "median_ms": 8.419199992204085,
+      "max_ms": 8.920199994463474
+    },
+    {
+      "tasks": 10000,
+      "attempts": 10000,
+      "known_cost": 30000,
+      "unknown_cost_attempts": 0,
+      "elapsed_ms": [
+        77.94809999177232,
+        74.72110001253895,
+        76.80559999425896,
+        80.3062999912072,
+        80.16509999288246
+      ],
+      "median_ms": 77.94809999177232,
+      "max_ms": 80.3062999912072
+    }
+  ]
+}

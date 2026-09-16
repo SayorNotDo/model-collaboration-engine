@@ -9,6 +9,8 @@ pub use configuration::{Config, Model, Weights};
 mod feedback;
 mod planning;
 mod profiles;
+mod rankings;
+mod selection;
 pub use feedback::{
     CallStatistics, CriticVerdict, EvaluationRecord, Feedback, FeedbackKind, MetricsSnapshot,
     ProfileKey, QualityStatistics, TaskStatistics,
@@ -18,6 +20,8 @@ pub use planning::{
     SubmissionSpec, TaskType,
 };
 pub use profiles::{QualityProfile, RoleMapping, RoutingProfiles};
+pub use rankings::{RankingConfig, RankingEntry};
+pub use selection::SelectionPolicy;
 
 pub type Result<T> = std::result::Result<T, EngineError>;
 
@@ -124,6 +128,7 @@ pub struct TaskSpec {
     pub evidence: Vec<Evidence>,
     pub strategy: Strategy,
     pub acceptance: Acceptance,
+    pub selection: SelectionPolicy,
     pub constraints: Constraints,
     pub budget: u64,
     pub deadline_ms: u64,
@@ -137,6 +142,7 @@ pub struct TaskSpec {
 }
 impl TaskSpec {
     pub fn validate(&self, config: &Config) -> Result<()> {
+        self.selection.validate()?;
         if self.task_id.is_empty()
             || self.goal.trim().is_empty()
             || self.acceptance.version.is_empty()

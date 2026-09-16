@@ -4,7 +4,7 @@
 
 Rust 执行内核 · Python asyncio 接口 · SQLite 账本
 
-[快速上手](#快速上手) · [配置指南](config/README.md) · [使用指南](docs/usage.md) · [技术图](docs/diagrams/README.md) · [联调记录](docs/designs/live-evaluation-results.md)
+[快速上手](#快速上手) · [配置指南](config/README.md) · [使用指南](docs/usage.md) · [当前进度](docs/designs/current-status.md) · [技术图](docs/diagrams/README.md) · [联调记录](docs/designs/live-evaluation-results.md)
 
 ## 为什么使用它
 
@@ -18,7 +18,7 @@ Rust 执行内核 · Python asyncio 接口 · SQLite 账本
 
 Python 使用 JSON 可序列化字典；Rust 可以注入自定义适配器、存储和工具执行器。内置协议适配支持 `chat_completions` 与 `responses`。
 
-**项目状态：开发中（0.1.0）。** 公共接口仍可能调整。已验证离线测试、本地模拟服务和限定范围的真实 DeepSeek Flash 调用；自动任务恢复与重放尚未实现。完整范围见[验证与当前边界](#验证与当前边界)。
+**项目状态：开发中（0.1.0）。** 公共接口仍可能调整。已验证离线测试、本地模拟服务，以及限定范围的真实 DeepSeek Flash/Pro 协作调用；自动任务恢复与重放尚未实现。完整范围见[验证与当前边界](#验证与当前边界)。
 
 ## 快速上手
 
@@ -124,10 +124,12 @@ if __name__ == "__main__":
 | 策略 | 适用场景 | 执行方式 |
 | --- | --- | --- |
 | `single` | 一次生成即可完成的任务 | 生成并进行确定性检查；未通过时返回 `human_required` |
-| `cascade` | 希望在检查失败时升级模型 | 从未尝试、质量评分不低于上一模型的候选中继续选择 |
+| `cascade` | 希望在检查失败时升级模型 | 从未尝试且 Q 至少提高 `min_upgrade_gain` 的候选中继续选择 |
 | `generator_critic` | 需要独立评审与修订 | 生成、确定性检查、JSON 评审，在轮数上限内修订 |
 
-模型调用、工具执行和续写共享 `max_calls`；策略不会获得额外预算。级联需要可用的升级候选，独立评审可通过 `different_critic` 要求不同候选 ID，但不同 ID 不保证底层模型不同。
+模型调用、工具执行和续写共享 `max_calls`；策略不会获得额外预算。级联要求下一候选的 Q 至少提高 `selection.min_upgrade_gain`；没有满足改善、预算和数据约束的候选时保留当前产物并转人工处理。独立评审可通过 `different_critic` 要求不同候选 ID，但不同 ID 不保证底层模型不同。
+
+每个任务必须提供 `selection`：`min_quality` 是候选准入下限，`target_quality` 与 `above_target_factor` 控制达到目标后继续提高质量的边际价值，`cost_reference` 和 `latency_reference_ms` 是偏好尺度，`min_upgrade_gain` 是级联最小改善。预算仍只负责准入；单纯提高预算不会降低成本惩罚或改变已可用候选的价值顺序。完整字段见[任务适配选模](docs/usage.md#任务适配选模)。
 
 需要引擎建议任务类型和策略时，可启用[按需规划](docs/usage.md#按需规划)；建议不能覆盖宿主明确选择、放宽约束或新增工具权限。
 
@@ -136,6 +138,7 @@ if __name__ == "__main__":
 | 接口 | 用途 |
 | --- | --- |
 | `load_config(path)` / `parse_config(document, base_dir=...)` | 加载并校验只读配置，不联网或打开数据库 |
+| `load_rankings(path, manifest_path)` | 导入 JSON/CSV 榜单与显式映射，返回规范榜单配置及导入报告 |
 | `await Engine.open(config)` | 打开执行引擎与账本 |
 | `await engine.run(task, tools=..., on_event=...)` | 执行任务，返回最终结果 |
 | `engine.stream(task, tools=...)` | 通过异步上下文订阅事件并获取结果 |
@@ -148,6 +151,7 @@ if __name__ == "__main__":
 
 - [规划与流式示例](examples/submit.py) · [规划规则](docs/usage.md#按需规划)
 - [类型与角色画像](docs/usage.md#类型角色画像) · [反馈与指标](docs/usage.md#验收反馈与持久化指标)
+- [外部模型榜单](docs/rankings.md)：JSON/CSV 导入、版本映射、有效期及独立路由权重
 - [宿主工具](docs/usage.md#宿主工具) · [流式事件](docs/usage.md#事件订阅)
 - [执行与结算](docs/usage.md#执行与持久化约定) · [恢复检查](docs/usage.md#恢复检查) · [优雅关闭](docs/usage.md#优雅关闭)
 - [配置字段](config/README.md) · [领域术语](CONTEXTS.md) · [架构及流程图](docs/diagrams/README.md)
@@ -164,13 +168,15 @@ if __name__ == "__main__":
 
 报告区分执行状态、正确产出、无产物、未执行、费用和任务耗时。费用未知或超额时停止后续派发，取消时保留已有证据。宿主业务评分发生在运行后，不会触发本轮 cascade 升级。详见[评测设计](docs/designs/live-evaluation-design.md)。
 
+需要验收协作路径时使用[复杂协作探针](docs/designs/collaboration-probe.md)，分别检查级联、评审修订、规划和工具。计费明细核对见[离线账务审计](docs/designs/billing-precision.md)；已有总 token 证据不能自动补齐缓存与峰谷明细。
+
 ## 验证与当前边界
 
 | 范围 | 已有证据 | 解读边界 |
 | --- | --- | --- |
-| Rust / Python | [实现记录](docs/designs/live-evaluation-implementation.md)与测试覆盖预算、取消、反馈、配置及持久化 | 本地检查结果不等于持续集成状态 |
+| Rust / Python | [基础实现记录](docs/designs/live-evaluation-implementation.md)及[任务适配路由记录](docs/designs/task-fit-routing-implementation.md)覆盖预算、取消、反馈、配置、持久化和动态升级；新增 Linux/Windows CI 定义 | 工作流须在 GitHub 实际执行后才能宣称 CI 通过 |
 | 协议适配 | 两种端点均有本地 HTTP/SSE 模拟测试 | 不能据此宣称所有兼容服务均已验证 |
-| 真实服务 | DeepSeek Flash 抽取任务，两组各 12/12 通过 | 未触发级联升级，也未验证 Pro、真实工具、规划或 Responses |
+| 真实服务 | Flash 抽取任务两组各 12/12；[复杂协作四场景](docs/designs/collaboration-live-results.md)验证 Flash→Pro 级联、评审修订、规划与工具续写 | 合成场景不证明自然质量收益；真实 Responses 尚未验证 |
 | 费用 | 保留请求 ID、usage、终态与账本证据 | 当前不区分缓存及峰谷价格；真实联调费用为上界估算，未核对供应商扣费 |
 
 [真实联调报告](docs/designs/live-evaluation-results.md)保留了首轮数据编码问题、修正后的结果及两轮费用。小样本和未升级的级联结果不能证明策略收益。
@@ -190,6 +196,8 @@ if __name__ == "__main__":
 3. 按[本地验证流程](.agent/README.md)执行 Rust、Python 和文档检查；Cargo 与 maturin 共享构建目录时按顺序运行。
 4. 同步受影响示例和文档，通过 PR 合入受保护的 `master`。
 
+[CI 工作流](.github/workflows/ci.yml)执行离线检查，不需要供应商密钥。[发布准备](docs/releasing.md)说明手动构建、产物验证及尚未发布的边界。[指标规模基线](docs/designs/current-status.md#指标规模基线)提供可复现的离线测量方法。
+
 ## 许可证
 
-项目包元数据声明为 MIT，见 [Cargo.toml](Cargo.toml) 与 [pyproject.toml](pyproject.toml)。仓库尚未附独立 LICENSE 文件。
+本项目采用 [MIT 许可证](LICENSE)。

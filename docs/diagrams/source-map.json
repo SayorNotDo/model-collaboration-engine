@@ -1,11 +1,11 @@
 {
   "basis": "working-tree",
-  "captured_date": "2026-09-16",
-  "note": "\u5de5\u4f5c\u533a\u6e90\u7801\u8bc1\u636e\uff1b\u8bc4\u6d4b\u811a\u672c\u548c\u5408\u6210\u4efb\u52a1\u96c6\u5df2\u5b9e\u73b0\uff0c\u6a21\u62df\u9a8c\u8bc1\u4e0e\u771f\u5b9e\u8054\u8c03\u5206\u5f00\u62a5\u544a\u3002\u5404\u56fe\u4fdd\u7559\u5404\u81ea\u9a8c\u6536\u72b6\u6001\u3002",
+  "captured_date": "2026-09-17",
+  "note": "工作区源码证据；任务价值、严格质量升级与榜单平分参考固定在新任务快照中。源码哈希绑定当前工作区，各图保留独立验收状态。",
   "files": {
     "python/model_collaboration_engine/__init__.py": {
-      "sha256": "9d826e7bbf589498f15bde86e7d28dd7a1e0c671d37f791d6f85954ef4b97a47",
-      "bytes": 4958
+      "sha256": "84a066e007a2811dc6b050acabea892c6c177a80521d4cb6bf096198f21213e2",
+      "bytes": 5011
     },
     "python/model_collaboration_engine/_run.py": {
       "sha256": "7d305a789ce31600a0a46d952e3d03e3d80b284ca6285a29449e6b86c04955f8",
@@ -20,8 +20,8 @@
       "bytes": 10164
     },
     "src/contracts.rs": {
-      "sha256": "51910d7f0dc4ba0719b603b03d5f809560e2f98c01167606e5f85efabf0c822a",
-      "bytes": 7732
+      "sha256": "af3effb7a5f6a9337b6d99681d6e8347dbc13690a01ed6406c297a163a4802fe",
+      "bytes": 7651
     },
     "src/engine.rs": {
       "sha256": "dca2d85cdd3d194c248535b9bfb8dc019093852aecbb33361e59bd35b26e87b3",
@@ -32,8 +32,8 @@
       "bytes": 1194
     },
     "src/router.rs": {
-      "sha256": "b1f90c4cad18e7534298b8b13c3447cee7c79d361dbeb6338f47dfbfec2b03ed",
-      "bytes": 7426
+      "sha256": "63fe32202acb32b00743bfd50fe8df3623a17de5ead37d679ad5007907de8aab",
+      "bytes": 9900
     },
     "src/store.rs": {
       "sha256": "db45b097f73f14aa64ef4426090da5d716476a172bd6ea5f6e28fc5a165745cb",
@@ -48,8 +48,8 @@
       "bytes": 813
     },
     "tests/engine.rs": {
-      "sha256": "eb0eed1c9c7273783926bd6b48721ab83e3d4a4da76c8c2ba2952bd11033565e",
-      "bytes": 27686
+      "sha256": "e6bc23e3a64d0da201868067ed322fd24b22a6e77e2da858bd264efde5db2fc9",
+      "bytes": 32653
     },
     "tests/python/test_tools_stream.py": {
       "sha256": "31f32444e4c1f560d2837b58bcd3c6323e1094f293c124c557bb88076e5a7bb0",
@@ -60,16 +60,16 @@
       "bytes": 4954
     },
     "src/engine/execution.rs": {
-      "sha256": "1c64f5f724138d9a2e540a37aff7432ae72d76fc46f59b293c80bf773d5aa7a1",
-      "bytes": 6348
+      "sha256": "ce0118721bd564ccc9f8f1200e1a23574e76b94ba6b467666e4f7c09936dcafb",
+      "bytes": 8666
     },
     "python/model_collaboration_engine/_types.py": {
       "sha256": "2a124a060a2f030e1c01b3be14e87d96321daa37e17f6b9130ae0b63f4682033",
       "bytes": 344
     },
     "src/store/recovery.rs": {
-      "sha256": "8b4986012b2c270a1c543bdcc30d91ac1641f6dd0030c77265d0ffd8fd650476",
-      "bytes": 4804
+      "sha256": "767942e37b3c4536093a640afd11829dc9d3371b9d44ceb6476cd148dd56127e",
+      "bytes": 6002
     },
     "src/engine/tools.rs": {
       "sha256": "be98a69317bde26c478ae6f129c27897bf109d1006a415429480412261631e8a",
@@ -80,20 +80,20 @@
       "bytes": 5459
     },
     "src/engine/invocation.rs": {
-      "sha256": "42463cb2b9ec457f8b0fe81b25c3ca1db88c995a771bc9c9c6d262221fd051a7",
-      "bytes": 7387
+      "sha256": "54a82173843f1a097ae97f099f092345581a725b1857a4cda659908e3ed07487",
+      "bytes": 7676
     },
     "src/contracts/planning.rs": {
-      "sha256": "3e52d5bfbd7542fa32edf509d06caf00063cda34b0d4ba7c225cba4f12517adb",
-      "bytes": 7184
+      "sha256": "24d4a25e360f992d3b57894ec20adff2f36c3a7b55cbb04058b3285c81306b2e",
+      "bytes": 7539
     },
     "src/planning.rs": {
       "sha256": "8c61694cba003f7dadfae903863de61b9193dfecd58ca9fa91edf4a470c1e3a1",
       "bytes": 1677
     },
     "src/planning/validation.rs": {
-      "sha256": "ea248eb3a3efe921e0e2772fc484212aa051c435862c04769e3d4036a27a0862",
-      "bytes": 3846
+      "sha256": "dd1b07ada41f1615b673238994ad74661c62943185f5a3ab39b02124a23e0d88",
+      "bytes": 3894
     },
     "src/engine/planning.rs": {
       "sha256": "302dfc87738675d2646f2609b173488a74b68bb2211dd05fce9f6ea02314fdc0",
@@ -108,28 +108,28 @@
       "bytes": 2525
     },
     "tests/planning.rs": {
-      "sha256": "b2084476b1d28ecf193f1b8fba239bdc95a096ea68021217faee2345953ed826",
-      "bytes": 16030
+      "sha256": "02bd5039ffc2c4c21bc5e05e47dcfcf51b3c1ab606e8f9cfcbe8fd052dee20a0",
+      "bytes": 17966
     },
     "tests/python/test_planning.py": {
-      "sha256": "b112ed6ab3884149e220191c18e201a38bd3761199da1b00d3ffecf93b807586",
-      "bytes": 10962
+      "sha256": "edbb01d27793dc035ae6c2c191b196f78202a249d372656acfc5c69fd2223507",
+      "bytes": 10958
     },
     "src/contracts/profiles.rs": {
       "sha256": "6176b3d8c181558ee856c2e0c8b11f89ddd92b627bc1929aac724d82ebc50c5f",
       "bytes": 5740
     },
     "src/router/profiles.rs": {
-      "sha256": "68832f7b4223401fe2dac42fd0c5a359784aad24dc62b567f70218e89421d192",
-      "bytes": 7376
+      "sha256": "72c271d01786fa6a6ab48c97b3575b64c95235f158e3676bb7dd63b8fd83b7ef",
+      "bytes": 8481
     },
     "tests/routing_profiles.rs": {
       "sha256": "1995237746a3df9f89fee278c65b2767a315c7f1cce6e31a1794060eda4ff768",
       "bytes": 18175
     },
     "tests/routing/support.rs": {
-      "sha256": "f47963f1bf77457bb97891014fd67e1931202d4cb7f29ba506794a844cc030df",
-      "bytes": 2749
+      "sha256": "bbbc98ef075daa5d69c2382243021a06a51a1c46be2e17a7f6b047a52efaffb4",
+      "bytes": 2957
     },
     "tests/python/test_routing_profiles.py": {
       "sha256": "48a8cb0f7bf86f35adf6d3ba49970aff60c7f96aef38d0bb62f63707ec3ada4b",
@@ -172,8 +172,8 @@
       "bytes": 4359
     },
     "docs/designs/live-evaluation-design.md": {
-      "sha256": "80f4f49ac7326cff52c76a267c7ffbb6f3b29e9f9a39b745814879c1b55cbea3",
-      "bytes": 6866
+      "sha256": "11c9572a0076383724d26a838ac35fc4efdc211bf7a1efb5cd35ab92f99de453",
+      "bytes": 6910
     },
     "src/adapter/evidence.rs": {
       "sha256": "b95234f17943643c0c77102b913a83099063f5e3bea629cf78c37bc92744f666",
@@ -200,8 +200,8 @@
       "bytes": 1213
     },
     "examples/evaluation/inputs.py": {
-      "sha256": "2732db54f6931ac741c1534650ac8d7bb3456c7be46b32d9eeaffda44a0afbea",
-      "bytes": 5412
+      "sha256": "148efba3fac97ab7eb7777b28223b0c89e45595bf510566c1102aa801bdbc44d",
+      "bytes": 5706
     },
     "examples/evaluation/runner.py": {
       "sha256": "c7ffea294722e1e1dc74ec44a0797ce215ddd54a74910a4dabb99e2b8e8abed9",
@@ -218,6 +218,66 @@
     "tests/python/test_evaluation.py": {
       "sha256": "71bc019127edeb622e1cc2ca1c3ff7bad425c6f4a8881eb628d632224bb0b120",
       "bytes": 9619
+    },
+    "python/model_collaboration_engine/_rankings.py": {
+      "sha256": "e2316d686a1eec69d95ac77d4aa40148761049054e73b7a90d0f9fc9b83093d4",
+      "bytes": 8444
+    },
+    "examples/import_rankings.py": {
+      "sha256": "650f71384306b9d3f9776347698f027c50761822d1d0691d074deee75039cfdc",
+      "bytes": 1280
+    },
+    "src/contracts/rankings.rs": {
+      "sha256": "76b48b88664f51b786693e14128e6775229b5b69089e62a8fb5d2aad47cff1b6",
+      "bytes": 3500
+    },
+    "src/router/rankings.rs": {
+      "sha256": "2584530a3aaa7fac93aa84e7939915a7e1ada4c85069bb9d6951b6fb5d77843b",
+      "bytes": 2572
+    },
+    "tests/external_rankings.rs": {
+      "sha256": "2f27b0c85bedc8fcefb5e4a52688d504f14e54dc561bcf256a44744f3900c58e",
+      "bytes": 9744
+    },
+    "tests/python/test_rankings_import.py": {
+      "sha256": "88c2844aa667580525617194dea5022a21b45634e05e91fa70625b6b128295ae",
+      "bytes": 5592
+    },
+    "tests/python/test_rankings_routing.py": {
+      "sha256": "fbf62bc5eef7f6734e4813ef45f80c2ab28f6356548873e578c08456470e7a7b",
+      "bytes": 3409
+    },
+    "docs/designs/external-ranking-design.md": {
+      "sha256": "b580a7576bc93070bf48a6e5209e548256effdaa85af0b559f9018eaf5249e0f",
+      "bytes": 4736
+    },
+    "src/contracts/selection.rs": {
+      "sha256": "10eafaa43f7c551130fa3c11de7d4c9da2c96d620b297ca1acc31216e352728b",
+      "bytes": 1642
+    },
+    "src/router/selection.rs": {
+      "sha256": "dd89fb63f4cdbe1427862be775cd4b552790cc3433960f93adc44dedc76e945a",
+      "bytes": 1176
+    },
+    "tests/task_fit_routing.rs": {
+      "sha256": "1e591cb818189bdbff95f8d5a9a90a2157636fa4ea40734c465772c2e71419a9",
+      "bytes": 7564
+    },
+    "tests/python/test_task_fit_routing.py": {
+      "sha256": "3a923a3d9040ff8da0a1a7136ccf74c22d3c647b5be5c04917c7a991548f6ea3",
+      "bytes": 3117
+    },
+    "docs/designs/task-fit-routing.md": {
+      "sha256": "769d32e9ce7f26f2a571a833e96289baa1ceeee56ebff5fc8cd7e8f5c2d4bb4d",
+      "bytes": 7505
+    },
+    "docs/designs/task-fit-routing-contract.md": {
+      "sha256": "462d20f5857fe1d791970290852c5a0601359beb04f32d3cd2309483d16737d9",
+      "bytes": 8324
+    },
+    "docs/designs/task-fit-routing-implementation.md": {
+      "sha256": "c3fa8f6023af7f313e74f1326d62dbf89491205d8396a10ca6c62763f858c708",
+      "bytes": 3326
     }
   },
   "diagrams": {
@@ -284,6 +344,9 @@
             "path": "src/router.rs"
           },
           {
+            "path": "src/router/selection.rs"
+          },
+          {
             "path": "src/strategy.rs"
           },
           {
@@ -296,10 +359,19 @@
             "path": "src/contracts/planning.rs"
           },
           {
+            "path": "src/contracts/selection.rs"
+          },
+          {
             "path": "src/contracts/profiles.rs"
           },
           {
             "path": "src/router/profiles.rs"
+          },
+          {
+            "path": "src/contracts/rankings.rs"
+          },
+          {
+            "path": "src/router/rankings.rs"
           }
         ],
         "event_delivery": [
@@ -332,10 +404,18 @@
           {
             "path": "src/store/settlement.rs"
           }
+        ],
+        "offline_rank_import": [
+          {
+            "path": "python/model_collaboration_engine/_rankings.py"
+          },
+          {
+            "path": "examples/import_rankings.py"
+          }
         ]
       },
       "external_nodes": {
-        "model_endpoint": "\u7531\u5bbf\u4e3b\u914d\u7f6e\u8bbf\u95ee\u7684\u5916\u90e8\u517c\u5bb9\u670d\u52a1\uff0c\u4e0d\u5c5e\u4e8e\u4ed3\u5e93\u5b9e\u73b0"
+        "model_endpoint": "由宿主配置访问的外部兼容服务，不属于仓库实现"
       },
       "related_behavior": {
         "recovery_inspection": {
@@ -440,6 +520,43 @@
           ],
           "topology_change": false,
           "responsibility_change": true
+        },
+        "external_rankings": {
+          "api": "load_rankings / routing.rankings",
+          "sources": [
+            "python/model_collaboration_engine/_rankings.py",
+            "src/contracts/rankings.rs",
+            "src/router/rankings.rs",
+            "src/router/profiles.rs",
+            "src/router.rs"
+          ],
+          "tests": [
+            "tests/external_rankings.rs",
+            "tests/python/test_rankings_import.py",
+            "tests/python/test_rankings_routing.py"
+          ],
+          "design_source": "docs/designs/external-ranking-design.md",
+          "topology_change": true,
+          "responsibility_change": true
+        },
+        "task_fit_routing": {
+          "api": "Engine.run / Engine.stream / router::route_profiled",
+          "sources": [
+            "src/contracts/selection.rs",
+            "src/contracts/planning.rs",
+            "src/router/selection.rs",
+            "src/router/profiles.rs",
+            "src/router.rs",
+            "src/engine/execution.rs"
+          ],
+          "tests": [
+            "tests/task_fit_routing.rs",
+            "tests/engine.rs",
+            "tests/python/test_task_fit_routing.py"
+          ],
+          "design_source": "docs/designs/task-fit-routing.md",
+          "topology_change": false,
+          "responsibility_change": true
         }
       },
       "generation_status": "delivered; see review.json"
@@ -499,11 +616,21 @@
         ],
         "task_snapshot": [
           "src/engine/planning.rs",
-          "src/router/profiles.rs"
+          "src/router/profiles.rs",
+          "src/router/selection.rs",
+          "src/router/rankings.rs",
+          "src/contracts/selection.rs",
+          "src/contracts/rankings.rs"
         ],
         "profile_route": [
           "src/router.rs",
-          "src/router/profiles.rs"
+          "src/router/profiles.rs",
+          "src/router/selection.rs",
+          "src/engine/execution.rs"
+        ],
+        "offline_rank_import": [
+          "python/model_collaboration_engine/_rankings.py",
+          "examples/import_rankings.py"
         ]
       }
     },
@@ -538,5 +665,5 @@
       }
     }
   },
-  "base_commit": "72df77c"
+  "base_commit": "0d2e3399d9ed3a07d72427475883d1cfbe68e69d"
 }

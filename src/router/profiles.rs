@@ -1,7 +1,8 @@
 //! Pure resolution and serializable, fixed per-submission routing inputs.
+use super::rankings::{self, ResolvedRanking};
 use crate::contracts::{
     digest, Config, EffectivePlan, FeedbackKind, MetricsSnapshot, Model, QualityProfile,
-    RoleProfile, RoutingProfiles, TaskType, Weights,
+    RankingConfig, RoleProfile, RoutingProfiles, SelectionPolicy, TaskType, Weights,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -29,11 +30,21 @@ pub struct NodeProfile {
     pub weights: Weights,
     pub weights_task_type: Option<TaskType>,
     pub qualities: BTreeMap<String, ResolvedQuality>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub rankings: BTreeMap<String, ResolvedRanking>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RoutingSnapshot {
     pub schema_version: u32,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selection: Option<SelectionPolicy>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub algorithm_version: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ranking_config: Option<RankingConfig>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ranking_config_hash: Option<String>,
     #[serde(default)]
     pub feedback_revision: u64,
     #[serde(default)]
@@ -104,12 +115,26 @@ impl RoutingSnapshot {
                         weights: selected.map(|(_, w)| w).unwrap_or(&config.weights).clone(),
                         weights_task_type: selected.map(|(kind, _)| kind),
                         qualities,
+                        rankings: config
+                            .models
+                            .iter()
+                            .map(|model| {
+                                (
+                                    model.id.clone(),
+                                    rankings::resolve(config.rankings.as_ref(), model, role, at_ms),
+                                )
+                            })
+                            .collect(),
                     },
                 )
             })
             .collect();
         Self {
-            schema_version: 2,
+            schema_version: 4,
+            selection: plan.selection.clone(),
+            algorithm_version: Some("task-fit-v1".into()),
+            ranking_config: config.rankings.clone(),
+            ranking_config_hash: config.rankings.as_ref().map(digest),
             feedback_revision: metrics.revision,
             feedback_hash: digest(&metrics.quality),
             profile_version: profiles.version.clone(),

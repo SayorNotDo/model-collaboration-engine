@@ -1,6 +1,6 @@
 # 第一批规划实现记录
 
-本文保留第一批实现与验证的历史记录，不代表当前接口或数据库兼容承诺。入口已由[统一执行路径](execution-unification.md)收敛为 `run/stream`；当前数据库仅接受 schema 2，不自动迁移旧库，见 [README 开发期数据库规则](../../README.md#开发期数据库规则)。
+本文保留第一批实现与验证的历史记录，不代表当前接口或数据库兼容承诺。后续 C、D 和图形工作的最新进度见[当前状态](current-status.md)。入口已由[统一执行路径](execution-unification.md)收敛为 `run/stream`；当前数据库仅接受 schema 2，不自动迁移旧库，见 [README 开发期数据库规则](../../README.md#开发期数据库规则)。
 
 基线：`142ff41`；工作分支：`feat/planning-submissions`。
 范围：专项设计的 A+B。代码、示例和离线测试已实现；图形生成与验收待完成。C+D 分类型画像与指标闭环未实现。

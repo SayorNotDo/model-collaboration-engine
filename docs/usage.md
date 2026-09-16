@@ -5,7 +5,7 @@
 ## 按需规划
 
 `run/stream` 统一接收 [SubmissionSpec](../src/contracts/planning.rs)，包含目标、证据、验收、约束、工具及资源字段。
-`schema_version` 缺省为 1，`task_type/strategy` 可选，`planning` 缺省为 disabled（不请求规划，要求显式策略）。
+`schema_version` 当前为 2（省略时按 2 解析），`task_type/strategy` 可选，`planning` 缺省为 disabled（不请求规划，要求显式策略）。每个新任务必须提供 `selection`。
 未指定类型且不规划时使用 general。显式与按需规划任务都保存有效计划、固定画像快照，再进入同一执行路径。
 原 `submit/stream_submission` 方法已删除，调用方直接改用 `run/stream`。
 
@@ -66,8 +66,7 @@ SQLite 表结构为 schema 2；新库直接创建当前结构，版本不匹配�
 检查点区分 `admitted`、`planning`、`planning_failed`、`planned` 和 `executing`；后续轮次检查点沿用执行证据。
 规划原文位于对应 attempt 的 `outcome.planning_output`，包括截断与工具请求标记。
 
-`recovery_records()` 新增 `submission`（旧任务为 null）和 `plan`。旧任务的 `task` 保持原样；新提交的 `task`
-为任务投影，已计划时包含有效策略及验收。尚未计划时投影策略可为内部占位 `single`，不能据此推断已选策略，
+`recovery_records()` 新增 `submission`（旧任务为 null）和 `plan`。`task` 是便于检查的任务投影；新提交已计划时包含有效策略及验收。当前 schema 内缺少 selection 的历史载荷使用版本为 `legacy-recovery-evidence-only-v1` 的只读占位值完成投影，原始 `submission` 和 `plan` 不被改写，且该占位值不能用于重放。尚未计划时投影策略可为内部占位 `single`，不能据此推断已选策略，
 应以 `submission`、`plan.effective_plan` 和检查点为准。恢复筛选条件不变，已完成且费用核实的任务不一定出现在查询中。
 该接口不会恢复执行或重放调用。自定义 Rust `Store` 必须实现提交、计划及评价/反馈/指标事务接口，不再提供兼容占位实现。
 旧记录的读取仅用于保留已有费用和恢复证据，不对应另一套执行算法；本次不删除现存数据库。
@@ -126,6 +125,36 @@ Rust 的 `router::route_profiled` 可以用原有效 TaskSpec、已保存快照�
 SQLite schema 为 2；当前结构内保留恢复查询，新写入统一保存提交、计划和快照。
 
 当前接口与验证记录见 [统一执行路径](../docs/designs/execution-unification.md)。先前的 [C1+C2 实施记录](../docs/designs/task-type-routing-implementation.md) 保留为历史决策。
+
+## 任务适配选模
+
+任务通过 `selection` 明确质量目标与成本偏好：
+
+```json
+{
+  "version": "host-task-fit-v1",
+  "min_quality": 0.75,
+  "target_quality": 0.90,
+  "above_target_factor": 0.10,
+  "cost_reference": 10000,
+  "latency_reference_ms": 5000,
+  "min_upgrade_gain": 0.05
+}
+```
+
+`min_quality`、`target_quality`、`above_target_factor` 在 0..1，且最低质量不高于目标；`min_upgrade_gain` 在 (0,1]。`cost_reference` 使用正整数 microcredits，`latency_reference_ms` 为 1..86,400,000。版本非空。缺失或未知字段拒绝任务。
+
+路由先执行能力、上下文、模型、供应商、地域、本地性、预算和质量下限，再计算任务价值。达到 `target_quality` 后，额外质量仅按 `above_target_factor` 计入，避免很小的质量差异持续压过明显成本差异。成本与延迟分别按任务参考尺度归一化，不使用预算或剩余截止时间作为偏好尺度；这些资源上限仍在派发前强制执行。
+
+新路由快照为 schema 4，固定 selection 与 `task-fit-v1` 算法身份。schema 1..3 继续按原算法复算。当前 Q 是指定任务类型、角色、模型版本和验收版本下的通过倾向，不是连续语义质量分；第一阶段优化单次调用价值，不承诺协作方案总成本最优。
+
+`cascade` 的确定性评价返回 Revise 后，下一候选必须未尝试且满足 `Q_next >= Q_previous + min_upgrade_gain`。无改善候选、候选超预算或受其他约束排除时，任务保留最新产物并结束为 `human_required`。Pass 停止升级；其他评价状态保持各自终止语义。语义 critic 驱动的 cascade 尚未接入。
+
+## 外部榜单参考
+
+可通过 `load_rankings(path, manifest_path)` 导入 JSON/CSV，再把返回的 `rankings` 写入配置文件对象的 `routing.rankings`，最后调用 `parse_config`。格式、版本映射与完整示例见[榜单接入指南](rankings.md)。
+
+榜单按有效画像的模型版本、类型和角色精确匹配；缺失、过期和不匹配时贡献为零并记录原因。task-fit-v1 只在主评分完全相同时用榜单贡献裁决顺序，不能推翻质量与成本价值判断，也不改变质量 Q、级联门槛或规划器选模。schema 4 快照同时固定榜单来源和选择偏好；既有 schema 1..3 按原算法复算。SQLite schema 保持 2。
 
 ## 验收反馈与持久化指标
 
@@ -280,10 +309,12 @@ for record in records:
 ```
 
 筛选范围为 `running`、`human_required`、仍有预留费用，或存在 `pending` / `unresolved`
-调用的任务；包括预留为 0 但结果未知的调用。每条记录包含原始 `task`、`config_hash`、
+调用的任务；包括预留为 0 但结果未知的调用。每条记录包含 `task` 查询投影、`config_hash`、
 `status`、`checkpoint`、`ledger`、可空的 `result`，以及按创建顺序排列的全部 `attempts`。
 调用证据包含 `attempt_id`、`amount`（预留额）、可空的 `cost`、`state`、`metadata` 与可空的 `outcome`。
 未知费用用 `null` 表示，与已确认费用为 0 不同。
+
+这里的 `task` 是统一查询投影。若当前 schema 内的历史提交早于 selection 契约，投影会包含 `legacy-recovery-evidence-only-v1` 只读占位值；原始 `submission` / `plan` 仍保留缺失状态。该值只说明历史记录没有这项证据，不能作为执行偏好或重放输入。
 
 查询使用一致的数据库读事务；正在执行的任务也可能出现在结果中，因此 `running` 不等于崩溃遗留。
 记录按任务 ID 排序，目前一次返回全部匹配记录，适合受控规模的本地账本。

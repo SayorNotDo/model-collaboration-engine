@@ -94,7 +94,7 @@ def planning_server(request, tmp_path, monkeypatch):
     submission = json.loads((root / "examples/task.json").read_text())
     submission.pop("strategy")
     submission.update({
-        "schema_version": 1, "deadline_ms": int(time.time() * 1000) + 15000,
+        "schema_version": 2, "deadline_ms": int(time.time() * 1000) + 15000,
         "planning": {"mode": "auto", "max_cost": 20000, "timeout_ms": 5000},
     })
     try:
@@ -153,7 +153,7 @@ def test_unknown_usage_preserved_through_success_or_explicit_fallback(planning_s
             assert result["settled_cost"] == 15
             assert result["reserved_cost"] > 0
             records = await engine.recovery_records()
-            assert records[0]["submission"]["schema_version"] == 1
+            assert records[0]["submission"]["schema_version"] == 2
             assert records[0]["attempts"][0]["cost"] is None
             assert records[0]["plan"]["effective_plan"]["plan_version"] == 1
         async with await Engine.open(config) as reopened:

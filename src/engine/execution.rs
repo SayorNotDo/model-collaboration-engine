@@ -1,5 +1,5 @@
 //! Bounded strategy rounds and artifact evaluation.
-use super::{Engine, RunContext};
+use super::{invocation::UpgradeRequirement, Engine, RunContext};
 use crate::{
     contracts::{
         digest, id, Artifact, CriticVerdict, EngineError, EvaluationRecord, EvaluationStatus,
@@ -20,7 +20,8 @@ impl Engine {
         let health = BTreeMap::<String, Health>::new();
         let mut artifact: Option<Artifact> = None;
         let mut feedback = Vec::new();
-        let mut quality_floor = 0.0;
+        let mut quality_floor = task.selection.min_quality;
+        let mut upgrade = None;
         for round in 1..=task.max_rounds {
             let node = if task.strategy == Strategy::GeneratorCritic {
                 "generator"
@@ -34,9 +35,40 @@ impl Engine {
                 feedback.clone(),
                 round,
             );
-            let (output, attempt, model, quality) = self
-                .invoke(task, snapshot, &excluded, quality_floor, &health, context)
-                .await?;
+            let invocation = self
+                .invoke(
+                    task,
+                    snapshot,
+                    &excluded,
+                    quality_floor,
+                    upgrade,
+                    &health,
+                    context,
+                )
+                .await;
+            let (output, attempt, model, quality) = match invocation {
+                Ok(value) => value,
+                Err(error)
+                    if task.strategy == Strategy::Cascade
+                        && artifact.is_some()
+                        && error.kind == "routing"
+                        && error.details["category"] == "no_candidate" =>
+                {
+                    let reason = upgrade_stop_reason(&error);
+                    self.store
+                        .checkpoint(
+                            &task.task_id,
+                            json!({"version":1,"round":round,"artifact":artifact,
+                                "upgrade_stop":{"reason":reason,
+                                    "required_quality":quality_floor,
+                                    "requirement":upgrade,
+                                    "excluded":error.details["excluded"]}}),
+                        )
+                        .await?;
+                    return self.result(task, "human_required", artifact.unwrap()).await;
+                }
+                Err(error) => return Err(error),
+            };
             let evaluation = strategy::evaluate(&output.text, &task.acceptance);
             artifact = Some(Artifact {
                 artifact_id: id(),
@@ -81,7 +113,11 @@ impl Engine {
                 Strategy::Single => break,
                 Strategy::Cascade => {
                     excluded.insert(model.id);
-                    quality_floor = quality;
+                    quality_floor = quality + task.selection.min_upgrade_gain;
+                    upgrade = Some(UpgradeRequirement {
+                        previous_quality: quality,
+                        required_quality: quality_floor,
+                    });
                 }
                 Strategy::GeneratorCritic => {}
             }
@@ -131,7 +167,7 @@ impl Engine {
             round,
         );
         let (critic, attempt_id, _, _) = self
-            .invoke(task, snapshot, &critic_excluded, 0.0, health, context)
+            .invoke(task, snapshot, &critic_excluded, 0.0, None, health, context)
             .await?;
         let evaluation: crate::contracts::Evaluation =
             serde_json::from_str(&critic.text).map_err(|_| {
@@ -177,5 +213,34 @@ impl Engine {
         )
         .await?;
         Ok(())
+    }
+}
+
+fn upgrade_stop_reason(error: &EngineError) -> &'static str {
+    let candidates = error.details["excluded"]
+        .as_object()
+        .into_iter()
+        .flat_map(|models| models.values())
+        .filter_map(serde_json::Value::as_array)
+        .map(|reasons| {
+            reasons
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .collect::<Vec<_>>()
+        })
+        .filter(|reasons| !reasons.contains(&"attempt_history_or_diversity"))
+        .collect::<Vec<_>>();
+    if candidates.is_empty()
+        || candidates
+            .iter()
+            .all(|reasons| reasons.contains(&"quality_floor"))
+    {
+        "no_quality_improvement"
+    } else if candidates.iter().any(|reasons| {
+        reasons.contains(&"budget") && reasons.iter().all(|reason| *reason == "budget")
+    }) {
+        "budget"
+    } else {
+        "constraints"
     }
 }

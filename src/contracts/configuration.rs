@@ -1,5 +1,5 @@
 //! Effective execution configuration; shared validation for file and component callers.
-use super::{profiles, Endpoint, EngineError, Result, RoutingProfiles};
+use super::{profiles, Endpoint, EngineError, RankingConfig, Result, RoutingProfiles};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -49,6 +49,9 @@ pub struct Config {
     /// Optional quality evidence; missing profiles use the global prior in the same router.
     #[serde(default)]
     pub routing_profiles: Option<RoutingProfiles>,
+    /// Optional external sorting reference, never a business quality probability.
+    #[serde(default)]
+    pub rankings: Option<RankingConfig>,
     pub weights: Weights,
     pub max_concurrency: usize,
     pub event_capacity: usize,
@@ -97,6 +100,9 @@ impl Config {
         }
         if let Some(profiles) = &self.routing_profiles {
             profiles.validate(self)?;
+        }
+        if let Some(rankings) = &self.rankings {
+            rankings.validate(self)?;
         }
         Ok(())
     }

@@ -31,6 +31,7 @@ known-first-party = ["model_collaboration_engine"]
 python-source = "python"
 module-name = "model_collaboration_engine._native"
 features = ["extension-module", "bundled-sqlite"]
+exclude = ["artifacts/**"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests/python"]

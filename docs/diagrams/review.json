@@ -1,17 +1,17 @@
 {
-  "review_date": "2026-09-16",
+  "review_date": "2026-09-17",
   "reviewer": "Codex screenshot inspection",
   "scope": "Default READ / Still, endpoint viewport themes; screenshots only for visual judgment",
   "diagrams": {
     "architecture": {
       "type": "architecture",
       "specification": {
-        "sha256": "c86ef5c64a9757627387341093cbeac2a86dfdd9559f2601eef0e11341f5944b",
-        "bytes": 4448
+        "sha256": "e7889355379375d3a9d41bcd1d3e6a0eb6fa1ba488fac27157e47575be6799e7",
+        "bytes": 4629
       },
       "artifact": {
-        "sha256": "6af6a5034556459662ec621c01fdeb90db83914b0042755fe9d2633985e3209e",
-        "bytes": 807964
+        "sha256": "021d980a078dcd8f8bb5f81cd73e4eea82776a616e6b23f3278b40b4a68113c5",
+        "bytes": 809997
       },
       "validation": {
         "checksPassed": 9,
@@ -28,18 +28,18 @@
         "architecture.visual-check.2048x1320.light.png",
         "architecture.visual-check.1440x900.dark.png"
       ],
-      "observation": "本次核对所列明暗截图：新增用量证据和对账保留文字清晰，无裁切，节点、连线与标签可辨。",
-      "review_date": "2026-09-16"
+      "observation": "实际查看所列明暗截图：任务价值、严格质量升级及榜单平分参考的职责清晰；无裁切、遮挡或交叉，最大尺寸纵向版面平衡。",
+      "review_date": "2026-09-17"
     },
     "feedback-routing": {
       "type": "architecture",
       "specification": {
-        "sha256": "bf8a8ff8b4af9182baf2640fe14abd342a4d62d7acde5f2bfb24f1c5e14a110c",
-        "bytes": 3209
+        "sha256": "02355bc3a248c55949ada53378e3c15863f0cbbde11ada2bf6ab771e47bcd58c",
+        "bytes": 3498
       },
       "artifact": {
-        "sha256": "8329b70835a2c3fe8457e8ae55b0260c55ccbcc18d92c4122b217338285b6e4a",
-        "bytes": 801240
+        "sha256": "189622a80dcec21feb4b700c41b02bb0d2cd5fcd261735ff0ffd746446cbc747",
+        "bytes": 803330
       },
       "validation": {
         "checksPassed": 9,
@@ -56,8 +56,8 @@
         "feedback-routing.visual-check.2048x1320.light.png",
         "feedback-routing.visual-check.1440x900.dark.png"
       ],
-      "observation": "本次核对所列明暗截图：新增用量证据和对账保留文字清晰，无裁切，节点、连线与标签可辨。",
-      "review_date": "2026-09-16"
+      "observation": "实际查看所列明暗截图：质量 Q、选择偏好、榜单平分参考和严格升级关系清晰；无裁切、遮挡或交叉，最大尺寸纵向版面平衡。",
+      "review_date": "2026-09-17"
     },
     "evaluation-plan": {
       "type": "architecture",

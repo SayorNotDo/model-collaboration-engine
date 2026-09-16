@@ -53,7 +53,7 @@ providers
 
 ## 路由、运行与存储
 
-routing.weights 使用原评分权重，planner_models 使用模型候选 ID（可省略为空池），profiles 使用原质量画像对象（可省略或 null）。首版不支持画像文件路径字段；需要独立文件时由宿主显式读取：
+routing.weights 使用原评分权重，planner_models 使用模型候选 ID（可省略为空池），profiles 使用原质量画像对象（可省略或 null）。可选 `routing.rankings` 保存外部榜单参考，与业务质量画像分开，见[榜单导入与配置](../docs/rankings.md)。不支持隐式画像或榜单文件路径字段；需要独立文件时由宿主显式读取：
 
 ```python
 import json

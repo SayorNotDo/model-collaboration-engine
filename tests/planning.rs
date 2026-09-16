@@ -36,6 +36,14 @@ async fn planning_and_execution_share_accounting_and_preserve_host_acceptance() 
     assert_eq!(plan["effective_plan"]["acceptance"]["json_object"], true);
     assert_eq!(plan["effective_plan"]["acceptance"]["nonempty"], true);
     assert_eq!(plan["effective_plan"]["submission_hash"], digest(&sub));
+    assert_eq!(
+        plan["effective_plan"]["selection"]["version"],
+        "host-task-fit-v1"
+    );
+    assert_eq!(
+        plan["effective_plan"]["selection"]["cost_reference"],
+        10_000
+    );
     let mut kinds = vec![];
     while let Some(event) = events.recv().await {
         kinds.push(event.kind);
@@ -108,7 +116,7 @@ async fn required_plans_even_with_host_choices_and_rejects_conflicts() {
 #[tokio::test]
 async fn invalid_proposals_are_settled_before_rejection() {
     let mut unknown = proposal();
-    unknown["budget"] = json!(999999);
+    unknown["selection"] = json!({"version":"planner-must-not-change-host-policy"});
     let mut capability = proposal();
     capability["required_capabilities"] = json!(["shell"]);
     let mut confidence = proposal();
@@ -182,6 +190,56 @@ async fn explicit_fallback_keeps_unknown_planning_cost_and_recovery_evidence() {
         json!(records)
     );
     reopened.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn recovery_projects_legacy_submission_without_panicking_or_rewriting_evidence() {
+    let f = setup(vec![response("bad", false), response("{}", true)], |_| {}).await;
+    let mut sub = submission();
+    sub.planning.fallback = Some(PlanChoice {
+        task_type: TaskType::General,
+        strategy: Strategy::Single,
+    });
+    f.engine
+        .run(sub.clone(), CancellationToken::new())
+        .await
+        .unwrap();
+
+    let connection = rusqlite::Connection::open(&f.config.database_path).unwrap();
+    let (spec, plan): (String, String) = connection
+        .query_row(
+            "SELECT spec,plan FROM tasks WHERE id=?",
+            [&sub.task_id],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )
+        .unwrap();
+    let mut spec: Value = serde_json::from_str(&spec).unwrap();
+    spec["submission"]["schema_version"] = json!(1);
+    spec["submission"]
+        .as_object_mut()
+        .unwrap()
+        .remove("selection");
+    let mut plan: Value = serde_json::from_str(&plan).unwrap();
+    plan["effective_plan"]
+        .as_object_mut()
+        .unwrap()
+        .remove("selection");
+    connection
+        .execute(
+            "UPDATE tasks SET spec=?,plan=? WHERE id=?",
+            rusqlite::params![spec.to_string(), plan.to_string(), sub.task_id],
+        )
+        .unwrap();
+    drop(connection);
+
+    let records = f.engine.recovery_records().await.unwrap();
+    assert_eq!(records.len(), 1);
+    assert!(records[0].submission.as_ref().unwrap().selection.is_none());
+    assert_eq!(
+        records[0].task.selection.version,
+        "legacy-recovery-evidence-only-v1"
+    );
+    f.engine.close().await.unwrap();
 }
 
 #[tokio::test]
@@ -320,7 +378,7 @@ async fn version_and_mode_errors_reject_before_admission() {
     for variant in 0..4 {
         let mut sub = submission();
         match variant {
-            0 => sub.schema_version = 2,
+            0 => sub.schema_version = 1,
             1 => sub.planning.mode = PlanningMode::Disabled,
             2 => sub.planning.max_calls = 2,
             _ => sub.planning.timeout_ms = 0,
