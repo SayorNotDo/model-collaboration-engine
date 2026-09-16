@@ -1,0 +1,28 @@
+{
+  "archive": "artifacts\\live-20260916-020845",
+  "metric_files": [
+    "cascade.metrics.json",
+    "single.metrics.json",
+    "smoke.metrics.json"
+  ],
+  "cohort_assumption": "each metrics file covers disjoint calls",
+  "pricing_evidence": {
+    "source": "https://api-docs.deepseek.com/zh-cn/quick_start/pricing/",
+    "microcredits_per_CNY": 1000000,
+    "basis": "peak uncached upper estimate, not actual provider debit",
+    "planned_admission_microcredits": 25000000,
+    "scope": "one smoke + 12 paired cases; no extra rounds"
+  },
+  "attempts": 25,
+  "ledger_estimate_microcredits": 29970,
+  "unresolved_reserved_microcredits": 0,
+  "unknown_cost_attempts": 0,
+  "supplier_amount": null,
+  "supplier_bill_verified": false,
+  "status": "insufficient_supplier_evidence",
+  "missing_evidence": [
+    "per-request cache-hit/cache-miss/output usage",
+    "applicable model tariff version and supplier billing time band",
+    "matched supplier invoice/debit and supplier rounding rules"
+  ]
+}

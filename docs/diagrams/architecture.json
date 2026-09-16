@@ -85,7 +85,7 @@
       "id": "routing_policy",
       "type": "backend",
       "label": "规划校验与类型路由",
-      "sublabel": "硬约束 · 固定质量快照",
+      "sublabel": "硬约束 · 任务价值 · 升级门槛",
       "pos": [
         660,
         80
@@ -130,6 +130,20 @@
       "sublabel": "计划 · 评价 · 指标",
       "pos": [
         660,
+        500
+      ],
+      "size": [
+        180,
+        76
+      ]
+    },
+    {
+      "id": "offline_rank_import",
+      "type": "frontend",
+      "label": "榜单离线导入",
+      "sublabel": "Python · JSON / CSV 映射",
+      "pos": [
+        40,
         500
       ],
       "size": [
@@ -193,6 +207,12 @@
       "to": "budget_store",
       "label": "账务与指标",
       "labelDy": 75
+    },
+    {
+      "id": "ranking_config",
+      "from": "offline_rank_import",
+      "to": "host_api",
+      "label": "配置载入"
     }
   ],
   "cards": [
@@ -214,7 +234,7 @@
       "dot": "slate",
       "title": "实现边界",
       "items": [
-        "宿主独立反馈；无自动恢复或外部评测"
+        "预算只作准入；榜单只裁决主评分平分"
       ]
     }
   ]

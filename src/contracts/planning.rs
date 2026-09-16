@@ -1,6 +1,7 @@
 //! One public submission contract and its validated execution projection.
 use super::{
-    Acceptance, Config, Constraints, EngineError, Evidence, Result, Strategy, TaskSpec, ToolSpec,
+    Acceptance, Config, Constraints, EngineError, Evidence, Result, SelectionPolicy, Strategy,
+    TaskSpec, ToolSpec,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -47,6 +48,9 @@ pub struct PlanningConfig {
 fn one_call() -> u32 {
     1
 }
+fn schema_two() -> u32 {
+    2
+}
 
 impl Default for PlanningConfig {
     fn default() -> Self {
@@ -63,7 +67,7 @@ impl Default for PlanningConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SubmissionSpec {
-    #[serde(default = "one_call")]
+    #[serde(default = "schema_two")]
     pub schema_version: u32,
     pub task_id: String,
     pub goal: String,
@@ -73,6 +77,8 @@ pub struct SubmissionSpec {
     #[serde(default)]
     pub strategy: Option<Strategy>,
     pub acceptance: Acceptance,
+    #[serde(default)]
+    pub selection: Option<SelectionPolicy>,
     pub constraints: Constraints,
     pub budget: u64,
     pub deadline_ms: u64,
@@ -91,13 +97,14 @@ pub struct SubmissionSpec {
 impl From<TaskSpec> for SubmissionSpec {
     fn from(task: TaskSpec) -> Self {
         Self {
-            schema_version: 1,
+            schema_version: 2,
             task_id: task.task_id,
             goal: task.goal,
             evidence: task.evidence,
             task_type: Some(TaskType::General),
             strategy: Some(task.strategy),
             acceptance: task.acceptance,
+            selection: Some(task.selection),
             constraints: task.constraints,
             budget: task.budget,
             deadline_ms: task.deadline_ms,
@@ -114,10 +121,11 @@ impl From<TaskSpec> for SubmissionSpec {
 }
 
 impl SubmissionSpec {
-    /// Validate before admission. Version one deliberately permits only one planning attempt.
+    /// Validate schema two before admission; planning remains limited to one attempt.
     pub fn validate(&self, config: &Config) -> Result<()> {
         let p = &self.planning;
-        if self.schema_version != 1
+        if self.schema_version != 2
+            || self.selection.is_none()
             || p.max_calls != 1
             || p.max_cost > i64::MAX as u64
             || p.timeout_ms == 0
@@ -171,6 +179,10 @@ impl SubmissionSpec {
             evidence: self.evidence.clone(),
             strategy,
             acceptance: self.acceptance.clone(),
+            selection: self
+                .selection
+                .clone()
+                .expect("schema 2 submission has a validated selection policy"),
             constraints: self.constraints.clone(),
             budget: self.budget,
             deadline_ms: self.deadline_ms,
@@ -213,6 +225,8 @@ pub struct EffectivePlan {
     pub role_profiles: BTreeMap<String, RoleProfile>,
     pub constraints: Constraints,
     pub acceptance: Acceptance,
+    #[serde(default)]
+    pub selection: Option<SelectionPolicy>,
     pub submission_hash: String,
     pub proposal_id: Option<String>,
     pub validator_version: String,
@@ -224,6 +238,10 @@ impl EffectivePlan {
         let mut task = submission.task(self.strategy.clone());
         task.constraints = self.constraints.clone();
         task.acceptance = self.acceptance.clone();
+        task.selection = self
+            .selection
+            .clone()
+            .expect("new effective plans preserve the validated selection policy");
         task
     }
 }

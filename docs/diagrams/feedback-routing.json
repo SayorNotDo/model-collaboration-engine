@@ -71,7 +71,7 @@
       "id": "task_snapshot",
       "type": "backend",
       "label": "新任务固定快照",
-      "sublabel": "模型 / 类型 / 角色 / 版本",
+      "sublabel": "质量 Q · 选择偏好 · 榜单",
       "pos": [
         465,
         470
@@ -85,10 +85,24 @@
       "id": "profile_route",
       "type": "backend",
       "label": "受约束选模",
-      "sublabel": "精确 / 父级 / general / 全局",
+      "sublabel": "任务价值 · 严格质量升级",
       "pos": [
         50,
         470
+      ],
+      "size": [
+        210,
+        78
+      ]
+    },
+    {
+      "id": "offline_rank_import",
+      "type": "frontend",
+      "label": "榜单离线导入",
+      "sublabel": "JSON / CSV · 显式版本映射",
+      "pos": [
+        465,
+        295
       ],
       "size": [
         210,
@@ -126,7 +140,14 @@
       "id": "task_snapshot_to_profile_route",
       "from": "task_snapshot",
       "to": "profile_route",
-      "label": "固定质量"
+      "label": "固定 Q 与选择偏好"
+    },
+    {
+      "id": "ranking_to_snapshot",
+      "from": "offline_rank_import",
+      "to": "task_snapshot",
+      "label": "平分裁决参考",
+      "labelDy": 24
     }
   ],
   "cards": [
@@ -141,14 +162,14 @@
       "dot": "amber",
       "title": "任务内固定",
       "items": [
-        "新反馈只影响后续快照，不刷新运行中任务"
+        "榜单与质量分别固定；不刷新运行中任务"
       ]
     },
     {
       "dot": "slate",
       "title": "证据保留",
       "items": [
-        "对账保留调用指标；未知费用保留预留"
+        "榜单不改变 Q；升级要求明确的 Q 改善"
       ]
     }
   ]

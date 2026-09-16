@@ -64,7 +64,10 @@ pub fn submission() -> SubmissionSpec {
     task["task_id"] = json!(id());
     task["deadline_ms"] = json!(now_ms() + 30_000);
     task["strategy"] = Value::Null;
-    task["schema_version"] = json!(1);
+    task["schema_version"] = json!(2);
+    task["selection"] = json!({"version":"host-task-fit-v1","min_quality":0.0,
+        "target_quality":0.9,"above_target_factor":0.1,"cost_reference":10000,
+        "latency_reference_ms":5000,"min_upgrade_gain":0.05});
     task["planning"] = json!({"mode":"auto","max_cost":20_000,"timeout_ms":5000});
     serde_json::from_value(task).unwrap()
 }

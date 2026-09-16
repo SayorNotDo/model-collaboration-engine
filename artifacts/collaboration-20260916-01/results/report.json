@@ -1,0 +1,1906 @@
+{
+  "status": "completed",
+  "stop_reason": null,
+  "total_admission_budget": 4000000,
+  "caution": "Synthetic protocol conformance, not evidence of natural quality gains.",
+  "runs": [
+    {
+      "scenario": "cascade",
+      "status": "completed",
+      "submission": {
+        "task_id": "cascade",
+        "task_type": "reasoning",
+        "strategy": "cascade",
+        "goal": "Synthetic orchestration test: when snapshot version is 1 intentionally return {\"answer\":42} without the acceptance marker to exercise rejection. When version is greater than 1, return {\"answer\":42,\"marker\":\"PROBE_COMPLETE\"}. This deliberate first failure tests protocol, not real model quality.",
+        "evidence": [],
+        "tools": [],
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 60000
+        },
+        "acceptance": {
+          "version": "collaboration-probe-v1",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": [
+            "PROBE_COMPLETE"
+          ]
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 1,
+        "output_tokens": 4096,
+        "deadline_ms": 1789570314742,
+        "finalization_ms": 2000
+      },
+      "result": {
+        "task_id": "cascade",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "5873fd42-3201-4746-9305-608963f7f845",
+          "version": 2,
+          "attempt_id": "4fd0faa7-d7af-4a4d-bfb8-cb7096855f97",
+          "text": "{\"answer\":42,\"marker\":\"PROBE_COMPLETE\"}",
+          "checksum": "d644d766c90f9b39f454776054bf02e2dadcf7f9ef1e8c55403927d0d8ccdb64"
+        },
+        "settled_cost": 7131,
+        "reserved_cost": 0
+      },
+      "tool_calls": [],
+      "evidence": {
+        "ledger": {
+          "status": "completed",
+          "total": 1000000,
+          "settled": 7131,
+          "reserved": 0,
+          "calls": 2
+        },
+        "plan": {
+          "effective_plan": {
+            "acceptance": {
+              "json_object": true,
+              "nonempty": true,
+              "required_substrings": [
+                "PROBE_COMPLETE"
+              ],
+              "version": "collaboration-probe-v1"
+            },
+            "constraints": {
+              "allowed_models": [],
+              "allowed_providers": [],
+              "allowed_regions": [],
+              "different_critic": false,
+              "local_only": false,
+              "preferred_capabilities": [],
+              "required_capabilities": [
+                "json",
+                "text"
+              ]
+            },
+            "plan_version": 1,
+            "proposal_id": null,
+            "role_profiles": {
+              "invoke": {
+                "role": "invoke",
+                "task_type": "reasoning"
+              }
+            },
+            "routing_profile_version": "global-prior-v1",
+            "strategy": "cascade",
+            "submission_hash": "4943b1237beb6e3488b2f50b7a965c79e0c348044f775c49cca636c7a6e1bb9a",
+            "task_type": "reasoning",
+            "validator_version": "1"
+          },
+          "planning": {
+            "skipped": true
+          },
+          "routing_snapshot": {
+            "captured_at_ms": 1789570194758,
+            "evaluator_version": "collaboration-probe-v1",
+            "feedback_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "feedback_revision": 0,
+            "models": [
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-flash",
+                "input_price": 2,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-flash",
+                "output_price": 8,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4.1-Flash"
+              },
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-v4-pro",
+                "input_price": 9,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-v4-pro",
+                "output_price": 27,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4-Pro-0813"
+              }
+            ],
+            "nodes": {
+              "invoke": {
+                "qualities": {
+                  "deepseek-flash": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "reasoning"
+                    }
+                  },
+                  "deepseek-v4-pro": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "reasoning"
+                    }
+                  }
+                },
+                "weights": {
+                  "capability": 1.0,
+                  "cost": 1.0,
+                  "latency": 1.0,
+                  "quality": 1.0,
+                  "reliability": 1.0,
+                  "uncertainty": 1.0,
+                  "version": "1"
+                },
+                "weights_task_type": null
+              }
+            },
+            "profile_config_hash": "4b38bf2a3077ba7f468179c31c94c42c273ebb01458611c2afe963f3592cca55",
+            "profile_version": "global-prior-v1",
+            "schema_version": 2
+          }
+        },
+        "attempts": [
+          {
+            "id": "c07bda30-e20a-4368-9164-aae4156a929a",
+            "task": "cascade",
+            "amount": 35380,
+            "cost": 1056,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.14152,
+                  "latency": -0.008334444592612348,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "7c77fdbb-66be-4667-a040-6bd2abb9cf3c",
+                "estimated_cost": 35380,
+                "estimated_input": 1306,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "invoke",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "invoke",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "9fee60b58945376bb29758fb25c971d1b67eb5834f0036b222ab8b0f44bd8a62",
+                "score": 1.3501455554073878,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 1000000,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [
+                    "PROBE_COMPLETE"
+                  ],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "b8970f6961655c992bc9977bdc332fec67b114476411a4e55250fd33e1deb731",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Synthetic orchestration test: when snapshot version is 1 intentionally return {\"answer\":42} without the acceptance marker to exercise rejection. When version is greater than 1, return {\"answer\":42,\"marker\":\"PROBE_COMPLETE\"}. This deliberate first failure tests protocol, not real model quality.",
+                "id": "ffb8c9c3-f879-4ffe-9bfe-5ebcada14368",
+                "prior_artifact": null,
+                "role": "invoke",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "a14144ca-a4ea-414e-8f5f-814e534966ac",
+              "usage": {
+                "input_tokens": 284,
+                "output_tokens": 61
+              },
+              "call_metrics": {
+                "latency_ms": 1132,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "4fd0faa7-d7af-4a4d-bfb8-cb7096855f97",
+            "task": "cascade",
+            "amount": 122886,
+            "cost": 6075,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.491544,
+                  "latency": -0.008334444592612348,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "8caf30c5-7453-4d54-b189-2acda715c913",
+                "estimated_cost": 122886,
+                "estimated_input": 1366,
+                "estimated_latency_ms": 1000,
+                "excluded": {
+                  "deepseek-flash": [
+                    "attempt_history_or_diversity"
+                  ]
+                },
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-v4-pro",
+                "model_version": "DeepSeek-V4-Pro-0813",
+                "node_id": "invoke",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "invoke",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "9fee60b58945376bb29758fb25c971d1b67eb5834f0036b222ab8b0f44bd8a62",
+                "score": 1.000121555407388,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 998944,
+                "excluded": [
+                  "deepseek-flash"
+                ],
+                "health": {},
+                "quality_floor": 0.8
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [
+                    "PROBE_COMPLETE"
+                  ],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "5882309509265b2a70f489a9be406b712a3763ab669cee60455d4c6b6a0428e4",
+                "evidence": [],
+                "feedback": [
+                  "missing required text: PROBE_COMPLETE"
+                ],
+                "goal": "Synthetic orchestration test: when snapshot version is 1 intentionally return {\"answer\":42} without the acceptance marker to exercise rejection. When version is greater than 1, return {\"answer\":42,\"marker\":\"PROBE_COMPLETE\"}. This deliberate first failure tests protocol, not real model quality.",
+                "id": "8ba6f6a0-cb4f-4d28-81dc-606765b6ccf3",
+                "prior_artifact": "{\"answer\":42}",
+                "role": "invoke",
+                "version": 2
+              }
+            },
+            "outcome": {
+              "request_id": "32a8afd7-a84d-42f8-98eb-30619dee325b",
+              "usage": {
+                "input_tokens": 357,
+                "output_tokens": 106
+              },
+              "call_metrics": {
+                "latency_ms": 2875,
+                "status": "succeeded"
+              }
+            }
+          }
+        ],
+        "evaluations": [
+          {
+            "artifact": {
+              "artifact_id": "45949bd0-59be-46f9-b0f9-aeb68207c278",
+              "attempt_id": "c07bda30-e20a-4368-9164-aae4156a929a",
+              "checksum": "4498938b1792c320ee8dca61f002b1a846bca3b8e1ba32b7a026539666a38f2e",
+              "text": "{\"answer\":42}",
+              "version": 1
+            },
+            "critic": null,
+            "deterministic": {
+              "action": "revise",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [
+                "missing required text: PROBE_COMPLETE"
+              ],
+              "evidence": [],
+              "status": "revise"
+            },
+            "task_id": "cascade"
+          },
+          {
+            "artifact": {
+              "artifact_id": "5873fd42-3201-4746-9305-608963f7f845",
+              "attempt_id": "4fd0faa7-d7af-4a4d-bfb8-cb7096855f97",
+              "checksum": "d644d766c90f9b39f454776054bf02e2dadcf7f9ef1e8c55403927d0d8ccdb64",
+              "text": "{\"answer\":42,\"marker\":\"PROBE_COMPLETE\"}",
+              "version": 2
+            },
+            "critic": null,
+            "deterministic": {
+              "action": "accept",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [],
+              "evidence": [],
+              "status": "pass"
+            },
+            "task_id": "cascade"
+          }
+        ]
+      },
+      "assessment": {
+        "path_observed": true,
+        "roles": [
+          "invoke",
+          "invoke"
+        ],
+        "final_artifact_accepted": true,
+        "request_ids": [
+          "a14144ca-a4ea-414e-8f5f-814e534966ac",
+          "32a8afd7-a84d-42f8-98eb-30619dee325b"
+        ],
+        "completed": true
+      }
+    },
+    {
+      "scenario": "generator_critic",
+      "status": "completed",
+      "submission": {
+        "task_id": "generator_critic",
+        "task_type": "reasoning",
+        "strategy": "generator_critic",
+        "goal": "Synthetic revision test. Final answer must equal 19+23=42. Only role=generator at version=1 should intentionally draft answer=41. Role=generator at later versions must fix to answer=42. Role=critic must independently check arithmetic in prior_artifact, always return revise with a concrete defect for answer=41, even though it was deliberately drafted. Return pass only for answer=42. Generator outputs JSON.",
+        "evidence": [],
+        "tools": [],
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 60000
+        },
+        "acceptance": {
+          "version": "collaboration-probe-v1",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": true
+        },
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "max_calls": 4,
+        "max_rounds": 2,
+        "max_attempts": 1,
+        "output_tokens": 4096,
+        "deadline_ms": 1789570318944,
+        "finalization_ms": 2000
+      },
+      "result": {
+        "task_id": "generator_critic",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "492339ee-9d5a-4b1b-a6a4-17fea82cd404",
+          "version": 2,
+          "attempt_id": "4d862685-4f2a-401f-93e5-6d25011faeca",
+          "text": "{\"answer\":42}",
+          "checksum": "4498938b1792c320ee8dca61f002b1a846bca3b8e1ba32b7a026539666a38f2e"
+        },
+        "settled_cost": 40905,
+        "reserved_cost": 0
+      },
+      "tool_calls": [],
+      "evidence": {
+        "ledger": {
+          "status": "completed",
+          "total": 1000000,
+          "settled": 40905,
+          "reserved": 0,
+          "calls": 4
+        },
+        "plan": {
+          "effective_plan": {
+            "acceptance": {
+              "json_object": true,
+              "nonempty": true,
+              "required_substrings": [],
+              "version": "collaboration-probe-v1"
+            },
+            "constraints": {
+              "allowed_models": [],
+              "allowed_providers": [],
+              "allowed_regions": [],
+              "different_critic": true,
+              "local_only": false,
+              "preferred_capabilities": [],
+              "required_capabilities": [
+                "json",
+                "text"
+              ]
+            },
+            "plan_version": 1,
+            "proposal_id": null,
+            "role_profiles": {
+              "critic": {
+                "role": "critic",
+                "task_type": "reasoning"
+              },
+              "generator": {
+                "role": "generator",
+                "task_type": "reasoning"
+              }
+            },
+            "routing_profile_version": "global-prior-v1",
+            "strategy": "generator_critic",
+            "submission_hash": "9e7a18c0596f3e4f65d3815c09b226011322e9ede970b3e839b1911b26f865a1",
+            "task_type": "reasoning",
+            "validator_version": "1"
+          },
+          "planning": {
+            "skipped": true
+          },
+          "routing_snapshot": {
+            "captured_at_ms": 1789570198968,
+            "evaluator_version": "collaboration-probe-v1",
+            "feedback_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "feedback_revision": 0,
+            "models": [
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-flash",
+                "input_price": 2,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-flash",
+                "output_price": 8,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4.1-Flash"
+              },
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-v4-pro",
+                "input_price": 9,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-v4-pro",
+                "output_price": 27,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4-Pro-0813"
+              }
+            ],
+            "nodes": {
+              "critic": {
+                "qualities": {
+                  "deepseek-flash": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "critic",
+                      "task_type": "reasoning"
+                    }
+                  },
+                  "deepseek-v4-pro": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "critic",
+                      "task_type": "reasoning"
+                    }
+                  }
+                },
+                "weights": {
+                  "capability": 1.0,
+                  "cost": 1.0,
+                  "latency": 1.0,
+                  "quality": 1.0,
+                  "reliability": 1.0,
+                  "uncertainty": 1.0,
+                  "version": "1"
+                },
+                "weights_task_type": null
+              },
+              "generator": {
+                "qualities": {
+                  "deepseek-flash": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "generator",
+                      "task_type": "reasoning"
+                    }
+                  },
+                  "deepseek-v4-pro": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "generator",
+                      "task_type": "reasoning"
+                    }
+                  }
+                },
+                "weights": {
+                  "capability": 1.0,
+                  "cost": 1.0,
+                  "latency": 1.0,
+                  "quality": 1.0,
+                  "reliability": 1.0,
+                  "uncertainty": 1.0,
+                  "version": "1"
+                },
+                "weights_task_type": null
+              }
+            },
+            "profile_config_hash": "4b38bf2a3077ba7f468179c31c94c42c273ebb01458611c2afe963f3592cca55",
+            "profile_version": "global-prior-v1",
+            "schema_version": 2
+          }
+        },
+        "attempts": [
+          {
+            "id": "f0de2647-6065-4fc4-823e-641b1b19df97",
+            "task": "generator_critic",
+            "amount": 35530,
+            "cost": 9552,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.14212,
+                  "latency": -0.008335000333400013,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "60350177-5a63-4d63-bea3-3498b0d6d59e",
+                "estimated_cost": 35530,
+                "estimated_input": 1381,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "generator",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "generator",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "99e31e03ab527fa62fda3355647d613225377b3f87dfffed304f2b8def3d9943",
+                "score": 1.3495449996666002,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 1000000,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "01ab8b88b8abb47727b59b29755a9bb9a3611a414ff59a9d81e7aadeaa22f05b",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Synthetic revision test. Final answer must equal 19+23=42. Only role=generator at version=1 should intentionally draft answer=41. Role=generator at later versions must fix to answer=42. Role=critic must independently check arithmetic in prior_artifact, always return revise with a concrete defect for answer=41, even though it was deliberately drafted. Return pass only for answer=42. Generator outputs JSON.",
+                "id": "880a16f2-07fd-42cc-ba51-92d42e5b51c6",
+                "prior_artifact": null,
+                "role": "generator",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "729ad2ad-cb21-4766-8e0e-4b817a4ab225",
+              "usage": {
+                "input_tokens": 308,
+                "output_tokens": 1117
+              },
+              "call_metrics": {
+                "latency_ms": 5892,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "73b4f8c3-aae2-4a9c-b4d1-38e49e727109",
+            "task": "generator_critic",
+            "amount": 124020,
+            "cost": 14301,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.49608,
+                  "latency": -0.008335000333400013,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "94d87ad2-0d78-4333-9955-1179a1015984",
+                "estimated_cost": 124020,
+                "estimated_input": 1492,
+                "estimated_latency_ms": 1000,
+                "excluded": {
+                  "deepseek-flash": [
+                    "attempt_history_or_diversity"
+                  ]
+                },
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-v4-pro",
+                "model_version": "DeepSeek-V4-Pro-0813",
+                "node_id": "critic",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "critic",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "99e31e03ab527fa62fda3355647d613225377b3f87dfffed304f2b8def3d9943",
+                "score": 0.9955849996666,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 990448,
+                "excluded": [
+                  "deepseek-flash"
+                ],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "85c29bd226eebf15b648fbc27e632684a8171f7c46ffb0b95ed8995652ae351e",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Synthetic revision test. Final answer must equal 19+23=42. Only role=generator at version=1 should intentionally draft answer=41. Role=generator at later versions must fix to answer=42. Role=critic must independently check arithmetic in prior_artifact, always return revise with a concrete defect for answer=41, even though it was deliberately drafted. Return pass only for answer=42. Generator outputs JSON.",
+                "id": "827ddc9d-3a55-417f-a0cb-ddd4bb980bce",
+                "prior_artifact": "{\"answer\":41}",
+                "role": "critic",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "5e420e78-45a7-4446-900c-221481963795",
+              "usage": {
+                "input_tokens": 377,
+                "output_tokens": 404
+              },
+              "call_metrics": {
+                "latency_ms": 6392,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "4d862685-4f2a-401f-93e5-6d25011faeca",
+            "task": "generator_critic",
+            "amount": 35660,
+            "cost": 1104,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.14264,
+                  "latency": -0.008335000333400013,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "fcb1ae0c-6af7-4f8c-9978-5683f1d8c97a",
+                "estimated_cost": 35660,
+                "estimated_input": 1446,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "generator",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "generator",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "99e31e03ab527fa62fda3355647d613225377b3f87dfffed304f2b8def3d9943",
+                "score": 1.3490249996666,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 976147,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "fa13072430035d7f3596d95fb01c64502945c1b14d09ebf915f39c8e095e1b2c",
+                "evidence": [],
+                "feedback": [
+                  "answer is 41; expected 42 because 19+23=42"
+                ],
+                "goal": "Synthetic revision test. Final answer must equal 19+23=42. Only role=generator at version=1 should intentionally draft answer=41. Role=generator at later versions must fix to answer=42. Role=critic must independently check arithmetic in prior_artifact, always return revise with a concrete defect for answer=41, even though it was deliberately drafted. Return pass only for answer=42. Generator outputs JSON.",
+                "id": "6333f25b-9b53-431c-8910-bdc8b4d18c84",
+                "prior_artifact": "{\"answer\":41}",
+                "role": "generator",
+                "version": 2
+              }
+            },
+            "outcome": {
+              "request_id": "5c55bc93-2d48-45f3-9f90-b42ab511f3bd",
+              "usage": {
+                "input_tokens": 328,
+                "output_tokens": 56
+              },
+              "call_metrics": {
+                "latency_ms": 1223,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "9de91892-6a0a-4a51-825a-b17c0512a26c",
+            "task": "generator_critic",
+            "amount": 124020,
+            "cost": 15948,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.49608,
+                  "latency": -0.008335000333400013,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "0c29e59e-60eb-4f7b-8d73-1fc489ca384b",
+                "estimated_cost": 124020,
+                "estimated_input": 1492,
+                "estimated_latency_ms": 1000,
+                "excluded": {
+                  "deepseek-flash": [
+                    "attempt_history_or_diversity"
+                  ]
+                },
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-v4-pro",
+                "model_version": "DeepSeek-V4-Pro-0813",
+                "node_id": "critic",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "critic",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "99e31e03ab527fa62fda3355647d613225377b3f87dfffed304f2b8def3d9943",
+                "score": 0.9955849996666,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 975043,
+                "excluded": [
+                  "deepseek-flash"
+                ],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "cb7d9021c361c6398e8aa7e7709acdc1072dc2d3ef47a6c2f49370ae05de45a7",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Synthetic revision test. Final answer must equal 19+23=42. Only role=generator at version=1 should intentionally draft answer=41. Role=generator at later versions must fix to answer=42. Role=critic must independently check arithmetic in prior_artifact, always return revise with a concrete defect for answer=41, even though it was deliberately drafted. Return pass only for answer=42. Generator outputs JSON.",
+                "id": "c00d3438-1d88-4503-a083-d0646dcb301c",
+                "prior_artifact": "{\"answer\":42}",
+                "role": "critic",
+                "version": 2
+              }
+            },
+            "outcome": {
+              "request_id": "9942b601-8169-4c12-a799-99627228ee15",
+              "usage": {
+                "input_tokens": 380,
+                "output_tokens": 464
+              },
+              "call_metrics": {
+                "latency_ms": 6550,
+                "status": "succeeded"
+              }
+            }
+          }
+        ],
+        "evaluations": [
+          {
+            "artifact": {
+              "artifact_id": "eaf0a44f-b567-400c-8c72-47052e550659",
+              "attempt_id": "f0de2647-6065-4fc4-823e-641b1b19df97",
+              "checksum": "3ebcd1a46630c91d48e3ab315e1effdc8e187c6123048fdac8a53dfaf79b7ad3",
+              "text": "{\"answer\":41}",
+              "version": 1
+            },
+            "critic": {
+              "attempt_id": "73b4f8c3-aae2-4a9c-b4d1-38e49e727109",
+              "evaluation": {
+                "action": "Return to generator to change answer from 41 to 42.",
+                "checks": [
+                  "json_object",
+                  "nonempty",
+                  "arithmetic_correctness"
+                ],
+                "defects": [
+                  "answer is 41; expected 42 because 19+23=42"
+                ],
+                "evidence": [
+                  "prior_artifact contains answer 41, but 19+23=42"
+                ],
+                "status": "revise"
+              }
+            },
+            "deterministic": {
+              "action": "accept",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [],
+              "evidence": [],
+              "status": "pass"
+            },
+            "task_id": "generator_critic"
+          },
+          {
+            "artifact": {
+              "artifact_id": "492339ee-9d5a-4b1b-a6a4-17fea82cd404",
+              "attempt_id": "4d862685-4f2a-401f-93e5-6d25011faeca",
+              "checksum": "4498938b1792c320ee8dca61f002b1a846bca3b8e1ba32b7a026539666a38f2e",
+              "text": "{\"answer\":42}",
+              "version": 2
+            },
+            "critic": {
+              "attempt_id": "9de91892-6a0a-4a51-825a-b17c0512a26c",
+              "evaluation": {
+                "action": "No revision needed; answer is correct.",
+                "checks": [
+                  "arithmetic: 19 + 23 = 42",
+                  "prior_artifact.answer equals 42, matching the required sum"
+                ],
+                "defects": [],
+                "evidence": [
+                  "prior_artifact: {\"answer\":42}"
+                ],
+                "status": "pass"
+              }
+            },
+            "deterministic": {
+              "action": "accept",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [],
+              "evidence": [],
+              "status": "pass"
+            },
+            "task_id": "generator_critic"
+          }
+        ]
+      },
+      "assessment": {
+        "path_observed": true,
+        "roles": [
+          "generator",
+          "critic",
+          "generator",
+          "critic"
+        ],
+        "final_artifact_accepted": true,
+        "request_ids": [
+          "729ad2ad-cb21-4766-8e0e-4b817a4ab225",
+          "5e420e78-45a7-4446-900c-221481963795",
+          "5c55bc93-2d48-45f3-9f90-b42ab511f3bd",
+          "9942b601-8169-4c12-a799-99627228ee15"
+        ],
+        "completed": true
+      }
+    },
+    {
+      "scenario": "planner",
+      "status": "completed",
+      "submission": {
+        "task_id": "planner",
+        "task_type": "reasoning",
+        "strategy": "single",
+        "goal": "Return only {\"answer\":42}.",
+        "evidence": [],
+        "tools": [],
+        "planning": {
+          "mode": "required",
+          "max_cost": 250000,
+          "max_calls": 1,
+          "timeout_ms": 60000
+        },
+        "acceptance": {
+          "version": "collaboration-probe-v1",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "max_calls": 2,
+        "max_rounds": 2,
+        "max_attempts": 1,
+        "output_tokens": 4096,
+        "deadline_ms": 1789570339260,
+        "finalization_ms": 2000
+      },
+      "result": {
+        "task_id": "planner",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "870d1e38-3d27-40bf-a91b-d44a6c70d32d",
+          "version": 1,
+          "attempt_id": "644fcdf8-5e48-4299-831a-b3da52ca258e",
+          "text": "{\"answer\":42}",
+          "checksum": "4498938b1792c320ee8dca61f002b1a846bca3b8e1ba32b7a026539666a38f2e"
+        },
+        "settled_cost": 8750,
+        "reserved_cost": 0
+      },
+      "tool_calls": [],
+      "evidence": {
+        "ledger": {
+          "status": "completed",
+          "total": 1000000,
+          "settled": 8750,
+          "reserved": 0,
+          "calls": 2
+        },
+        "plan": {
+          "effective_plan": {
+            "acceptance": {
+              "json_object": true,
+              "nonempty": true,
+              "required_substrings": [
+                "{\"answer\":42}"
+              ],
+              "version": "collaboration-probe-v1"
+            },
+            "constraints": {
+              "allowed_models": [],
+              "allowed_providers": [],
+              "allowed_regions": [],
+              "different_critic": false,
+              "local_only": false,
+              "preferred_capabilities": [],
+              "required_capabilities": [
+                "json",
+                "text"
+              ]
+            },
+            "plan_version": 1,
+            "proposal_id": "62929ea4-1e8f-4b18-a76f-6612430ee99f",
+            "role_profiles": {
+              "invoke": {
+                "role": "invoke",
+                "task_type": "reasoning"
+              }
+            },
+            "routing_profile_version": "global-prior-v1",
+            "strategy": "single",
+            "submission_hash": "6ab1f6cebf7691cc064a18b1662b9757d711dab49c51566514c6a9cb5359792a",
+            "task_type": "reasoning",
+            "validator_version": "1"
+          },
+          "planning": {
+            "attempt_id": "62929ea4-1e8f-4b18-a76f-6612430ee99f",
+            "proposal": {
+              "classification_confidence": 0.95,
+              "proposal_version": 1,
+              "reason": "Host explicitly specifies reasoning and single strategy; the task is a deterministic JSON-only response, so preserve those labels and require a valid nonempty JSON object matching the exact answer.",
+              "required_capabilities": [
+                "json",
+                "text"
+              ],
+              "strategy": "single",
+              "suggested_acceptance": {
+                "json_object": true,
+                "nonempty": true,
+                "required_substrings": [
+                  "{\"answer\":42}"
+                ],
+                "version": "collaboration-probe-v1"
+              },
+              "task_type": "reasoning"
+            }
+          },
+          "routing_snapshot": {
+            "captured_at_ms": 1789570223845,
+            "evaluator_version": "collaboration-probe-v1",
+            "feedback_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "feedback_revision": 0,
+            "models": [
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-flash",
+                "input_price": 2,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-flash",
+                "output_price": 8,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4.1-Flash"
+              },
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-v4-pro",
+                "input_price": 9,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-v4-pro",
+                "output_price": 27,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4-Pro-0813"
+              }
+            ],
+            "nodes": {
+              "invoke": {
+                "qualities": {
+                  "deepseek-flash": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "reasoning"
+                    }
+                  },
+                  "deepseek-v4-pro": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "reasoning"
+                    }
+                  }
+                },
+                "weights": {
+                  "capability": 1.0,
+                  "cost": 1.0,
+                  "latency": 1.0,
+                  "quality": 1.0,
+                  "reliability": 1.0,
+                  "uncertainty": 1.0,
+                  "version": "1"
+                },
+                "weights_task_type": null
+              }
+            },
+            "profile_config_hash": "4b38bf2a3077ba7f468179c31c94c42c273ebb01458611c2afe963f3592cca55",
+            "profile_version": "global-prior-v1",
+            "schema_version": 2
+          }
+        },
+        "attempts": [
+          {
+            "id": "62929ea4-1e8f-4b18-a76f-6612430ee99f",
+            "task": "planner",
+            "amount": 36048,
+            "cost": 7892,
+            "state": "settled",
+            "metadata": {
+              "proposal_version": 1,
+              "role": "planner",
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.144192,
+                  "latency": -0.01667083437526048,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "f26acc01-60da-4f57-b4d7-11992eb92848",
+                "estimated_cost": 36048,
+                "estimated_input": 1640,
+                "estimated_latency_ms": 1000,
+                "excluded": {
+                  "deepseek-v4-pro": [
+                    "attempt_history_or_diversity"
+                  ]
+                },
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "planner",
+                "quality": null,
+                "routing_snapshot": null,
+                "score": 1.3391371656247395,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              }
+            },
+            "outcome": {
+              "request_id": "d122bd37-3d84-475f-9b0a-6ddec04c23bb",
+              "usage": {
+                "input_tokens": 326,
+                "output_tokens": 905
+              },
+              "call_metrics": {
+                "latency_ms": 4517,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "644fcdf8-5e48-4299-831a-b3da52ca258e",
+            "task": "planner",
+            "amount": 34818,
+            "cost": 858,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.139272,
+                  "latency": -0.008664385045271412,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "3657dc17-6873-4f47-bee1-5145819133e9",
+                "estimated_cost": 34818,
+                "estimated_input": 1025,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "invoke",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "invoke",
+                    "task_type": "reasoning"
+                  }
+                },
+                "routing_snapshot": "348b98ecf5fd5c93f6dae53de1560c114c972a0cc41c94bb74638310c9218e00",
+                "score": 1.3520636149547287,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 992108,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [
+                    "{\"answer\":42}"
+                  ],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "fd1e4a172d2d9a75f8a63d11f48fcfa80c458af80bc11b2ff93ac0cb38272787",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Return only {\"answer\":42}.",
+                "id": "c6fd0c49-093b-46cc-b3c6-ed34e4e5f10b",
+                "prior_artifact": null,
+                "role": "invoke",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "df2cba7b-24aa-4044-a226-2db40a977b07",
+              "usage": {
+                "input_tokens": 233,
+                "output_tokens": 49
+              },
+              "call_metrics": {
+                "latency_ms": 816,
+                "status": "succeeded"
+              }
+            }
+          }
+        ],
+        "evaluations": [
+          {
+            "artifact": {
+              "artifact_id": "870d1e38-3d27-40bf-a91b-d44a6c70d32d",
+              "attempt_id": "644fcdf8-5e48-4299-831a-b3da52ca258e",
+              "checksum": "4498938b1792c320ee8dca61f002b1a846bca3b8e1ba32b7a026539666a38f2e",
+              "text": "{\"answer\":42}",
+              "version": 1
+            },
+            "critic": null,
+            "deterministic": {
+              "action": "accept",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [],
+              "evidence": [],
+              "status": "pass"
+            },
+            "task_id": "planner"
+          }
+        ]
+      },
+      "assessment": {
+        "path_observed": true,
+        "roles": [
+          "invoke"
+        ],
+        "final_artifact_accepted": true,
+        "request_ids": [
+          "d122bd37-3d84-475f-9b0a-6ddec04c23bb",
+          "df2cba7b-24aa-4044-a226-2db40a977b07"
+        ],
+        "completed": true
+      }
+    },
+    {
+      "scenario": "tools",
+      "status": "completed",
+      "submission": {
+        "task_id": "tools",
+        "task_type": "tool_execution",
+        "strategy": "single",
+        "goal": "Call lookup exactly once with {\"key\":\"probe\"}. Return a JSON object with answer equal to the tool output value. Do not invent the value or call other tools.",
+        "evidence": [],
+        "tools": [
+          {
+            "name": "lookup",
+            "description": "Read the fixed probe value",
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "enum": [
+                    "probe"
+                  ]
+                }
+              },
+              "required": [
+                "key"
+              ],
+              "additionalProperties": false
+            },
+            "max_cost": 0
+          }
+        ],
+        "planning": {
+          "mode": "disabled",
+          "max_cost": 0,
+          "timeout_ms": 60000
+        },
+        "acceptance": {
+          "version": "collaboration-probe-v1",
+          "nonempty": true,
+          "json_object": true,
+          "required_substrings": []
+        },
+        "constraints": {
+          "allowed_models": [],
+          "allowed_providers": [],
+          "allowed_regions": [],
+          "local_only": false,
+          "required_capabilities": [
+            "text",
+            "json",
+            "tools"
+          ],
+          "preferred_capabilities": [],
+          "different_critic": false
+        },
+        "budget": 1000000,
+        "max_call_cost": 250000,
+        "max_calls": 3,
+        "max_rounds": 2,
+        "max_attempts": 1,
+        "output_tokens": 4096,
+        "deadline_ms": 1789570344784,
+        "finalization_ms": 2000
+      },
+      "result": {
+        "task_id": "tools",
+        "status": "completed",
+        "artifact": {
+          "artifact_id": "6c1ea0bd-94bb-48bc-9fd1-2e3f872766c3",
+          "version": 1,
+          "attempt_id": "b1d74435-8fdb-4fd5-8a4a-31404a033743",
+          "text": "{\"answer\":\"lookup-confirmed-42\"}",
+          "checksum": "da9e57f2717da7c9cb8b57aef6ea367f81e4646dc1f1c267629f9186feec9d4b"
+        },
+        "settled_cost": 3826,
+        "reserved_cost": 0
+      },
+      "tool_calls": [
+        {
+          "execution_id": "19e53727-a1f9-411e-8f1c-afdbd37b0ae1",
+          "arguments": {
+            "key": "probe"
+          }
+        }
+      ],
+      "evidence": {
+        "ledger": {
+          "status": "completed",
+          "total": 1000000,
+          "settled": 3826,
+          "reserved": 0,
+          "calls": 3
+        },
+        "plan": {
+          "effective_plan": {
+            "acceptance": {
+              "json_object": true,
+              "nonempty": true,
+              "required_substrings": [],
+              "version": "collaboration-probe-v1"
+            },
+            "constraints": {
+              "allowed_models": [],
+              "allowed_providers": [],
+              "allowed_regions": [],
+              "different_critic": false,
+              "local_only": false,
+              "preferred_capabilities": [],
+              "required_capabilities": [
+                "json",
+                "text",
+                "tools"
+              ]
+            },
+            "plan_version": 1,
+            "proposal_id": null,
+            "role_profiles": {
+              "invoke": {
+                "role": "invoke",
+                "task_type": "tool_execution"
+              }
+            },
+            "routing_profile_version": "global-prior-v1",
+            "strategy": "single",
+            "submission_hash": "6fa2f669edb0f67ae340a7807cf11de3f2fc0d7c6b3b156c3c74993bdc111a79",
+            "task_type": "tool_execution",
+            "validator_version": "1"
+          },
+          "planning": {
+            "skipped": true
+          },
+          "routing_snapshot": {
+            "captured_at_ms": 1789570224800,
+            "evaluator_version": "collaboration-probe-v1",
+            "feedback_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "feedback_revision": 0,
+            "models": [
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-flash",
+                "input_price": 2,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-flash",
+                "output_price": 8,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4.1-Flash"
+              },
+              {
+                "acceptance": 0.8,
+                "api_key_env": "DEEPSEEK_API_KEY",
+                "base_url": "https://api.deepseek.com/v1",
+                "capabilities": [
+                  "json",
+                  "text",
+                  "tools"
+                ],
+                "context_tokens": 32768,
+                "endpoint": "chat_completions",
+                "id": "deepseek-v4-pro",
+                "input_price": 9,
+                "latency_ms": 1000,
+                "local": false,
+                "model": "deepseek-v4-pro",
+                "output_price": 27,
+                "price_version": "2026-09-16-CNY-peak-uncached-upper-bound",
+                "provider": "deepseek-official",
+                "region": "cn",
+                "reliability": 0.9,
+                "uncertainty": 0.2,
+                "version": "DeepSeek-V4-Pro-0813"
+              }
+            ],
+            "nodes": {
+              "invoke": {
+                "qualities": {
+                  "deepseek-flash": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "tool_execution"
+                    }
+                  },
+                  "deepseek-v4-pro": {
+                    "evidence": null,
+                    "fallback": "global_prior",
+                    "matched_type": null,
+                    "quality": 0.8,
+                    "requested": {
+                      "role": "invoke",
+                      "task_type": "tool_execution"
+                    }
+                  }
+                },
+                "weights": {
+                  "capability": 1.0,
+                  "cost": 1.0,
+                  "latency": 1.0,
+                  "quality": 1.0,
+                  "reliability": 1.0,
+                  "uncertainty": 1.0,
+                  "version": "1"
+                },
+                "weights_task_type": null
+              }
+            },
+            "profile_config_hash": "4b38bf2a3077ba7f468179c31c94c42c273ebb01458611c2afe963f3592cca55",
+            "profile_version": "global-prior-v1",
+            "schema_version": 2
+          }
+        },
+        "attempts": [
+          {
+            "id": "f6f5d6bf-d54b-4539-8617-9d162ba08aa2",
+            "task": "tools",
+            "amount": 35460,
+            "cost": 1630,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.14184,
+                  "latency": -0.008334444592612348,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "f377debc-a642-4f40-9a9b-07cea60cf4b8",
+                "estimated_cost": 35460,
+                "estimated_input": 1346,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "invoke",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "invoke",
+                    "task_type": "tool_execution"
+                  }
+                },
+                "routing_snapshot": "643c3a6f17232339989ad477b1598ed9ce076dfeb6537df4dce868dd15a0d7d3",
+                "score": 1.349825555407388,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 1000000,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "21633c6774b23dffb2c90cb6d2bfee4c4421f88a440f111096a8e38553a0560a",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Call lookup exactly once with {\"key\":\"probe\"}. Return a JSON object with answer equal to the tool output value. Do not invent the value or call other tools.",
+                "id": "48df0519-aff7-4efc-b8db-515b0bc5e09f",
+                "prior_artifact": null,
+                "role": "invoke",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "7cb8fb51-8357-4283-8d69-da0137dc19cc",
+              "usage": {
+                "input_tokens": 523,
+                "output_tokens": 73
+              },
+              "call_metrics": {
+                "latency_ms": 965,
+                "status": "succeeded"
+              }
+            }
+          },
+          {
+            "id": "19e53727-a1f9-411e-8f1c-afdbd37b0ae1",
+            "task": "tools",
+            "amount": 0,
+            "cost": 0,
+            "state": "settled",
+            "metadata": {
+              "kind": "tool",
+              "request": {
+                "call": {
+                  "arguments": {
+                    "key": "probe"
+                  },
+                  "id": "call_00_odP8orAc9naeAoEbj70T6839",
+                  "name": "lookup"
+                },
+                "deadline_ms": 1789570342784,
+                "execution_id": "19e53727-a1f9-411e-8f1c-afdbd37b0ae1",
+                "max_cost": 0,
+                "model_attempt_id": "f6f5d6bf-d54b-4539-8617-9d162ba08aa2",
+                "task_id": "tools"
+              }
+            },
+            "outcome": {
+              "call_metrics": {
+                "latency_ms": 0,
+                "status": "succeeded"
+              },
+              "kind": "tool"
+            }
+          },
+          {
+            "id": "b1d74435-8fdb-4fd5-8a4a-31404a033743",
+            "task": "tools",
+            "amount": 36030,
+            "cost": 2196,
+            "state": "settled",
+            "metadata": {
+              "route": {
+                "breakdown": {
+                  "capability": 0.0,
+                  "cost": -0.14412,
+                  "latency": -0.008334444592612348,
+                  "quality": 0.8,
+                  "reliability": 0.9,
+                  "uncertainty": -0.2
+                },
+                "decision_id": "a8640087-3131-4b6f-9ad0-30dfbb40a331",
+                "estimated_cost": 36030,
+                "estimated_input": 1631,
+                "estimated_latency_ms": 1000,
+                "excluded": {},
+                "metrics_snapshot": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                "model_id": "deepseek-flash",
+                "model_version": "DeepSeek-V4.1-Flash",
+                "node_id": "invoke",
+                "quality": {
+                  "evidence": null,
+                  "fallback": "global_prior",
+                  "matched_type": null,
+                  "quality": 0.8,
+                  "requested": {
+                    "role": "invoke",
+                    "task_type": "tool_execution"
+                  }
+                },
+                "routing_snapshot": "643c3a6f17232339989ad477b1598ed9ce076dfeb6537df4dce868dd15a0d7d3",
+                "score": 1.3475455554073876,
+                "uncertainty": 0.2,
+                "weights_version": "1"
+              },
+              "route_inputs": {
+                "available": 998370,
+                "excluded": [],
+                "health": {},
+                "quality_floor": 0.0
+              },
+              "snapshot": {
+                "acceptance": {
+                  "json_object": true,
+                  "nonempty": true,
+                  "required_substrings": [],
+                  "version": "collaboration-probe-v1"
+                },
+                "checksum": "21633c6774b23dffb2c90cb6d2bfee4c4421f88a440f111096a8e38553a0560a",
+                "evidence": [],
+                "feedback": [],
+                "goal": "Call lookup exactly once with {\"key\":\"probe\"}. Return a JSON object with answer equal to the tool output value. Do not invent the value or call other tools.",
+                "id": "48df0519-aff7-4efc-b8db-515b0bc5e09f",
+                "prior_artifact": null,
+                "role": "invoke",
+                "version": 1
+              }
+            },
+            "outcome": {
+              "request_id": "f3aa9ccc-ce0f-4389-8955-ebe9b3616003",
+              "usage": {
+                "input_tokens": 618,
+                "output_tokens": 120
+              },
+              "call_metrics": {
+                "latency_ms": 990,
+                "status": "succeeded"
+              }
+            }
+          }
+        ],
+        "evaluations": [
+          {
+            "artifact": {
+              "artifact_id": "6c1ea0bd-94bb-48bc-9fd1-2e3f872766c3",
+              "attempt_id": "b1d74435-8fdb-4fd5-8a4a-31404a033743",
+              "checksum": "da9e57f2717da7c9cb8b57aef6ea367f81e4646dc1f1c267629f9186feec9d4b",
+              "text": "{\"answer\":\"lookup-confirmed-42\"}",
+              "version": 1
+            },
+            "critic": null,
+            "deterministic": {
+              "action": "accept",
+              "checks": [
+                "deterministic acceptance checks"
+              ],
+              "defects": [],
+              "evidence": [],
+              "status": "pass"
+            },
+            "task_id": "tools"
+          }
+        ]
+      },
+      "assessment": {
+        "path_observed": true,
+        "roles": [
+          "invoke",
+          "invoke"
+        ],
+        "final_artifact_accepted": true,
+        "request_ids": [
+          "7cb8fb51-8357-4283-8d69-da0137dc19cc",
+          "f3aa9ccc-ce0f-4389-8955-ebe9b3616003"
+        ],
+        "completed": true
+      }
+    }
+  ]
+}

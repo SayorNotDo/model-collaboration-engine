@@ -98,6 +98,7 @@ pub(crate) fn validate_plan(
         role_profiles,
         constraints,
         acceptance,
+        selection: submission.selection.clone(),
         submission_hash: digest(submission),
         proposal_id: proposal.map(|(id, _)| id.into()),
         validator_version: "1".into(),

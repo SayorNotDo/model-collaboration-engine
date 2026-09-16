@@ -1,6 +1,6 @@
 //! File-schema ownership and provider-to-model resolution; execution uses contracts::Config.
 use super::error;
-use crate::contracts::{Config, Endpoint, Model, Result, RoutingProfiles, Weights};
+use crate::contracts::{Config, Endpoint, Model, RankingConfig, Result, RoutingProfiles, Weights};
 use serde::Deserialize;
 use std::{collections::BTreeSet, path::Path};
 
@@ -71,6 +71,8 @@ struct Routing {
     planner_models: BTreeSet<String>,
     #[serde(default)]
     profiles: Option<RoutingProfiles>,
+    #[serde(default)]
+    rankings: Option<RankingConfig>,
     weights: Weights,
 }
 #[derive(Deserialize)]
@@ -179,6 +181,7 @@ impl Document {
             models,
             planner_models: self.routing.planner_models,
             routing_profiles: self.routing.profiles,
+            rankings: self.routing.rankings,
             weights: self.routing.weights,
             max_concurrency: runtime.max_concurrency,
             event_capacity: runtime.event_capacity,

@@ -1,0 +1,105 @@
+{
+  "scenarios": [
+    {
+      "scenario": "cascade",
+      "models": [
+        "deepseek-flash",
+        "deepseek-v4-pro"
+      ],
+      "status": "completed",
+      "settled": 7131,
+      "reserved": 0,
+      "calls": 2,
+      "path_observed": true,
+      "roles": [
+        "invoke",
+        "invoke"
+      ],
+      "final_artifact_accepted": true,
+      "request_ids": [
+        "a14144ca-a4ea-414e-8f5f-814e534966ac",
+        "32a8afd7-a84d-42f8-98eb-30619dee325b"
+      ],
+      "completed": true
+    },
+    {
+      "scenario": "generator_critic",
+      "models": [
+        "deepseek-flash",
+        "deepseek-v4-pro",
+        "deepseek-flash",
+        "deepseek-v4-pro"
+      ],
+      "status": "completed",
+      "settled": 40905,
+      "reserved": 0,
+      "calls": 4,
+      "path_observed": true,
+      "roles": [
+        "generator",
+        "critic",
+        "generator",
+        "critic"
+      ],
+      "final_artifact_accepted": true,
+      "request_ids": [
+        "729ad2ad-cb21-4766-8e0e-4b817a4ab225",
+        "5e420e78-45a7-4446-900c-221481963795",
+        "5c55bc93-2d48-45f3-9f90-b42ab511f3bd",
+        "9942b601-8169-4c12-a799-99627228ee15"
+      ],
+      "completed": true
+    },
+    {
+      "scenario": "planner",
+      "models": [
+        "deepseek-flash",
+        "deepseek-flash"
+      ],
+      "status": "completed",
+      "settled": 8750,
+      "reserved": 0,
+      "calls": 2,
+      "path_observed": true,
+      "roles": [
+        "invoke"
+      ],
+      "final_artifact_accepted": true,
+      "request_ids": [
+        "d122bd37-3d84-475f-9b0a-6ddec04c23bb",
+        "df2cba7b-24aa-4044-a226-2db40a977b07"
+      ],
+      "completed": true
+    },
+    {
+      "scenario": "tools",
+      "models": [
+        "deepseek-flash",
+        "deepseek-flash"
+      ],
+      "status": "completed",
+      "settled": 3826,
+      "reserved": 0,
+      "calls": 3,
+      "path_observed": true,
+      "roles": [
+        "invoke",
+        "invoke"
+      ],
+      "final_artifact_accepted": true,
+      "request_ids": [
+        "7cb8fb51-8357-4283-8d69-da0137dc19cc",
+        "f3aa9ccc-ce0f-4389-8955-ebe9b3616003"
+      ],
+      "completed": true
+    }
+  ],
+  "model_calls": 10,
+  "tool_calls": 1,
+  "settled_microcredits": 60612,
+  "reserved_microcredits": 0,
+  "microcredits_per_CNY": 1000000,
+  "pricing_basis": "peak uncached conservative configured estimate; not supplier debit",
+  "validation_passed": true,
+  "assessment_note": "Rechecked offline with final probe validation predicate; no additional model calls"
+}

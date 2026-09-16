@@ -46,7 +46,10 @@ pub fn plan(kind: TaskType) -> EffectivePlan {
         "plan_version":1,"task_type":kind,"strategy":"single",
         "role_profiles":{"invoke":{"task_type":kind,"role":"invoke"}},
         "constraints":model_collaboration_engine::contracts::Constraints::default(),"acceptance":{"version":"1","nonempty":true,
-        "json_object":false,"required_substrings":[]},"submission_hash":"test",
+        "json_object":false,"required_substrings":[]},
+        "selection":{"version":"host-task-fit-v1","min_quality":0.0,"target_quality":0.9,
+        "above_target_factor":0.1,"cost_reference":10000,"latency_reference_ms":5000,
+        "min_upgrade_gain":0.05},"submission_hash":"test",
         "proposal_id":null,"validator_version":"1","routing_profile_version":"global-prior-v1"
     }))
     .unwrap()

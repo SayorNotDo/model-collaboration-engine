@@ -6,8 +6,16 @@ use crate::{
     contracts::{id, now_ms, EngineError, Model, Result, Snapshot, TaskSpec},
     router::{self, Health, RouteRequest},
 };
+use serde::Serialize;
 use serde_json::json;
 use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Clone, Copy, Debug, Serialize)]
+pub(super) struct UpgradeRequirement {
+    pub previous_quality: f64,
+    pub required_quality: f64,
+}
+
 impl Engine {
     #[allow(clippy::too_many_arguments)]
     pub(super) async fn invoke(
@@ -16,6 +24,7 @@ impl Engine {
         snapshot: Snapshot,
         excluded: &BTreeSet<String>,
         quality_floor: f64,
+        upgrade: Option<UpgradeRequirement>,
         health: &BTreeMap<String, Health>,
         context: &RunContext,
     ) -> Result<(ModelOutput, String, Model, f64)> {
@@ -56,6 +65,7 @@ impl Engine {
                     &snapshot,
                     &attempted,
                     quality_floor,
+                    upgrade,
                     health,
                     input_tokens,
                 )
@@ -114,6 +124,7 @@ impl Engine {
         snapshot: &Snapshot,
         attempted: &BTreeSet<String>,
         quality_floor: f64,
+        upgrade: Option<UpgradeRequirement>,
         health: &BTreeMap<String, Health>,
         input_tokens: u64,
     ) -> Result<(String, Model, f64)> {
@@ -161,7 +172,7 @@ impl Engine {
                 task.max_calls,
                 json!({"route":decision,"snapshot":snapshot,"route_inputs":{
                     "available":ledger.available(),"excluded":attempted,
-                    "quality_floor":quality_floor,"health":health,
+                    "quality_floor":quality_floor,"upgrade":upgrade,"health":health,
                 }}),
             )
             .await?;

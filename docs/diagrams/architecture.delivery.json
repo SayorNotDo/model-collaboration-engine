@@ -6,12 +6,12 @@
   "input": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\architecture.json",
   "output": "C:\\Users\\vince\\Documents\\ChatGPT\\model-collaboration-engine\\docs\\diagrams\\architecture.html",
   "specification": {
-    "sha256": "c86ef5c64a9757627387341093cbeac2a86dfdd9559f2601eef0e11341f5944b",
-    "bytes": 4448
+    "sha256": "e7889355379375d3a9d41bcd1d3e6a0eb6fa1ba488fac27157e47575be6799e7",
+    "bytes": 4629
   },
   "artifact": {
-    "sha256": "6af6a5034556459662ec621c01fdeb90db83914b0042755fe9d2633985e3209e",
-    "bytes": 807964
+    "sha256": "021d980a078dcd8f8bb5f81cd73e4eea82776a616e6b23f3278b40b4a68113c5",
+    "bytes": 809997
   },
   "validation": {
     "checksPassed": 9,

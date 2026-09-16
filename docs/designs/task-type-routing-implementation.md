@@ -1,6 +1,6 @@
 # 类型路由实施记录（C1+C2，历史）
 
-本记录中的双入口兼容决策已被用户确认的 [统一执行路径](execution-unification.md) 取代。下文保留当时实现与验证证据，不代表当前接口。
+本记录中的双入口兼容决策已被用户确认的 [统一执行路径](execution-unification.md) 取代。下文保留当时实现与验证证据，不代表当前接口；后续 D 与实际验证范围见[当前状态](current-status.md)。
 
 本批以 `feat/planning-submissions` 的 A+B 实现为基础，工作分支为 `feat/task-type-routing`。
 实现 [规划与路由设计](planner-routing-design.md) 的 C；不包含 D 的持久化反馈、外部榜单导入或自动重新规划。

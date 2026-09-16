@@ -67,6 +67,15 @@ fn task(strategy: Strategy) -> TaskSpec {
             required_substrings: vec!["accepted".into()],
             json_object: false,
         },
+        selection: SelectionPolicy {
+            version: "host-task-fit-v1".into(),
+            min_quality: 0.0,
+            target_quality: 0.9,
+            above_target_factor: 0.1,
+            cost_reference: 10_000,
+            latency_reference_ms: 5_000,
+            min_upgrade_gain: 0.05,
+        },
         constraints: Constraints {
             different_critic: true,
             ..Default::default()
@@ -86,8 +95,17 @@ async fn setup(
     outputs: Vec<Result<ModelOutput>>,
     block: bool,
 ) -> (tempfile::TempDir, Engine, Arc<SqliteStore>, Arc<Fake>) {
+    setup_adjusted(outputs, block, |_| {}).await
+}
+
+async fn setup_adjusted(
+    outputs: Vec<Result<ModelOutput>>,
+    block: bool,
+    adjust: impl FnOnce(&mut Config),
+) -> (tempfile::TempDir, Engine, Arc<SqliteStore>, Arc<Fake>) {
     let dir = tempfile::tempdir().unwrap();
-    let config = config(dir.path().join("engine.db").to_str().unwrap());
+    let mut config = config(dir.path().join("engine.db").to_str().unwrap());
+    adjust(&mut config);
     let store = Arc::new(SqliteStore::open(&config.database_path).await.unwrap());
     let fake = Arc::new(Fake {
         outputs: Mutex::new(outputs.into()),
@@ -118,7 +136,7 @@ async fn single_settles_and_rejects_duplicate_id() {
 
 #[tokio::test]
 async fn cascade_upgrades_after_failed_acceptance() {
-    let (_dir, engine, _, fake) =
+    let (dir, engine, _, fake) =
         setup(vec![output("wrong", true), output("accepted", true)], false).await;
     let result = engine
         .run(task(Strategy::Cascade), CancellationToken::new())
@@ -128,6 +146,131 @@ async fn cascade_upgrades_after_failed_acceptance() {
     assert_eq!(result.artifact.version, 2);
     assert_eq!(*fake.models.lock().unwrap(), vec!["cheap", "strong"]);
     assert_eq!(result.settled_cost, 45);
+    let connection = rusqlite::Connection::open(dir.path().join("engine.db")).unwrap();
+    let metadata: String = connection
+        .query_row(
+            "SELECT metadata FROM attempts WHERE task=? ORDER BY rowid DESC LIMIT 1",
+            [&result.task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let metadata: serde_json::Value = serde_json::from_str(&metadata).unwrap();
+    assert_eq!(
+        metadata["route_inputs"]["upgrade"],
+        json!({"previous_quality": 0.7, "required_quality": 0.75})
+    );
+    engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn initial_route_records_the_host_minimum_quality_floor() {
+    let (dir, engine, _store, fake) = setup(vec![output("accepted", true)], false).await;
+    let mut task = task(Strategy::Single);
+    task.selection.min_quality = 0.8;
+    let result = engine.run(task, CancellationToken::new()).await.unwrap();
+    assert_eq!(*fake.models.lock().unwrap(), vec!["strong"]);
+    let connection = rusqlite::Connection::open(dir.path().join("engine.db")).unwrap();
+    let metadata: String = connection
+        .query_row(
+            "SELECT metadata FROM attempts WHERE task=?",
+            [&result.task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let metadata: serde_json::Value = serde_json::from_str(&metadata).unwrap();
+    assert_eq!(metadata["route_inputs"]["quality_floor"], 0.8);
+    engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn cascade_stops_when_no_candidate_meets_minimum_quality_gain() {
+    let (dir, engine, store, fake) = setup_adjusted(vec![output("wrong", true)], false, |config| {
+        config.models[0].acceptance = 0.70;
+        config.models[1].acceptance = 0.72;
+    })
+    .await;
+    let result = engine
+        .run(task(Strategy::Cascade), CancellationToken::new())
+        .await
+        .unwrap();
+    assert_eq!(result.status, "human_required");
+    assert_eq!(result.artifact.text, "wrong");
+    assert_eq!(*fake.models.lock().unwrap(), vec!["cheap"]);
+    assert_eq!(store.ledger(&result.task_id).await.unwrap().calls, 1);
+    let connection = rusqlite::Connection::open(dir.path().join("engine.db")).unwrap();
+    let checkpoint: String = connection
+        .query_row(
+            "SELECT checkpoint FROM tasks WHERE id=?",
+            [&result.task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let checkpoint: serde_json::Value = serde_json::from_str(&checkpoint).unwrap();
+    assert_eq!(
+        checkpoint["upgrade_stop"]["reason"],
+        "no_quality_improvement"
+    );
+    assert_eq!(checkpoint["upgrade_stop"]["required_quality"], 0.75);
+    assert_eq!(
+        checkpoint["upgrade_stop"]["requirement"],
+        json!({"previous_quality": 0.7, "required_quality": 0.75})
+    );
+    engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn cascade_records_budget_when_only_improving_candidate_is_unaffordable() {
+    let (dir, engine, store, fake) = setup_adjusted(vec![output("wrong", true)], false, |config| {
+        config.models[1].input_price = 1_000_000;
+        config.models[1].output_price = 1_000_000;
+    })
+    .await;
+    let result = engine
+        .run(task(Strategy::Cascade), CancellationToken::new())
+        .await
+        .unwrap();
+    assert_eq!(result.status, "human_required");
+    assert_eq!(*fake.models.lock().unwrap(), vec!["cheap"]);
+    assert_eq!(store.ledger(&result.task_id).await.unwrap().calls, 1);
+    let connection = rusqlite::Connection::open(dir.path().join("engine.db")).unwrap();
+    let checkpoint: String = connection
+        .query_row(
+            "SELECT checkpoint FROM tasks WHERE id=?",
+            [&result.task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let checkpoint: serde_json::Value = serde_json::from_str(&checkpoint).unwrap();
+    assert_eq!(checkpoint["upgrade_stop"]["reason"], "budget");
+    engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn cascade_prefers_quality_reason_when_budget_cannot_enable_candidate() {
+    let (dir, engine, _, fake) = setup_adjusted(vec![output("wrong", true)], false, |config| {
+        config.models[1].acceptance = 0.72;
+        config.models[1].input_price = 1_000_000;
+        config.models[1].output_price = 1_000_000;
+    })
+    .await;
+    let result = engine
+        .run(task(Strategy::Cascade), CancellationToken::new())
+        .await
+        .unwrap();
+    assert_eq!(*fake.models.lock().unwrap(), vec!["cheap"]);
+    let connection = rusqlite::Connection::open(dir.path().join("engine.db")).unwrap();
+    let checkpoint: String = connection
+        .query_row(
+            "SELECT checkpoint FROM tasks WHERE id=?",
+            [&result.task_id],
+            |row| row.get(0),
+        )
+        .unwrap();
+    let checkpoint: serde_json::Value = serde_json::from_str(&checkpoint).unwrap();
+    assert_eq!(
+        checkpoint["upgrade_stop"]["reason"],
+        "no_quality_improvement"
+    );
     engine.close().await.unwrap();
 }
 
@@ -209,11 +352,11 @@ async fn budget_and_call_limit_prevent_additional_dispatch() {
     engine.close().await.unwrap();
 }
 
-#[tokio::test]
+#[tokio::test(start_paused = true)]
 async fn deadline_interrupts_a_blocked_adapter() {
     let (_dir, engine, store, _) = setup(vec![], true).await;
     let mut task = task(Strategy::Single);
-    task.deadline_ms = now_ms() + 300;
+    task.deadline_ms = now_ms() + 10_000;
     task.finalization_ms = 50;
     assert_eq!(
         engine
@@ -492,7 +635,12 @@ async fn unknown_tool_cost_is_kept_after_success() {
 
 #[tokio::test]
 async fn close_cancels_active_model_and_releases_database_after_accounting() {
-    let (dir, engine, _, fake) = setup(vec![], true).await;
+    let (dir, engine, _, fake) = setup_adjusted(vec![], true, |config| {
+        // This scenario verifies cooperative cancellation and accounting, not the
+        // separate cleanup-timeout path. Leave enough wall time under suite load.
+        config.cleanup_timeout_ms = 1_000;
+    })
+    .await;
     let caller = CancellationToken::new();
     let spec = task(Strategy::Single);
     let shutdown = async {

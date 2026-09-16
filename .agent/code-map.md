@@ -9,7 +9,7 @@
 | 任务涉及的行为 | 优先入口 | 关联检查与验收 |
 | --- | --- | --- |
 | 配置、任务、错误或结果字段 | `src/contracts.rs` | 对照 JSON 序列化、Python 字典接口及 `examples/`；验证合法输入、边界值和不合法输入，更新用户示例。 |
-| 模型选择、硬约束或评分 | `src/router.rs` | 对照 `src/engine.rs` 的调用上下文与预算；检查排除原因、无可用模型、能力与上下文约束，以及级联升级。 |
+| 模型选择、硬约束或评分 | `src/router.rs`、`src/router/selection.rs` | 对照 `src/engine.rs` 的调用上下文与预算；检查选择偏好、排除原因、无可用模型、能力与上下文约束，以及严格质量改善的级联升级。 |
 | 单模型、级联或生成—评审策略 | `src/strategy.rs`、`src/engine.rs` | 验证验收通过、失败、轮数与调用次数耗尽；区分策略节点、一次模型调用和工具续写，保持评审工具边界。 |
 | 并发、排队、取消、超时或关闭 | `src/engine.rs` | 追踪 `src/bindings.rs`、`python/model_collaboration_engine/__init__.py` 与 `_run.py`；检查排队、模型调用或工具回调的取消，流提前退出、重复取消，以及关闭宽限期、清理超时保留数据库所有权和关闭重试。 |
 | 工具声明、授权边界、调用或结果回传 | `src/tools.rs`、`src/engine.rs` | 契约在 `src/contracts.rs`，桥接在 `src/bindings.rs` 和 `_run.py`；检查缺少宿主、未声明工具、重复调用 ID、回调异常、未知费用、额度不足及结果送回模型。 |
@@ -24,6 +24,8 @@
 
 - `src/contracts/planning.rs`：SubmissionSpec、规划模式、建议与有效计划；经 `contracts` 稳定导出。
 - `src/contracts/profiles.rs`：可选静态画像、父类型/角色映射和权重契约及纯配置校验；通过 `contracts` 导出。
+- `src/contracts/rankings.rs`、`src/router/rankings.rs`：外部榜单与显式映射校验、有效期及精确匹配；榜单参考独立于质量 Q，固定到路由快照后参与约束通过候选的评分。
+- `python/model_collaboration_engine/_rankings.py`、`examples/import_rankings.py`：任务外的 JSON/CSV 导入与规范对象输出；源模型/版本不做模糊匹配，不访问榜单服务。
 - `src/router/profiles.rs`：画像回退、角色映射及固定 RoutingSnapshot；不持有网络或数据库。`router::route_profiled` 用快照与当次请求复算，`route` 仅用于类型确定前的规划候选选择，执行统一使用 `route_profiled`。
 - `src/planning.rs`、`src/planning/validation.rs`：内部提示构造及纯合并/越权校验，不持有网络和数据库。
 - `src/engine/planning.rs`、`src/engine/planning/attempt.rs`：受准入保护的规划、回退与阶段资源边界；复用 dispatch 的结算屏障。
@@ -57,6 +59,8 @@ Store 子模块保持内部可见性，对外仍通过 Store 调用；恢复查�
 
 
 - `tests/routing_profiles.rs`、`tests/routing/support.rs`：类型排序、画像版本隔离、回退、权重、级联同口径、存储复算及取消；复用 planning 的注入适配器夹具。
+- `tests/task_fit_routing.rs`、`tests/python/test_task_fit_routing.py`：选择契约、预算无关价值评分、快照算法兼容及双协议实际选模。
+- `tests/python/test_rankings_import.py`、`tests/python/test_rankings_routing.py`：榜单导入边界、跨层配置及本地双协议路由、硬约束与类型隔离；Rust 榜单测试同时检查质量门槛和固定快照复算。
 - `tests/python/test_routing_profiles.py`：两个 HTTP/SSE 端点的画像提交/流、缺省 general 快照与配置拒绝。
 
 - `tests/database_schema.rs`：新库初始化及重开、旧版/未知版/外部数据库拒绝且原文件不变；使用旧 schema 1 夹具验证拒绝，非迁移承诺。

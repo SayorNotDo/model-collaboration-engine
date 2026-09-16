@@ -1,6 +1,8 @@
 //! Consistent, read-only task and attempt evidence.
 use super::{read_ledger, AttemptRecord, RecoveryRecord};
-use crate::contracts::{EffectivePlan, EngineError, Result, Strategy, SubmissionSpec};
+use crate::contracts::{
+    EffectivePlan, EngineError, Result, SelectionPolicy, Strategy, SubmissionSpec, TaskSpec,
+};
 use serde_json::Value;
 
 pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<RecoveryRecord>> {
@@ -46,16 +48,33 @@ pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<
                     None
                 };
             let task = if let Some(submission) = &submission {
+                let mut recovered_submission = submission.clone();
+                if recovered_submission.selection.is_none() {
+                    recovered_submission.selection = Some(legacy_recovery_selection());
+                }
                 if !plan["effective_plan"].is_null() {
-                    let effective: EffectivePlan =
+                    let mut effective: EffectivePlan =
                         serde_json::from_value(plan["effective_plan"].clone())
                             .map_err(|_| EngineError::new("storage", "invalid saved plan"))?;
-                    effective.task(submission)
+                    if effective.selection.is_none() {
+                        effective.selection = recovered_submission.selection.clone();
+                    }
+                    effective.task(&recovered_submission)
                 } else {
-                    submission.task(submission.strategy.clone().unwrap_or(Strategy::Single))
+                    recovered_submission.task(
+                        recovered_submission
+                            .strategy
+                            .clone()
+                            .unwrap_or(Strategy::Single),
+                    )
                 }
             } else {
-                serde_json::from_value(payload)
+                let mut payload = payload;
+                if payload.get("selection").is_none() {
+                    payload["selection"] = serde_json::to_value(legacy_recovery_selection())
+                        .expect("selection policy is serializable");
+                }
+                serde_json::from_value::<TaskSpec>(payload)
                     .map_err(|_| EngineError::new("storage", "invalid saved task"))?
             };
             records.push(RecoveryRecord {
@@ -74,6 +93,18 @@ pub(super) fn read_records(connection: &mut rusqlite::Connection) -> Result<Vec<
     };
     transaction.commit()?;
     Ok(records)
+}
+
+fn legacy_recovery_selection() -> SelectionPolicy {
+    SelectionPolicy {
+        version: "legacy-recovery-evidence-only-v1".into(),
+        min_quality: 0.0,
+        target_quality: 1.0,
+        above_target_factor: 0.0,
+        cost_reference: 1,
+        latency_reference_ms: 1,
+        min_upgrade_gain: 1.0,
+    }
 }
 
 fn read_attempts(connection: &rusqlite::Connection, task_id: &str) -> Result<Vec<AttemptRecord>> {

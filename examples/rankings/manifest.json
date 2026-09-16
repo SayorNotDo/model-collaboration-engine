@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "version": "synthetic-ranking-v1",
+  "source": "synthetic fixture",
+  "source_version": "synthetic-v1",
+  "category": "synthetic reasoning",
+  "published_at_ms": 1789516800000,
+  "expires_at_ms": 1792108800000,
+  "population": 3,
+  "weight": 0.2,
+  "task_type": "reasoning",
+  "roles": ["invoke"],
+  "mappings": [
+    {
+      "source_model": "synthetic-alpha",
+      "source_model_version": "synthetic-v1",
+      "model_id": "local",
+      "model_version": "synthetic-v1"
+    }
+  ]
+}
