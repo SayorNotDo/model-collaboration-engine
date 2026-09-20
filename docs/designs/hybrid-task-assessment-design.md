@@ -1,6 +1,6 @@
 # 混合任务评估与运行时升级设计
 
-状态：目标设计，作为下一项优先实现；尚未修改运行时代码。
+状态：第一阶段已实现（规则评估、schema 3 事实、执行档位、DecisionModel/DecisionPolicy 契约及 Rust Engine 注入）；Python bridge、真实 adapter、shadow 评测和运行时质量升级仍按本文后续阶段推进。
 
 ## 目标
 

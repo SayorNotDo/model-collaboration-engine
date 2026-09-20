@@ -49,11 +49,15 @@ providers
 
 价格按每 token 的整数 microcredits，所有预算必须使用相同单位。容量、质量先验和价格不自动从供应商读取。模型身份、版本与画像关联保持原有语义；修改渠道或模型行为后由宿主管理候选版本，不能假设不同候选就是不同底层模型。
 
+模型可选声明 `execution_class`：`simple`、`medium` 或 `hard`，缺省为 `simple`。它是宿主配置的候选资格档位，不代表参数量、供应商等级或质量概率。任务的最低档位由宿主提交、规则和已校准决策策略合并得到；路由会在评分前排除低于该档位的候选。
+
 任务 constraints.allowed_providers 匹配 provider.id（实际服务站），allowed_models 匹配 model.id；接入远端时 local_only 应与站点 local 声明相符。一个站点可以同时服务多个模型、不同协议；地址和凭证只配置一次。
 
 ## 路由、运行与存储
 
 routing.weights 使用原评分权重，planner_models 使用模型候选 ID（可省略为空池），profiles 使用原质量画像对象（可省略或 null）。可选 `routing.rankings` 保存外部榜单参考，与业务质量画像分开，见[榜单导入与配置](../docs/rankings.md)。不支持隐式画像或榜单文件路径字段；需要独立文件时由宿主显式读取：
+
+可选 `routing.assessment_rules` 配置受限事实规则；可选 `routing.decision` 配置版本化问题集、概率到执行档位的 policy 和决策调用预留费用。DecisionModel 当前只能通过 Rust 的 `Engine::with_components_and_decision` 注入；Python `Engine.open()` 不提供该注入入口，配置 `routing.decision` 时会拒绝打开。
 
 ```python
 import json

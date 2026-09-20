@@ -5,7 +5,7 @@
 ## 按需规划
 
 `run/stream` 统一接收 [SubmissionSpec](../src/contracts/planning.rs)，包含目标、证据、验收、约束、工具及资源字段。
-`schema_version` 当前为 2（省略时按 2 解析），`task_type/strategy` 可选，`planning` 缺省为 disabled（不请求规划，要求显式策略）。每个新任务必须提供 `selection`。
+`schema_version` 支持 2 和 3（省略时按 2 解析）。schema 3 额外要求 `task_facts`；`minimum_execution_class` 缺省为 `simple`。`task_type/strategy` 可选，`planning` 缺省为 disabled（不请求规划，要求显式策略）。每个新任务必须提供 `selection`。
 未指定类型且不规划时使用 general。显式与按需规划任务都保存有效计划、固定画像快照，再进入同一执行路径。
 原 `submit/stream_submission` 方法已删除，调用方直接改用 `run/stream`。
 
@@ -70,6 +70,14 @@ SQLite 表结构为 schema 2；新库直接创建当前结构，版本不匹配�
 应以 `submission`、`plan.effective_plan` 和检查点为准。恢复筛选条件不变，已完成且费用核实的任务不一定出现在查询中。
 该接口不会恢复执行或重放调用。自定义 Rust `Store` 必须实现提交、计划及评价/反馈/指标事务接口，不再提供兼容占位实现。
 旧记录的读取仅用于保留已有费用和恢复证据，不对应另一套执行算法；本次不删除现存数据库。
+
+## 混合任务评估
+
+schema 3 的 `task_facts` 是宿主提供的有界结构化事实；goal 和 evidence 中的文字不会自动提升为硬事实。`minimum_execution_class`、命中规则和决策 policy 的建议取最大值，不能降低宿主下限，也不能扩大工具、地域、供应商、预算或调用权限。
+
+配置 `routing.assessment_rules` 后，规划阶段会把规则结果和最终档位保存到 `effective_plan.assessment`，并将最低档位固定到 `routing_snapshot`。决策配置还需要 Rust 侧通过 `Engine::with_components_and_decision` 注入 `DecisionModel`；当前 Python 公共接口不支持该注入，配置决策模型会在 Engine 打开时拒绝。
+
+决策协议的问题集和概率分布必须版本化且封闭；adapter 返回 `actual_cost` 时按实际费用结算，缺失时保留为未知费用，不能将预留上限当作实际支出。取消、超时、非法响应和结算失败沿用任务共享的清理与终态语义。
 
 ## 类型/角色画像
 
