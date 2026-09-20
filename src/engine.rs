@@ -10,6 +10,7 @@ use crate::{
     contracts::{
         digest, id, now_ms, Config, EngineError, Result, SubmissionSpec, TaskResult, TaskSpec,
     },
+    decision::DecisionModel,
     events::{Event, EventSink},
     store::{RecoveryRecord, SqliteStore, Store},
     tools::ToolExecutor,
@@ -30,6 +31,7 @@ pub struct Engine {
     config: Config,
     store: Arc<dyn Store>,
     adapter: Arc<dyn ModelAdapter>,
+    decision_model: Option<Arc<dyn DecisionModel>>,
     slots: Semaphore,
     lifecycle: Mutex<Lifecycle>,
     drained: Notify,
@@ -80,12 +82,28 @@ impl Engine {
         store: Arc<dyn Store>,
         adapter: Arc<dyn ModelAdapter>,
     ) -> Result<Self> {
+        Self::with_components_and_decision(config, store, adapter, None)
+    }
+
+    pub fn with_components_and_decision(
+        config: Config,
+        store: Arc<dyn Store>,
+        adapter: Arc<dyn ModelAdapter>,
+        decision_model: Option<Arc<dyn DecisionModel>>,
+    ) -> Result<Self> {
         config.validate(false)?;
+        if config.decision.is_some() && decision_model.is_none() {
+            return Err(EngineError::new(
+                "decision",
+                "decision configuration requires an injected decision model",
+            ));
+        }
         Ok(Self {
             slots: Semaphore::new(config.max_concurrency),
             config,
             store,
             adapter,
+            decision_model,
             lifecycle: Mutex::new(Lifecycle::default()),
             drained: Notify::new(),
             close_gate: tokio::sync::Mutex::new(()),

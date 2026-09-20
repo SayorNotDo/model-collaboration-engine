@@ -1,5 +1,6 @@
 //! Deterministic task facts and execution-class assessment.
 use crate::contracts::{EngineError, Result};
+use crate::decision::{DecisionAssessment, DecisionRecommendation};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -144,6 +145,12 @@ pub struct TaskAssessment {
     pub matched_rule_ids: Vec<String>,
     pub not_observed_facts: Vec<String>,
     pub reasons: Vec<String>,
+    #[serde(default)]
+    pub decision_policy_version: Option<String>,
+    #[serde(default)]
+    pub needs_clarification: bool,
+    #[serde(default)]
+    pub decision: Option<DecisionAssessment>,
 }
 
 pub fn evaluate_rules(facts: &TaskFacts, rules: &RuleSet) -> Result<RuleAssessment> {
@@ -180,6 +187,25 @@ pub fn merge_assessment(
     rules: &RuleAssessment,
     additional_minimum: Option<ExecutionClass>,
 ) -> TaskAssessment {
+    merge_assessment_with_evidence(host_minimum, rules, additional_minimum, None, None)
+}
+
+pub fn merge_assessment_with_decision(
+    host_minimum: ExecutionClass,
+    rules: &RuleAssessment,
+    additional_minimum: Option<ExecutionClass>,
+    decision: Option<&DecisionRecommendation>,
+) -> TaskAssessment {
+    merge_assessment_with_evidence(host_minimum, rules, additional_minimum, decision, None)
+}
+
+pub fn merge_assessment_with_evidence(
+    host_minimum: ExecutionClass,
+    rules: &RuleAssessment,
+    additional_minimum: Option<ExecutionClass>,
+    decision: Option<&DecisionRecommendation>,
+    decision_evidence: Option<&DecisionAssessment>,
+) -> TaskAssessment {
     let mut execution_class = host_minimum;
     let mut matched_rule_ids = Vec::new();
     let mut not_observed_facts = BTreeSet::new();
@@ -201,6 +227,15 @@ pub fn merge_assessment(
         execution_class = execution_class.max(minimum);
         reasons.push(format!("additional:{minimum:?}"));
     }
+    if let Some(recommendation) = decision {
+        execution_class = execution_class.max(recommendation.execution_class);
+        reasons.extend(
+            recommendation
+                .reasons
+                .iter()
+                .map(|reason| format!("decision:{reason}")),
+        );
+    }
     TaskAssessment {
         execution_class,
         facts_version: rules.facts_version.clone(),
@@ -208,6 +243,11 @@ pub fn merge_assessment(
         matched_rule_ids,
         not_observed_facts: not_observed_facts.into_iter().collect(),
         reasons,
+        decision_policy_version: decision
+            .map(|recommendation| recommendation.policy_version.clone()),
+        needs_clarification: decision
+            .is_some_and(|recommendation| recommendation.needs_clarification),
+        decision: decision_evidence.cloned(),
     }
 }
 
@@ -351,5 +391,50 @@ mod tests {
             },
         );
         assert_eq!(result.unwrap_err().kind, "configuration");
+    }
+
+    #[test]
+    fn decision_recommendation_cannot_lower_hard_rule_floor() {
+        let rules = evaluate_rules(
+            &facts(&[("file_count", TaskFactValue::Integer(8))]),
+            &RuleSet {
+                version: "coding-demand-v1".into(),
+                rules: vec![rule(
+                    "many-files",
+                    "file_count",
+                    RuleOperator::Gt,
+                    TaskFactValue::Integer(5),
+                    ExecutionClass::Hard,
+                )],
+            },
+        )
+        .unwrap();
+        let recommendation = DecisionRecommendation {
+            policy_version: "demand-policy-v1".into(),
+            execution_class: ExecutionClass::Simple,
+            needs_clarification: true,
+            reasons: vec!["low-confidence".into()],
+        };
+        let evidence = DecisionAssessment {
+            question_set_version: "demand-v1".into(),
+            adapter_id: "fake-v1".into(),
+            actual_model: "fake-model-v1".into(),
+            signals: vec![],
+            actual_cost: None,
+        };
+        let merged = merge_assessment_with_evidence(
+            ExecutionClass::Simple,
+            &rules,
+            None,
+            Some(&recommendation),
+            Some(&evidence),
+        );
+        assert_eq!(merged.execution_class, ExecutionClass::Hard);
+        assert_eq!(
+            merged.decision_policy_version.as_deref(),
+            Some("demand-policy-v1")
+        );
+        assert!(merged.needs_clarification);
+        assert_eq!(merged.decision.as_ref().unwrap().adapter_id, "fake-v1");
     }
 }

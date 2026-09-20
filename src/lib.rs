@@ -5,6 +5,7 @@ pub mod assessment;
 mod bindings;
 pub mod configuration;
 pub mod contracts;
+pub mod decision;
 pub mod engine;
 pub mod events;
 mod planning;

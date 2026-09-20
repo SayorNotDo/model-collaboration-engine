@@ -2,12 +2,19 @@
 mod attempt;
 use super::{Engine, RunContext};
 use crate::{
-    assessment::{evaluate_rules, merge_assessment, TaskAssessment, TaskFacts},
-    contracts::{now_ms, EffectivePlan, EngineError, Result, SubmissionSpec, TaskSpec},
+    assessment::{evaluate_rules, merge_assessment_with_evidence, TaskAssessment, TaskFacts},
+    contracts::{id, now_ms, EffectivePlan, EngineError, Result, SubmissionSpec, TaskSpec},
+    decision::{DecisionAssessment, DecisionRecommendation, DecisionRequest, DecisionState},
     planning::validate_plan,
     router::RoutingSnapshot,
 };
 use serde_json::{json, Value};
+use std::time::Duration;
+
+struct DecisionEvaluation {
+    assessment: DecisionAssessment,
+    recommendation: DecisionRecommendation,
+}
 
 impl Engine {
     pub(super) async fn prepare_submission(
@@ -29,7 +36,13 @@ impl Engine {
         effective_task
             .validate(&self.config)
             .map_err(|error| EngineError::new("plan_validation", error.message))?;
-        plan.assessment = Some(build_assessment(submission, &self.config, &plan)?);
+        let decision = self.decision_assessment(submission, task, context).await?;
+        plan.assessment = Some(build_assessment(
+            submission,
+            &self.config,
+            &plan,
+            decision.as_ref(),
+        )?);
         let metrics = self.store.metrics().await?;
         let routing =
             RoutingSnapshot::capture_with_metrics(&self.config, &mut plan, now_ms(), &metrics);
@@ -48,6 +61,97 @@ impl Engine {
             .checkpoint(&task.task_id, json!({"version":1,"phase":"executing"}))
             .await?;
         Ok((effective_task, routing))
+    }
+
+    async fn decision_assessment(
+        &self,
+        submission: &SubmissionSpec,
+        task: &TaskSpec,
+        context: &RunContext,
+    ) -> Result<Option<DecisionEvaluation>> {
+        let Some(config) = self.config.decision.as_ref() else {
+            return Ok(None);
+        };
+        let model = self.decision_model.as_ref().ok_or_else(|| {
+            EngineError::new(
+                "decision",
+                "decision configuration requires a decision model",
+            )
+        })?;
+        self.planning_resources(task, context).await?;
+        let facts = submission.task_facts.clone().unwrap_or(TaskFacts {
+            version: "host-facts-absent-v1".into(),
+            values: Default::default(),
+        });
+        let request = DecisionRequest {
+            question_set_version: config.question_set_version.clone(),
+            state: DecisionState {
+                version: facts.version,
+                values: facts.values,
+            },
+            questions: config.questions.clone(),
+        };
+        request.validate()?;
+        let attempt = id();
+        self.store
+            .reserve(
+                &task.task_id,
+                &attempt,
+                config.max_cost,
+                task.max_calls,
+                json!({"kind":"decision","question_set_version":request.question_set_version}),
+            )
+            .await?;
+        let remaining = task
+            .deadline_ms
+            .saturating_sub(task.finalization_ms)
+            .saturating_sub(now_ms());
+        let result = tokio::select! {
+            biased;
+            _ = context.cancel.cancelled() => Err(EngineError::new("cancelled", "decision assessment cancelled")),
+            result = tokio::time::timeout(Duration::from_millis(remaining), model.assess(request.clone())) =>
+                result.unwrap_or_else(|_| Err(EngineError::new("deadline", "decision assessment timed out"))),
+        };
+        match result {
+            Ok(assessment) => match assessment.validate_for(&request) {
+                Ok(()) => match config.policy.apply(&request, &assessment) {
+                    Ok(recommendation) => {
+                        self.store
+                            .settle(
+                                &task.task_id,
+                                &attempt,
+                                assessment.actual_cost,
+                                json!({"kind":"decision","assessment":assessment}),
+                            )
+                            .await?;
+                        Ok(Some(DecisionEvaluation {
+                            assessment,
+                            recommendation,
+                        }))
+                    }
+                    Err(error) => self.fail_decision(&task.task_id, &attempt, error).await,
+                },
+                Err(error) => self.fail_decision(&task.task_id, &attempt, error).await,
+            },
+            Err(error) => self.fail_decision(&task.task_id, &attempt, error).await,
+        }
+    }
+
+    async fn fail_decision(
+        &self,
+        task: &str,
+        attempt: &str,
+        error: EngineError,
+    ) -> Result<Option<DecisionEvaluation>> {
+        self.store
+            .settle(
+                task,
+                attempt,
+                None,
+                json!({"kind":"decision","error":error}),
+            )
+            .await?;
+        Err(error)
     }
 
     async fn planning_resources(&self, task: &TaskSpec, context: &RunContext) -> Result<()> {
@@ -167,6 +271,7 @@ fn build_assessment(
     submission: &SubmissionSpec,
     config: &crate::contracts::Config,
     _plan: &crate::contracts::EffectivePlan,
+    decision: Option<&DecisionEvaluation>,
 ) -> Result<TaskAssessment> {
     let facts = submission.task_facts.clone().unwrap_or(TaskFacts {
         version: "host-facts-absent-v1".into(),
@@ -180,9 +285,11 @@ fn build_assessment(
             rules: vec![],
         });
     let rules = evaluate_rules(&facts, &rules)?;
-    Ok(merge_assessment(
+    Ok(merge_assessment_with_evidence(
         submission.minimum_execution_class,
         &rules,
         None,
+        decision.map(|value| &value.recommendation),
+        decision.map(|value| &value.assessment),
     ))
 }

@@ -1,6 +1,7 @@
 //! Effective execution configuration; shared validation for file and component callers.
 use super::{profiles, Endpoint, EngineError, RankingConfig, Result, RoutingProfiles};
 use crate::assessment::{ExecutionClass, RuleSet};
+use crate::decision::DecisionConfig;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -57,6 +58,8 @@ pub struct Config {
     pub rankings: Option<RankingConfig>,
     #[serde(default)]
     pub assessment_rules: Option<RuleSet>,
+    #[serde(default)]
+    pub decision: Option<DecisionConfig>,
     pub weights: Weights,
     pub max_concurrency: usize,
     pub event_capacity: usize,
@@ -108,6 +111,9 @@ impl Config {
         }
         if let Some(rankings) = &self.rankings {
             rankings.validate(self)?;
+        }
+        if let Some(decision) = &self.decision {
+            decision.validate()?;
         }
         Ok(())
     }

@@ -80,6 +80,8 @@ struct Routing {
     rankings: Option<RankingConfig>,
     #[serde(default)]
     assessment_rules: Option<crate::assessment::RuleSet>,
+    #[serde(default)]
+    decision: Option<crate::decision::DecisionConfig>,
     weights: Weights,
 }
 #[derive(Deserialize)]
@@ -190,6 +192,7 @@ impl Document {
             routing_profiles: self.routing.profiles,
             rankings: self.routing.rankings,
             assessment_rules: self.routing.assessment_rules,
+            decision: self.routing.decision,
             weights: self.routing.weights,
             max_concurrency: runtime.max_concurrency,
             event_capacity: runtime.event_capacity,
