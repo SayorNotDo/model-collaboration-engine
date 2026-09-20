@@ -1,5 +1,7 @@
 //! Effective execution configuration; shared validation for file and component callers.
 use super::{profiles, Endpoint, EngineError, RankingConfig, Result, RoutingProfiles};
+use crate::assessment::{ExecutionClass, RuleSet};
+use crate::decision::DecisionConfig;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeSet;
 
@@ -25,6 +27,8 @@ pub struct Model {
     pub reliability: f64,
     pub latency_ms: u64,
     pub uncertainty: f64,
+    #[serde(default)]
+    pub execution_class: ExecutionClass,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -52,6 +56,10 @@ pub struct Config {
     /// Optional external sorting reference, never a business quality probability.
     #[serde(default)]
     pub rankings: Option<RankingConfig>,
+    #[serde(default)]
+    pub assessment_rules: Option<RuleSet>,
+    #[serde(default)]
+    pub decision: Option<DecisionConfig>,
     pub weights: Weights,
     pub max_concurrency: usize,
     pub event_capacity: usize,
@@ -104,6 +112,9 @@ impl Config {
         if let Some(rankings) = &self.rankings {
             rankings.validate(self)?;
         }
+        if let Some(decision) = &self.decision {
+            decision.validate()?;
+        }
         Ok(())
     }
 }
@@ -150,6 +161,12 @@ impl Model {
             return Err(bad(
                 "phase one supports text, tools and json capabilities only",
             ));
+        }
+        if !matches!(
+            m.execution_class,
+            ExecutionClass::Simple | ExecutionClass::Medium | ExecutionClass::Hard
+        ) {
+            return Err(bad("invalid model execution class"));
         }
         Ok(())
     }

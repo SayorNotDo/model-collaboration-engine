@@ -1,0 +1,110 @@
+version: "0.1.0"
+levels:
+  required: Must be satisfied when applicable or documented as an exception.
+  recommended: Expected by default; tradeoffs may justify deviation.
+rules:
+  - id: ENG-001
+    title: Control complexity
+    level: required
+    rule: Keep control flow, state, and dependencies simple enough to reason about locally.
+    rationale: Complexity multiplies defects and makes later change expensive.
+    review: Look for deep nesting, intertwined states, hidden coupling, and functions with multiple reasons to change.
+    enforcement: Refactor into cohesive units; use lint complexity limits when the project already supports them.
+  - id: ENG-002
+    title: One clear responsibility
+    level: required
+    rule: Give each module, type, and function one coherent responsibility at its chosen abstraction level.
+    rationale: Cohesion localizes change and makes ownership legible.
+    review: Ask whether the unit can be named without “and” and whether unrelated callers force it to change.
+    enforcement: Split mixed responsibilities while preserving useful encapsulation; avoid fragmentation into trivial wrappers.
+  - id: ENG-003
+    title: Explicit boundaries
+    level: required
+    rule: Make boundaries between domain logic, I/O, infrastructure, and presentation explicit.
+    rationale: Explicit seams contain volatility and enable focused testing.
+    review: Trace data and failures across layers; flag domain decisions embedded in transport or persistence code.
+    enforcement: Introduce the smallest interface or module seam that isolates the boundary.
+  - id: ENG-004
+    title: Intent-revealing names
+    level: required
+    rule: Name concepts by domain intent and observable behavior, using the repository's vocabulary consistently.
+    rationale: Names are the primary interface for human comprehension.
+    review: Flag vague, misleading, encoded, or synonym-heavy names and unexplained abbreviations.
+    enforcement: Rename at the narrowest safe scope and update tests and interface documentation.
+  - id: ENG-005
+    title: Validate at trust boundaries
+    level: required
+    rule: Validate and normalize untrusted or external input once at the boundary before domain use.
+    rationale: Boundary validation prevents invalid states from spreading through the system.
+    review: Identify every external entry point and verify type, range, shape, authorization, and normalization as applicable.
+    enforcement: Use typed parsers or explicit checks and test malformed, missing, and boundary values.
+  - id: ENG-006
+    title: Preserve invariants
+    level: required
+    rule: Represent domain invariants so invalid states are rejected or cannot be constructed.
+    rationale: Central invariants reduce defensive checks and inconsistent behavior.
+    review: Look for duplicated validity checks and objects that remain partially initialized.
+    enforcement: Centralize construction and mutation paths; test invariant preservation.
+  - id: ENG-007
+    title: Fail explicitly
+    level: required
+    rule: Use actionable errors, preserve causal context, and avoid silently converting failures into success-like values.
+    rationale: Explicit failure semantics improve recovery and diagnosis.
+    review: Inspect catch blocks, default fallbacks, retries, error mapping, and user-visible messages.
+    enforcement: Return or raise typed or contextual errors and test expected failure paths.
+  - id: ENG-008
+    title: Minimize mutable state
+    level: recommended
+    rule: Keep state ownership narrow and mutation visible; prefer immutable values where practical.
+    rationale: Shared mutable state creates temporal coupling and nondeterminism.
+    review: Identify aliases, global state, mutation across layers, and order-dependent behavior.
+    enforcement: Limit mutation scopes, copy at boundaries when needed, and make transitions explicit.
+  - id: ENG-009
+    title: Design narrow interfaces
+    level: required
+    rule: Expose the smallest stable interface that supports callers without leaking implementation details.
+    rationale: Narrow interfaces reduce coupling and preserve freedom to change internals.
+    review: Check public surface area, parameter groups, return shapes, and knowledge callers need about internals.
+    enforcement: Hide incidental details and consolidate cohesive parameters without speculative abstraction.
+  - id: ENG-010
+    title: Avoid duplication of knowledge
+    level: recommended
+    rule: Keep each business rule and nontrivial decision in one authoritative place.
+    rationale: Duplicated knowledge drifts even when duplicated syntax looks harmless.
+    review: Search for repeated constants, conditions, transformations, and policy decisions.
+    enforcement: Extract the shared concept only when repetitions encode the same knowledge.
+  - id: ENG-011
+    title: Keep abstraction levels coherent
+    level: recommended
+    rule: Keep each routine and module at a consistent abstraction level.
+    rationale: Mixing orchestration with low-level mechanics obscures intent.
+    review: Look for high-level policy interleaved with parsing, formatting, protocol, or storage details.
+    enforcement: Move mechanics behind intention-revealing operations when that makes the main path readable.
+  - id: ENG-012
+    title: Make side effects visible
+    level: required
+    rule: Make I/O, persistence, network calls, time, randomness, and external mutation visible at boundaries.
+    rationale: Visible effects make behavior predictable and tests deterministic.
+    review: Trace hidden effects in constructors, getters, helpers, and callbacks.
+    enforcement: Inject or pass effectful collaborators and isolate pure decisions where useful.
+  - id: ENG-013
+    title: Test behavior and risks
+    level: required
+    rule: Test observable behavior, important boundaries, and credible failure modes in proportion to change risk.
+    rationale: Risk-focused tests protect contracts without coupling to implementation details.
+    review: Map each changed behavior and risk to evidence; flag tests that only mirror internals.
+    enforcement: Add the smallest deterministic tests that would fail for the relevant regression.
+  - id: ENG-014
+    title: Control dependencies
+    level: recommended
+    rule: Add or expand dependencies only when maintained value exceeds integration and lifecycle cost.
+    rationale: Every dependency adds security, upgrade, compatibility, and operational burden.
+    review: Check whether existing platform or project capabilities suffice and whether versions are constrained consistently.
+    enforcement: Prefer existing or standard-library capability for small needs; document material additions.
+  - id: ENG-015
+    title: Keep changes focused
+    level: required
+    rule: Limit a change to requested behavior and supporting work necessary to make it safe and maintainable.
+    rationale: Focused diffs reduce review load, regression risk, and merge conflict probability.
+    review: Classify every changed file as behavior, test, necessary refactor, or unrelated.
+    enforcement: Remove unrelated cleanup from the change and record worthwhile follow-up separately.

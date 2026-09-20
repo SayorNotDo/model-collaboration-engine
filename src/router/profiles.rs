@@ -1,5 +1,6 @@
 //! Pure resolution and serializable, fixed per-submission routing inputs.
 use super::rankings::{self, ResolvedRanking};
+use crate::assessment::ExecutionClass;
 use crate::contracts::{
     digest, Config, EffectivePlan, FeedbackKind, MetricsSnapshot, Model, QualityProfile,
     RankingConfig, RoleProfile, RoutingProfiles, SelectionPolicy, TaskType, Weights,
@@ -56,6 +57,8 @@ pub struct RoutingSnapshot {
     pub captured_at_ms: u64,
     pub models: Vec<Model>,
     pub nodes: BTreeMap<String, NodeProfile>,
+    #[serde(default)]
+    pub minimum_execution_class: ExecutionClass,
 }
 
 impl RoutingSnapshot {
@@ -143,6 +146,12 @@ impl RoutingSnapshot {
             captured_at_ms: at_ms,
             models: config.models.clone(),
             nodes,
+            minimum_execution_class: plan
+                .assessment
+                .as_ref()
+                .map_or(ExecutionClass::Simple, |assessment| {
+                    assessment.execution_class
+                }),
         }
     }
 }

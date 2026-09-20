@@ -103,5 +103,6 @@ pub(crate) fn validate_plan(
         proposal_id: proposal.map(|(id, _)| id.into()),
         validator_version: "1".into(),
         routing_profile_version: "global-prior-v1".into(),
+        assessment: None,
     })
 }

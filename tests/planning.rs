@@ -1,9 +1,36 @@
 #[path = "planning/support.rs"]
 mod support;
-use model_collaboration_engine::{contracts::*, store::Store};
+use async_trait::async_trait;
+use model_collaboration_engine::{
+    assessment::{AssessmentRule, ExecutionClass, RuleOperator, RuleSet, TaskFactValue, TaskFacts},
+    contracts::*,
+    decision::{
+        DecisionAssessment, DecisionConfig, DecisionModel, DecisionPolicy, DecisionPolicyRule,
+        DecisionQuestion, DecisionQuestionKind, DecisionSignal, DecisionValue,
+    },
+    engine::Engine,
+    store::Store,
+};
 use serde_json::{json, Value};
+use std::collections::BTreeMap;
+use std::sync::Arc;
 use support::*;
 use tokio_util::sync::CancellationToken;
+
+struct DecisionFake {
+    assessment: DecisionAssessment,
+}
+
+#[async_trait]
+impl DecisionModel for DecisionFake {
+    async fn assess(
+        &self,
+        request: model_collaboration_engine::decision::DecisionRequest,
+    ) -> Result<DecisionAssessment> {
+        self.assessment.validate_for(&request)?;
+        Ok(self.assessment.clone())
+    }
+}
 
 #[tokio::test]
 async fn planning_and_execution_share_accounting_and_preserve_host_acceptance() {
@@ -60,6 +87,126 @@ async fn planning_and_execution_share_accounting_and_preserve_host_acceptance() 
         ]
     );
     f.engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn schema_three_facts_freeze_the_assessed_execution_class() {
+    let f = setup(vec![response("{}", true)], |config| {
+        for model in &mut config.models {
+            model.execution_class = ExecutionClass::Hard;
+        }
+        config.assessment_rules = Some(RuleSet {
+            version: "coding-demand-v1".into(),
+            rules: vec![AssessmentRule {
+                id: "many-files".into(),
+                fact: "file_count".into(),
+                op: RuleOperator::Gt,
+                value: TaskFactValue::Integer(5),
+                minimum_execution_class: ExecutionClass::Hard,
+            }],
+        });
+    })
+    .await;
+    let mut sub = submission();
+    sub.schema_version = 3;
+    sub.strategy = Some(Strategy::Single);
+    sub.task_type = Some(TaskType::Writing);
+    sub.task_facts = Some(TaskFacts {
+        version: "coding-facts-v1".into(),
+        values: [("file_count".into(), TaskFactValue::Integer(7))]
+            .into_iter()
+            .collect(),
+    });
+    let result = f
+        .engine
+        .run(sub.clone(), CancellationToken::new())
+        .await
+        .unwrap();
+    let (_, plan, _, _) = saved(&f, &sub.task_id);
+    assert_eq!(
+        plan["effective_plan"]["assessment"]["execution_class"],
+        "hard"
+    );
+    assert_eq!(plan["routing_snapshot"]["minimum_execution_class"], "hard");
+    assert_eq!(result.status, "completed");
+    f.engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn decision_model_uses_shared_call_budget_and_persists_evidence() {
+    let f = setup(vec![response("{}", true)], |config| {
+        for model in &mut config.models {
+            model.execution_class = ExecutionClass::Hard;
+        }
+    })
+    .await;
+    let mut config = f.config.clone();
+    config.decision = Some(DecisionConfig {
+        question_set_version: "demand-v1".into(),
+        questions: vec![DecisionQuestion {
+            id: "reasoning_need".into(),
+            kind: DecisionQuestionKind::Choice {
+                options: vec!["direct".into(), "multi_step".into()],
+            },
+        }],
+        policy: DecisionPolicy {
+            version: "demand-policy-v1".into(),
+            rules: vec![DecisionPolicyRule {
+                question_id: "reasoning_need".into(),
+                outcome: "multi_step".into(),
+                minimum_probability: 0.75,
+                execution_class: ExecutionClass::Hard,
+                needs_clarification: false,
+            }],
+        },
+        max_cost: 5,
+    });
+    let decision = Arc::new(DecisionFake {
+        assessment: DecisionAssessment {
+            question_set_version: "demand-v1".into(),
+            adapter_id: "fake-decision-v1".into(),
+            actual_model: "fake-model-v1".into(),
+            signals: vec![DecisionSignal {
+                question_id: "reasoning_need".into(),
+                value: DecisionValue::Choice("multi_step".into()),
+                probabilities: BTreeMap::from([("direct".into(), 0.2), ("multi_step".into(), 0.8)]),
+                confidence: Some(0.9),
+            }],
+            actual_cost: Some(5),
+        },
+    });
+    let engine = Engine::with_components_and_decision(
+        config,
+        f.store.clone(),
+        f.fake.clone(),
+        Some(decision),
+    )
+    .unwrap();
+    let mut sub = submission();
+    sub.schema_version = 3;
+    sub.strategy = Some(Strategy::Single);
+    sub.task_type = Some(TaskType::Writing);
+    sub.task_facts = Some(TaskFacts {
+        version: "coding-facts-v1".into(),
+        values: BTreeMap::new(),
+    });
+    let result = engine
+        .run(sub.clone(), CancellationToken::new())
+        .await
+        .unwrap();
+    let plan = saved(&f, &sub.task_id).1;
+    assert_eq!(
+        plan["effective_plan"]["assessment"]["decision"]["adapter_id"],
+        "fake-decision-v1"
+    );
+    assert_eq!(
+        plan["effective_plan"]["assessment"]["execution_class"],
+        "hard"
+    );
+    assert_eq!(f.store.ledger(&sub.task_id).await.unwrap().calls, 2);
+    assert_eq!(f.store.ledger(&sub.task_id).await.unwrap().settled, 20);
+    assert_eq!(result.status, "completed");
+    engine.close().await.unwrap();
 }
 
 #[tokio::test]

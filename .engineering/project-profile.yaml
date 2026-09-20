@@ -1,0 +1,18 @@
+standard:
+  version: "0.2.0"
+  strictness: "balanced"
+project:
+  languages: ["python", "rust"]
+  frameworks: []
+  architecture:
+    style: "unknown"
+    source_roots: ["src"]
+    test_roots: ["tests"]
+quality:
+  formatter: [{"name": "rustfmt", "command": "cargo fmt --check", "verification": "inspect", "scope": "rust"}]
+  linter: [{"name": "ruff", "command": "python -m ruff check .", "verification": "inspect", "scope": "python"}, {"name": "clippy", "command": "cargo clippy --all-targets", "verification": "inspect", "scope": "rust"}]
+  typecheck: [{"name": "cargo-check", "command": "cargo check --all-targets", "verification": "inspect", "scope": "rust"}]
+  test_runner: [{"name": "pytest", "command": "python -m pytest", "verification": "inspect", "scope": "python"}, {"name": "cargo-test", "command": "cargo test", "verification": "inspect", "scope": "rust"}]
+agent:
+  target: "codex"
+  instructions: []

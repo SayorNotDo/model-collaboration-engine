@@ -1,0 +1,4 @@
+interface:
+  display_name: "Engineering Standard"
+  short_description: "Apply project-aware engineering quality constraints"
+  default_prompt: "Use $engineering-standard to implement this change under the repository's engineering constraints."
