@@ -43,4 +43,4 @@
 
 新增 CI 定义覆盖 Linux/Windows 的 Rust、Python 与 Ruff，手动发布准备工作流构建 wheel/sdist。新增 MIT LICENSE。操作与未发布边界见[发布准备](../releasing.md)。工作流文件存在不代表 GitHub 已运行或软件包已发布。
 
-下一项优先实现已调整为[混合任务评估与运行时升级](hybrid-task-assessment-design.md)：由确定性规则处理宿主事实，受限 planner 判断模糊度与推理需求，现有执行循环依据实际评价有界升级。随后实施[供应商可核账费用证据](supplier-billing-evidence-design.md)，再进行自然难度任务的策略收益评测、指标查询规模优化和关闭图布局验收。自动恢复、重放和正式版本迁移属于独立设计任务。
+下一项优先实现已调整为[混合任务评估与运行时升级](hybrid-task-assessment-design.md)：由确定性规则处理宿主事实，供应商无关的类型化决策协议承载模糊度与推理需求信号，可选 planner 生成计划补充，现有执行循环依据实际评价有界升级。Jev 只作为未开源托管 adapter 候选，先执行 [shadow 调研与评测](../research/jev-like-model.md)，不阻塞规则、契约和 fake adapter 的实现。随后实施[供应商可核账费用证据](supplier-billing-evidence-design.md)，再进行自然难度任务的策略收益评测、指标查询规模优化和关闭图布局验收。自动恢复、重放和正式版本迁移属于独立设计任务。
