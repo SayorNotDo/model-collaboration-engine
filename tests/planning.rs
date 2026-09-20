@@ -1,6 +1,10 @@
 #[path = "planning/support.rs"]
 mod support;
-use model_collaboration_engine::{contracts::*, store::Store};
+use model_collaboration_engine::{
+    assessment::{AssessmentRule, ExecutionClass, RuleOperator, RuleSet, TaskFactValue, TaskFacts},
+    contracts::*,
+    store::Store,
+};
 use serde_json::{json, Value};
 use support::*;
 use tokio_util::sync::CancellationToken;
@@ -59,6 +63,49 @@ async fn planning_and_execution_share_accounting_and_preserve_host_acceptance() 
             "plan_validated"
         ]
     );
+    f.engine.close().await.unwrap();
+}
+
+#[tokio::test]
+async fn schema_three_facts_freeze_the_assessed_execution_class() {
+    let f = setup(vec![response("{}", true)], |config| {
+        for model in &mut config.models {
+            model.execution_class = ExecutionClass::Hard;
+        }
+        config.assessment_rules = Some(RuleSet {
+            version: "coding-demand-v1".into(),
+            rules: vec![AssessmentRule {
+                id: "many-files".into(),
+                fact: "file_count".into(),
+                op: RuleOperator::Gt,
+                value: TaskFactValue::Integer(5),
+                minimum_execution_class: ExecutionClass::Hard,
+            }],
+        });
+    })
+    .await;
+    let mut sub = submission();
+    sub.schema_version = 3;
+    sub.strategy = Some(Strategy::Single);
+    sub.task_type = Some(TaskType::Writing);
+    sub.task_facts = Some(TaskFacts {
+        version: "coding-facts-v1".into(),
+        values: [("file_count".into(), TaskFactValue::Integer(7))]
+            .into_iter()
+            .collect(),
+    });
+    let result = f
+        .engine
+        .run(sub.clone(), CancellationToken::new())
+        .await
+        .unwrap();
+    let (_, plan, _, _) = saved(&f, &sub.task_id);
+    assert_eq!(
+        plan["effective_plan"]["assessment"]["execution_class"],
+        "hard"
+    );
+    assert_eq!(plan["routing_snapshot"]["minimum_execution_class"], "hard");
+    assert_eq!(result.status, "completed");
     f.engine.close().await.unwrap();
 }
 

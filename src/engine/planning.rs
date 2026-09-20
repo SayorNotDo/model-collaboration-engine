@@ -2,6 +2,7 @@
 mod attempt;
 use super::{Engine, RunContext};
 use crate::{
+    assessment::{evaluate_rules, merge_assessment, TaskAssessment, TaskFacts},
     contracts::{now_ms, EffectivePlan, EngineError, Result, SubmissionSpec, TaskSpec},
     planning::validate_plan,
     router::RoutingSnapshot,
@@ -28,6 +29,7 @@ impl Engine {
         effective_task
             .validate(&self.config)
             .map_err(|error| EngineError::new("plan_validation", error.message))?;
+        plan.assessment = Some(build_assessment(submission, &self.config, &plan)?);
         let metrics = self.store.metrics().await?;
         let routing =
             RoutingSnapshot::capture_with_metrics(&self.config, &mut plan, now_ms(), &metrics);
@@ -159,4 +161,28 @@ impl Engine {
             }
         }
     }
+}
+
+fn build_assessment(
+    submission: &SubmissionSpec,
+    config: &crate::contracts::Config,
+    _plan: &crate::contracts::EffectivePlan,
+) -> Result<TaskAssessment> {
+    let facts = submission.task_facts.clone().unwrap_or(TaskFacts {
+        version: "host-facts-absent-v1".into(),
+        values: Default::default(),
+    });
+    let rules = config
+        .assessment_rules
+        .clone()
+        .unwrap_or(crate::assessment::RuleSet {
+            version: "empty-v1".into(),
+            rules: vec![],
+        });
+    let rules = evaluate_rules(&facts, &rules)?;
+    Ok(merge_assessment(
+        submission.minimum_execution_class,
+        &rules,
+        None,
+    ))
 }

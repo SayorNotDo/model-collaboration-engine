@@ -1,6 +1,9 @@
 //! File-schema ownership and provider-to-model resolution; execution uses contracts::Config.
 use super::error;
-use crate::contracts::{Config, Endpoint, Model, RankingConfig, Result, RoutingProfiles, Weights};
+use crate::{
+    assessment::ExecutionClass,
+    contracts::{Config, Endpoint, Model, RankingConfig, Result, RoutingProfiles, Weights},
+};
 use serde::Deserialize;
 use std::{collections::BTreeSet, path::Path};
 
@@ -63,6 +66,8 @@ struct ModelDefinition {
     reliability: f64,
     latency_ms: u64,
     uncertainty: f64,
+    #[serde(default)]
+    execution_class: ExecutionClass,
 }
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -73,6 +78,8 @@ struct Routing {
     profiles: Option<RoutingProfiles>,
     #[serde(default)]
     rankings: Option<RankingConfig>,
+    #[serde(default)]
+    assessment_rules: Option<crate::assessment::RuleSet>,
     weights: Weights,
 }
 #[derive(Deserialize)]
@@ -182,6 +189,7 @@ impl Document {
             planner_models: self.routing.planner_models,
             routing_profiles: self.routing.profiles,
             rankings: self.routing.rankings,
+            assessment_rules: self.routing.assessment_rules,
             weights: self.routing.weights,
             max_concurrency: runtime.max_concurrency,
             event_capacity: runtime.event_capacity,
@@ -244,6 +252,7 @@ fn resolve_models(
             reliability: definition.reliability,
             latency_ms: definition.latency_ms,
             uncertainty: definition.uncertainty,
+            execution_class: definition.execution_class,
         };
         model.validate().map_err(|failure| {
             error(

@@ -3,6 +3,7 @@ use super::{
     Acceptance, Config, Constraints, EngineError, Evidence, Result, SelectionPolicy, Strategy,
     TaskSpec, ToolSpec,
 };
+use crate::assessment::{ExecutionClass, TaskAssessment, TaskFacts};
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -51,6 +52,12 @@ fn one_call() -> u32 {
 fn schema_two() -> u32 {
     2
 }
+fn simple_class() -> ExecutionClass {
+    ExecutionClass::Simple
+}
+fn is_simple_class(class: &ExecutionClass) -> bool {
+    *class == ExecutionClass::Simple
+}
 
 impl Default for PlanningConfig {
     fn default() -> Self {
@@ -89,6 +96,10 @@ pub struct SubmissionSpec {
     pub max_call_cost: u64,
     pub finalization_ms: u64,
     pub tools: Vec<ToolSpec>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub task_facts: Option<TaskFacts>,
+    #[serde(default = "simple_class", skip_serializing_if = "is_simple_class")]
+    pub minimum_execution_class: ExecutionClass,
     #[serde(default)]
     pub planning: PlanningConfig,
 }
@@ -115,6 +126,8 @@ impl From<TaskSpec> for SubmissionSpec {
             max_call_cost: task.max_call_cost,
             finalization_ms: task.finalization_ms,
             tools: task.tools,
+            task_facts: None,
+            minimum_execution_class: ExecutionClass::Simple,
             planning: PlanningConfig::default(),
         }
     }
@@ -124,18 +137,22 @@ impl SubmissionSpec {
     /// Validate schema two before admission; planning remains limited to one attempt.
     pub fn validate(&self, config: &Config) -> Result<()> {
         let p = &self.planning;
-        if self.schema_version != 2
+        if !matches!(self.schema_version, 2 | 3)
             || self.selection.is_none()
             || p.max_calls != 1
             || p.max_cost > i64::MAX as u64
             || p.timeout_ms == 0
             || p.timeout_ms > 86_400_000
             || (p.mode == PlanningMode::Disabled && self.strategy.is_none())
+            || (self.schema_version == 3 && self.task_facts.is_none())
         {
             return Err(EngineError::new(
                 "configuration",
                 "invalid submission version, planning bounds or disabled strategy",
             ));
+        }
+        if let Some(facts) = &self.task_facts {
+            facts.validate()?;
         }
         if serde_json::to_vec(self)
             .expect("serializable submission")
@@ -231,6 +248,8 @@ pub struct EffectivePlan {
     pub proposal_id: Option<String>,
     pub validator_version: String,
     pub routing_profile_version: String,
+    #[serde(default)]
+    pub assessment: Option<TaskAssessment>,
 }
 
 impl EffectivePlan {

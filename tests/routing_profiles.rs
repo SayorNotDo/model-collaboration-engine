@@ -3,8 +3,11 @@ mod routing;
 #[path = "planning/support.rs"]
 mod support;
 use model_collaboration_engine::{
+    assessment::ExecutionClass,
     contracts::*,
-    router::{self, FallbackTier, RouteRequest, RoutingSnapshot},
+    router::{
+        self, route_profiled_with_minimum_class, FallbackTier, RouteRequest, RoutingSnapshot,
+    },
 };
 use routing::{choose, config, plan, profile, profiles, snapshot, task};
 use serde_json::{json, Value};
@@ -171,6 +174,31 @@ fn hard_constraints_still_exclude_the_highest_quality_model() {
     let d = choose(&snapshot(&c, TaskType::Writing), &task(), 0.0);
     assert_eq!(d.model_id, "other");
     assert!(d.excluded["local"].contains(&"local_only".into()));
+}
+
+#[test]
+fn minimum_execution_class_filters_lower_class_candidates() {
+    let mut c = config();
+    c.models[0].execution_class = ExecutionClass::Medium;
+    c.models[1].execution_class = ExecutionClass::Simple;
+    let s = snapshot(&c, TaskType::Writing);
+    let task = task();
+    let decision = route_profiled_with_minimum_class(
+        &s,
+        RouteRequest {
+            task: &task,
+            node: "invoke",
+            input_tokens: 100,
+            available: 100_000,
+            excluded: &BTreeSet::new(),
+            quality_floor: 0.0,
+            health: &BTreeMap::new(),
+        },
+        ExecutionClass::Medium,
+    )
+    .unwrap();
+    assert_eq!(decision.model_id, "local");
+    assert_eq!(decision.excluded["other"], vec!["execution_class"]);
 }
 
 #[test]

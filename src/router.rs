@@ -1,3 +1,4 @@
+use crate::assessment::ExecutionClass;
 use crate::contracts::*;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -55,12 +56,23 @@ pub fn route(config: &Config, r: RouteRequest<'_>) -> Result<RoutingDecision> {
         None,
         false,
         now_ms(),
+        ExecutionClass::Simple,
     )
 }
 
 /// Re-evaluate a stored snapshot and recorded RouteRequest without refreshing profiles.
 /// Decision IDs are new audit identities; selection, score and evidence are reproducible.
 pub fn route_profiled(snapshot: &RoutingSnapshot, r: RouteRequest<'_>) -> Result<RoutingDecision> {
+    route_profiled_with_minimum_class(snapshot, r, snapshot.minimum_execution_class)
+}
+
+/// Re-route a frozen snapshot while requiring a host- or assessment-selected class.
+/// The legacy entry point keeps the original simple-class behavior.
+pub fn route_profiled_with_minimum_class(
+    snapshot: &RoutingSnapshot,
+    r: RouteRequest<'_>,
+    minimum_execution_class: ExecutionClass,
+) -> Result<RoutingDecision> {
     if !matches!(snapshot.schema_version, 1..=4) {
         return Err(EngineError::new(
             "routing",
@@ -89,9 +101,11 @@ pub fn route_profiled(snapshot: &RoutingSnapshot, r: RouteRequest<'_>) -> Result
         task_fit.then_some(snapshot.selection.as_ref()).flatten(),
         snapshot.schema_version >= 4,
         snapshot.captured_at_ms,
+        minimum_execution_class,
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn route_inner(
     models: &[Model],
     weights: &Weights,
@@ -100,6 +114,7 @@ fn route_inner(
     selection_policy: Option<&SelectionPolicy>,
     task_fit_algorithm: bool,
     at_ms: u64,
+    minimum_execution_class: ExecutionClass,
 ) -> Result<RoutingDecision> {
     let mut rejected = BTreeMap::new();
     let mut candidates = vec![];
@@ -127,6 +142,9 @@ fn route_inner(
         let acceptance = resolved.map(|p| p.quality).unwrap_or(m.acceptance);
         let mut reasons = vec![];
         let c = &r.task.constraints;
+        if model_execution_class(m) < minimum_execution_class {
+            reasons.push("execution_class".into());
+        }
         let cost = r
             .input_tokens
             .saturating_mul(m.input_price)
@@ -278,4 +296,8 @@ fn route_inner(
     })?;
     chosen.excluded = rejected;
     Ok(chosen)
+}
+
+fn model_execution_class(model: &Model) -> ExecutionClass {
+    model.execution_class
 }

@@ -1,0 +1,18 @@
+standard:
+  version: "0.2.0"
+  strictness: balanced
+project:
+  languages: []
+  frameworks: []
+  architecture:
+    style: unknown
+    source_roots: []
+    test_roots: []
+quality:
+  formatter: []
+  linter: []
+  typecheck: []
+  test_runner: []
+agent:
+  target: codex
+  instructions: []

@@ -1,0 +1,54 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: Engineering Standard Project Profile
+type: object
+additionalProperties: false
+required: [standard, project, quality, agent]
+properties:
+  standard:
+    type: object
+    additionalProperties: false
+    required: [version, strictness]
+    properties:
+      version: {const: "0.2.0"}
+      strictness: {enum: [strict, balanced, pragmatic]}
+  project:
+    type: object
+    additionalProperties: false
+    required: [languages, frameworks, architecture]
+    properties:
+      languages: {type: array, uniqueItems: true, items: {type: string}}
+      frameworks: {type: array, uniqueItems: true, items: {type: string}}
+      architecture:
+        type: object
+        additionalProperties: false
+        required: [style, source_roots, test_roots]
+        properties:
+          style: {type: string}
+          source_roots: {type: array, items: {type: string}}
+          test_roots: {type: array, items: {type: string}}
+  quality:
+    type: object
+    additionalProperties: false
+    required: [formatter, linter, typecheck, test_runner]
+    properties:
+      formatter: {type: array, items: {$ref: "#/$defs/tool"}}
+      linter: {type: array, items: {$ref: "#/$defs/tool"}}
+      typecheck: {type: array, items: {$ref: "#/$defs/tool"}}
+      test_runner: {type: array, items: {$ref: "#/$defs/tool"}}
+  agent:
+    type: object
+    additionalProperties: false
+    required: [target]
+    properties:
+      target: {enum: [codex, claude-code, cursor, generic]}
+      instructions: {type: array, items: {type: string}}
+$defs:
+  tool:
+    type: object
+    additionalProperties: false
+    required: [name, command, scope, verification]
+    properties:
+      name: {type: string, minLength: 1}
+      command: {type: [string, "null"]}
+      scope: {type: string, minLength: 1}
+      verification: {const: inspect}

@@ -1,5 +1,6 @@
 //! Model collaboration without owning the host's event loop or tool permissions.
 pub mod adapter;
+pub mod assessment;
 #[cfg(feature = "python")]
 mod bindings;
 pub mod configuration;
